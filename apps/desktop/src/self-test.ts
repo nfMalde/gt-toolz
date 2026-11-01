@@ -46,18 +46,24 @@ interface SelfTestOptions {
   sessionsDir: string;
 }
 
-/** Runs the checks once the window has loaded, writes the result and quits. Gives up after 90 s. */
+/**
+ * Under Rosetta 2 the first start of the Intel build translates the whole app: on a CI Mac about two minutes before
+ * the window answers. The installer test says so (GTT_SELF_TEST_SLOW=1), and every wait is five times as long.
+ */
+const SLOW = process.env.GTT_SELF_TEST_SLOW === '1' ? 5 : 1;
+
+/** Runs the checks once the window has loaded, writes the result and quits. Gives up after 90 s (slow: 450 s). */
 export async function runSelfTest(options: SelfTestOptions): Promise<void> {
   const checks: SelfTestResult['checks'] = [];
   const check = async (name: string, test: () => Promise<string> | string) => {
     try {
-      checks.push({ name, ok: true, detail: await withTimeout(Promise.resolve().then(test), 30_000) });
+      checks.push({ name, ok: true, detail: await withTimeout(Promise.resolve().then(test), 30_000 * SLOW) });
     } catch (error) {
       checks.push({ name, ok: false, detail: error instanceof Error ? error.message : String(error) });
     }
   };
   const page = (script: string) => options.window.webContents.executeJavaScript(script) as Promise<unknown>;
-  const giveUp = setTimeout(() => void finish(options, checks, 'timed out after 90 s'), 90_000);
+  const giveUp = setTimeout(() => void finish(options, checks, `timed out after ${90 * SLOW} s`), 90_000 * SLOW);
 
   await check('packaged', () => {
     if (PORTABLE) return 'portable app folder';
@@ -78,7 +84,7 @@ export async function runSelfTest(options: SelfTestOptions): Promise<void> {
   await check('window', async () => {
     if (options.window.webContents.isLoading()) await new Promise<void>((resolve) => options.window.webContents.once('did-finish-load', () => resolve()));
     // Angular renders into <gtt-root> once it has started.
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 60 * SLOW; i++) {
       if (Number(await page(`document.querySelector('gtt-root')?.childElementCount ?? 0`)) > 0) return options.window.webContents.getURL();
       await new Promise((resolve) => setTimeout(resolve, 250));
     }

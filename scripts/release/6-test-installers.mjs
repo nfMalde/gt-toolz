@@ -131,7 +131,8 @@ async function testMac(dmg) {
     }
     info(`signature ad-hoc, ${APP_ID}, usage texts for microphone and local network present`);
     checkFuses(path.join(app, 'Contents', 'Frameworks', 'Electron Framework.framework', 'Electron Framework'));
-    await selfTest(`mac-${arch}`, [...prefix, path.join(app, 'Contents', 'MacOS', PRODUCT_NAME)]);
+    // Under Rosetta 2 the first start translates the whole app first (two minutes on a CI Mac): the self-test waits longer.
+    await selfTest(`mac-${arch}`, [...prefix, path.join(app, 'Contents', 'MacOS', PRODUCT_NAME)], { slow: prefix.length > 0 });
   } finally {
     fs.rmSync(work, { recursive: true, force: true });
   }
@@ -159,9 +160,10 @@ function checkFuses(binary) {
 
 /**
  * Starts the installed app with --self-test and prints its checks. fuseProbe: set ELECTRON_RUN_AS_NODE and
- * NODE_OPTIONS, which an installed app must ignore; off for Electron from npm, whose fuses are not set.
+ * NODE_OPTIONS, which an installed app must ignore; off for Electron from npm, whose fuses are not set. slow: every
+ * wait five times as long (GTT_SELF_TEST_SLOW, apps/desktop/src/self-test.ts), for the Intel build under Rosetta 2.
  */
-export async function selfTest(label, command, { fuseProbe = true } = {}) {
+export async function selfTest(label, command, { fuseProbe = true, slow = false } = {}) {
   fs.mkdirSync(TEST_OUT, { recursive: true });
   const resultFile = path.join(TEST_OUT, `${label}.json`);
   fs.rmSync(resultFile, { force: true });
@@ -173,10 +175,11 @@ export async function selfTest(label, command, { fuseProbe = true } = {}) {
     env.ELECTRON_RUN_AS_NODE = '1';
     env.NODE_OPTIONS = '--require=/gt-toolz-fuse-probe-must-not-load';
   }
+  if (slow) env.GTT_SELF_TEST_SLOW = '1';
   const display = process.platform === 'linux' && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY;
   const [program, ...rest] = display ? ['xvfb-run', '-a', ...command] : command;
   if (display && !(await hasProgram('xvfb-run'))) fail('no display and no xvfb-run (sudo apt-get install xvfb)');
-  const { code } = await run(program, [...rest, `--self-test=${resultFile}`], { env, timeout: 180_000, allowFail: true });
+  const { code } = await run(program, [...rest, `--self-test=${resultFile}`], { env, timeout: slow ? 600_000 : 180_000, allowFail: true });
   if (!fs.existsSync(resultFile)) fail(`the app wrote no self-test result (exit code ${code})`);
   const result = JSON.parse(fs.readFileSync(resultFile, 'utf8'));
   for (const c of result.checks) info(`${c.ok ? '✓' : '✗'} ${c.name}: ${c.detail}`);
