@@ -1,0 +1,86 @@
+<!-- Braking zones -->
+<section class="card">
+  <div class="card-header">
+    <div class="card-icon"><gtt-icon name="route" /></div>
+    <h2>{{ t('coach.cockpit.zones') }}</h2>
+    <span class="chip header-chip">{{ coach.zones().length }}</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ t('coach.zones.zone') }}</th>
+          <th>{{ t('coach.zones.brake') }}</th>
+          <th>{{ t('coach.zones.gears') }}</th>
+          <th>{{ t('coach.zones.apex') }}</th>
+          <th>{{ t('coach.zones.last') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (zone of coach.zones(); track zone.index) {
+          <tr [class.has-feedback]="zone.feedbackNumber">
+            <td>
+              <div class="zone-name">
+                <span class="zone-index num">{{ zone.index }}</span>
+                <div>
+                  <div class="zone-label">{{ zone.label }}</div>
+                  <div class="faint small">{{ shapeLabel(zone) }}</div>
+                </div>
+                @if (zone.feedbackNumber) {
+                  <span class="badge-number" title="Feedback">{{ zone.feedbackNumber }}</span>
+                }
+              </div>
+            </td>
+            <td class="nowrap">
+              <div class="force" [class.full]="zone.force === 'full'">{{ force(zone) }}</div>
+              <div class="faint small num">{{ zone.brakeSpeedKmh | number: '1.0-0' }} km/h</div>
+              @if (zone.trail; as trail) {
+                <div class="trail" [title]="t('coach.zones.trailHint', { percent: trail })">{{ t('coach.zones.trail', { percent: trail }) }}</div>
+              }
+            </td>
+            <td class="num gears nowrap">
+              {{ zone.brakeGear }}<span class="faint">→</span>{{ zone.entryGear }}@if (zone.midGear; as mid) {<span class="faint">→</span>{{ mid }}}<span class="faint">→</span>{{ zone.exitGear }}
+              @if (zone.curbIn || zone.curbOut) {
+                <div class="curbs" [title]="zone.curbInLevel || zone.curbOutLevel ? t('coach.zones.curbLevelHint') : ''">
+                  @if (zone.curbIn) {
+                    <span class="curb">{{ t('coach.zones.curbIn') }}@if (zone.curbInLevel; as level) { · {{ t(curbLevelKey(level)) }} }</span>
+                  }
+                  @if (zone.curbOut) {
+                    <span class="curb">{{ t('coach.zones.curbOut') }}@if (zone.curbOutLevel; as level) { · {{ t(curbLevelKey(level)) }} }</span>
+                  }
+                </div>
+              }
+            </td>
+            <td class="num nowrap">{{ zone.apexSpeedKmh | number: '1.0-0' }} km/h</td>
+            <td class="last-cell">
+              @if (zone.last; as last) {
+                <div class="last">
+                  <span class="loss num" [class.bad]="last.lossS > 0.1" [class.good]="last.lossS < -0.05">{{ loss(last.lossS) }}</span>
+                  <span class="problems small" [class.faint]="!last.problems">{{ last.problems || t('zones.clean') }}</span>
+                </div>
+                @if (last.metrics; as m) {
+                  <div class="metrics">
+                    @for (metric of metrics(m); track metric.label) {
+                      <span class="metric" [class.off]="metric.off"><span class="faint">{{ metric.label }}</span> {{ metric.value }}</span>
+                    }
+                  </div>
+                }
+                @if (!last.thisSession) {
+                  <div class="faint small">{{ t('coach.zones.earlier') }}</div>
+                }
+                @if (zone.help; as help) {
+                  <div class="help-step" [class.exhausted]="help.step === 'exhausted'" [title]="t('coach.zones.help.title')">
+                    <gtt-icon [name]="help.step === 'exhausted' ? 'alert' : 'heart'" [size]="12" />
+                    {{ t('coach.zones.help.times', { n: help.times }) }} · {{ t(helpStepKey(help.step)) }}
+                  </div>
+                }
+              } @else {
+                <span class="faint">–</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

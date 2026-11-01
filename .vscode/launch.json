@@ -1,0 +1,26 @@
+{
+  // Start "npm run dev" first; it opens the main process for debugging (9229) and the UI (9222).
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach: main process",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/desktop/dist/**/*.cjs"]
+    },
+    {
+      "name": "Attach: UI",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "webRoot": "${workspaceFolder}/apps/ui/src",
+      "sourceMaps": true
+    }
+  ],
+  "compounds": [
+    { "name": "Attach: main + UI", "configurations": ["Attach: main process", "Attach: UI"] }
+  ]
+}

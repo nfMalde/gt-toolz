@@ -1,0 +1,357 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/*
+ * Title bar: draggable; the native window buttons sit on the right (Windows, Linux) or the left (macOS), and the
+ * Window Controls Overlay says where: the bar keeps clear of them on either side.
+ */
+.titlebar {
+  height: var(--titlebar-height);
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  padding-left: calc(env(titlebar-area-x, 0px) + 16px);
+  padding-right: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, calc(100vw - 140px)) + 16px);
+  -webkit-app-region: drag;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  z-index: 20;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.brand .name {
+  color: var(--text);
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.brand .byline {
+  margin-left: -4px;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.alpha {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 6px;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+}
+
+.titlebar-end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}
+
+.streamer-toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-3);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.streamer-toggle:hover {
+  color: var(--text);
+}
+
+.streamer-toggle.on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+/* A newer version is there: opens the update window again (also after "Later"). */
+.update-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  margin-right: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.update-button:hover {
+  background: var(--accent);
+}
+
+.lang-switch {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.lang-switch button {
+  appearance: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 3px 9px;
+  background: transparent;
+  color: var(--text-3);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.lang-switch button:hover {
+  color: var(--text);
+}
+
+.lang-switch button.active {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  -webkit-app-region: no-drag;
+}
+
+.shell {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Navigation rail */
+.rail {
+  width: var(--rail-width);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 12px;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg) 100%);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/*
+ * The modules' pages and the shell's: may be more than the window is high (small laptop screens), then they scroll
+ * and the sound control stays at the bottom. Out to the rail's edge, so the active page's mark is not cut off.
+ */
+.rail-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 -12px;
+  padding: 0 12px;
+}
+
+.rail-scroll .nav > * {
+  flex-shrink: 0;
+}
+
+/* A module's name above its pages. */
+.nav-group {
+  margin: 10px 0 2px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.nav.secondary {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.nav-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 36px;
+  flex-shrink: 0;
+  padding: 0 12px;
+  border-radius: 11px;
+  color: var(--text-2);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-item .attention {
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warn);
+  box-shadow: 0 0 0 3px var(--warn-soft);
+}
+
+.nav-item .nav-badge {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--accent-gradient);
+  color: var(--on-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav-item:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent-gradient);
+}
+
+.nav-item.active gtt-icon {
+  color: var(--accent);
+}
+
+.rail-footer {
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sound { display: flex; flex-direction: column; gap: 6px; }
+.volume { padding: 0 6px 0 14px; }
+.volume gtt-slider { gap: 8px; }
+
+.mute {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ok);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mute-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.mute-text b {
+  color: var(--text);
+}
+
+.mute-text span {
+  color: var(--text-2);
+}
+
+.mute.muted {
+  color: #ff8aa0;
+  background: var(--danger-soft);
+  border-color: rgba(251, 72, 104, 0.35);
+}
+
+.mute.muted .mute-text span {
+  color: #ff8aa0;
+}
+
+.version {
+  padding-left: 14px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background:
+    radial-gradient(1200px 500px at 85% -10%, rgba(var(--accent-rgb), 0.07), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(194, 90, 24, 0.06), transparent 60%),
+    var(--bg);
+  /* Room below the last card for the link bar at the bottom right. */
+  padding-bottom: 44px;
+}
+
+.no-bridge {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 40px;
+}
+
+.no-bridge .card {
+  max-width: 460px;
+}

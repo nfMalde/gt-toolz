@@ -1,0 +1,39 @@
+/* Angular 22 defaults, plus strict mode, the shared IPC contract (@gtt/api, with the shell's part in @gt-toolz/core/api),
+   the shell for the modules (@shell), the modules' UI parts (@modules/<id>/ui, docs/dev/modules.md) and the contracts of
+   the modules that moved (@gt-toolz/<id>/api, the overlay view @gt-toolz/overlays/view, also drawn by OBS). */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "paths": {
+      "@gtt/api": ["../../packages/runtime/src/app-api.ts"],
+      "@gt-toolz/core/*": ["../../packages/core/src/*"],
+      "@gt-toolz/runtime/app-api": ["../../packages/runtime/src/app-api.ts"],
+      "@gt-toolz/telemetry-module/*": ["../../modules/telemetry/src/*"],
+      "@gt-toolz/crew/*": ["../../modules/crew/src/*"],
+      "@gt-toolz/haptics/*": ["../../modules/haptics/src/*"],
+      "@gt-toolz/overlays/*": ["../../modules/overlays/src/*"],
+      "@shell/*": ["./src/app/*"],
+      "@modules/*": ["../../modules/*"]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }]
+}

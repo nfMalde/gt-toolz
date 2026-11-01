@@ -1,0 +1,18 @@
+{
+  "name": "@gt-toolz/haptics",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "description": "The vibration, a GT Toolz module (\"Fühlen statt hören\", docs/user/haptics.md): the cues of coach and crew as patterns on an audio output or a controller. src: no Node or Electron (the UI uses it too); main: the module in the main process, through its host",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./patterns": "./src/patterns.ts",
+    "./settings": "./src/settings.ts",
+    "./main": "./main/module.ts",
+    "./preload": "./main/preload.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/core": "*"
+  }
+}

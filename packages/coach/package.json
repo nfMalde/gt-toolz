@@ -1,0 +1,13 @@
+{
+  "name": "@gt-toolz/coach",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/telemetry": "*"
+  }
+}

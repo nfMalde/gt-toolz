@@ -1,0 +1,48 @@
+/* The modules' cards: rows whose cards share the width by their weight; the side column stacks its cards. */
+.cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cockpit-row {
+  display: flex;
+  gap: 16px;
+}
+
+.cockpit-row > * {
+  flex-basis: 0;
+  min-width: 0;
+}
+
+.cockpit-slot {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cockpit-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* The last card of the side column (the timeline) takes the height that is left. */
+.cockpit-side > .cockpit-slot:last-child {
+  flex-grow: 1;
+}
+
+/* Small windows: two cards next to each other at most; a main card takes the whole row. */
+@media (max-width: 1180px) {
+  .cockpit-row {
+    flex-wrap: wrap;
+  }
+
+  .cockpit-row > * {
+    flex-basis: calc(50% - 8px);
+  }
+
+  .cockpit-row > .main {
+    flex-basis: 100%;
+  }
+}

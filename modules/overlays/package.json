@@ -1,0 +1,19 @@
+{
+  "name": "@gt-toolz/overlays",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "description": "The OBS overlays, a GT Toolz module: browser sources from a small web server on this PC (127.0.0.1) and their layout. src: no Node or Electron (the UI and the overlay page use it too); main: the module in the main process, through its host; page: the overlay page OBS shows",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./settings": "./src/settings.ts",
+    "./view": "./src/view.ts",
+    "./main": "./main/module.ts",
+    "./preload": "./main/preload.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/core": "*",
+    "@gt-toolz/telemetry": "*"
+  }
+}

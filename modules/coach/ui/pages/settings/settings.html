@@ -1,0 +1,379 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">{{ t('coach.module.name') }}</div>
+      <h1>{{ t('coach.nav.settings') }}</h1>
+    </div>
+  </div>
+
+  @if (s(); as s) {
+    <div class="columns">
+      <div class="stack">
+        <!-- Braking calls -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="timer" /></div>
+            <h2>{{ t('coach.settings.calls') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.countdown') }}</div>
+              <div class="hint">{{ t('coach.settings.countdownHint') }}</div>
+            </div>
+            <div class="control wide">
+              <gtt-slider [value]="s.countdownSeconds" [min]="0" [max]="5" [step]="1" [format]="numbers"
+                          [label]="t('settings.countdown')" (changed)="set({ countdownSeconds: $event })" />
+            </div>
+          </div>
+          @if (s.countdownSeconds > 0) {
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('coach.settings.countPause') }}</div>
+                <div class="hint">{{ t('coach.settings.countPauseHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="s.countPause" [min]="0.2" [max]="2" [step]="0.05" [format]="seconds"
+                            [label]="t('coach.settings.countPause')" (changed)="set({ countPause: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('coach.settings.countPauseShort') }}</div>
+                <div class="hint">{{ t('coach.settings.countPauseShortHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="s.countPauseShort" [min]="0.2" [max]="2" [step]="0.05" [format]="seconds"
+                            [label]="t('coach.settings.countPauseShort')" (changed)="set({ countPauseShort: $event })" />
+              </div>
+            </div>
+          }
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.tone') }}</div>
+              <div class="hint">{{ t('coach.settings.toneHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.tone" [label]="t('coach.settings.tone')" (checkedChange)="set({ tone: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.intro') }}</div>
+              <div class="hint">{{ t('coach.settings.introHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.intro" [label]="t('settings.intro')" (checkedChange)="set({ intro: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.planStyle') }}</div>
+              <div class="hint">{{ t('coach.settings.planStyleHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="planStyleOptions()" [value]="s.planStyle" (valueChange)="set({ planStyle: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.cornerShape') }}</div>
+              <div class="hint">{{ t('coach.settings.cornerShapeHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.cornerShape" [label]="t('settings.cornerShape')" (checkedChange)="set({ cornerShape: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.plan') }}</div>
+              <div class="hint">{{ t('coach.settings.planHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.plan" [label]="t('settings.plan')" (checkedChange)="set({ plan: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.curbs') }}</div>
+              <div class="hint">{{ t('coach.settings.curbsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.curbs" [disabled]="!s.plan && !s.fastCorners" [label]="t('coach.settings.curbs')" (checkedChange)="set({ curbs: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.trailCalls') }}</div>
+              <div class="hint">{{ t('coach.settings.trailCallsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.trailCalls" [disabled]="!s.plan" [label]="t('coach.settings.trailCalls')" (checkedChange)="set({ trailCalls: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.fastCorners') }}</div>
+              <div class="hint">{{ t('coach.settings.fastCornersHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.fastCorners" [label]="t('coach.settings.fastCorners')" (checkedChange)="set({ fastCorners: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.chainCalls') }}</div>
+              <div class="hint">{{ t('coach.settings.chainCallsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.chainCalls" [label]="t('coach.settings.chainCalls')" (checkedChange)="set({ chainCalls: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.gearAfter') }}</div>
+              <div class="hint">{{ t('coach.settings.gearAfterHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.gearAfterNow" [label]="t('settings.gearAfter')" (checkedChange)="set({ gearAfterNow: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.turnIn') }}</div>
+              <div class="hint">{{ t('coach.settings.turnInHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.turnIn" [label]="t('settings.turnIn')" (checkedChange)="set({ turnIn: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.wait') }}</div>
+              <div class="hint">{{ t('coach.settings.waitHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.waitForFirstLap" [label]="t('coach.settings.wait')" (checkedChange)="set({ waitForFirstLap: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.replayCalls') }}</div>
+              <div class="hint">{{ t('coach.settings.replayCallsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.replayCalls" [label]="t('coach.settings.replayCalls')" (checkedChange)="set({ replayCalls: $event })" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Voice: language, volume, delay -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="headphones" /></div>
+            <h2>{{ t('settings.audio') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.coachLanguage') }}</div>
+              <div class="hint">{{ t('coach.settings.coachLanguageHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="speechLanguageOptions()" [value]="s.coachLanguage" (valueChange)="set({ coachLanguage: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.coachVolume') }}</div>
+              <div class="hint">{{ t('coach.settings.coachVolumeHint') }}</div>
+            </div>
+            <div class="control wide latency-row">
+              <gtt-slider [value]="s.coachVolume" [min]="0" [max]="100" [step]="5" [format]="percent" [label]="t('coach.settings.coachVolume')" (changed)="set({ coachVolume: $event })" />
+              <button type="button" class="btn icon-only" [title]="t('settings.test')" [disabled]="testing() || coach.coachVoice()?.state !== 'ready'" (click)="test()">
+                <gtt-icon name="play" [size]="16" />
+              </button>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.latency') }}</div>
+              <div class="hint">{{ t('coach.settings.latencyHint') }}</div>
+            </div>
+            <div class="control wide latency-row">
+              <gtt-slider [value]="s.latencySeconds" [min]="0" [max]="1" [step]="0.05" [format]="seconds"
+                          [label]="t('coach.settings.latency')" (changed)="set({ latencySeconds: $event })" />
+              <button type="button" class="btn" (click)="store.openGuide('calibrate')"><gtt-icon name="timer" [size]="14" />{{ t('coach.settings.calibrate') }}</button>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text"></div>
+            <div class="control">
+              <button type="button" class="btn" [disabled]="testing() || coach.coachVoice()?.state !== 'ready'" (click)="test()">
+                <gtt-icon name="play" [size]="16" />{{ t('settings.test') }}
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <!-- Feedback -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="alert" /></div>
+            <h2>{{ t('coach.settings.feedback') }}</h2>
+          </div>
+          <!-- How much the coach says, on top of the single settings below (the user, 2026-10-25). -->
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.coachTalk') }}</div>
+              <div class="hint">{{ talkHint('coach', s.coachTalk) }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="talkOptions()" [value]="s.coachTalk" (valueChange)="set({ coachTalk: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.feedbackPerLap') }}</div>
+              <div class="hint">{{ t('coach.settings.feedbackPerLapHint') }}</div>
+            </div>
+          </div>
+          <div class="row">
+            <gtt-segmented [options]="feedbackOptions()" [value]="s.feedback" (valueChange)="set({ feedback: $event })" />
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.guideCorners') }}</div>
+              <div class="hint">{{ t('coach.settings.guideCornersHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.guideCorners" [disabled]="s.feedback === 'off'" [label]="t('coach.settings.guideCorners')"
+                          (checkedChange)="set({ guideCorners: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.immediate') }}</div>
+              <div class="hint">{{ t('coach.settings.immediateHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.immediateFeedback" [disabled]="s.feedback === 'off'" [label]="t('coach.settings.immediate')"
+                          (checkedChange)="set({ immediateFeedback: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.slides') }}</div>
+              <div class="hint">{{ t('coach.settings.slidesHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.slides" [label]="t('coach.settings.slides')" (checkedChange)="set({ slides: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.slidesInRace') }}</div>
+              <div class="hint">{{ t('coach.settings.slidesInRaceHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.slidesInRace" [disabled]="!s.slides" [label]="t('coach.settings.slidesInRace')"
+                          (checkedChange)="set({ slidesInRace: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.lapDelta') }}</div>
+              <div class="hint">{{ t('coach.settings.lapDeltaHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.lapDelta" [label]="t('settings.lapDelta')" (checkedChange)="set({ lapDelta: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.ghostSectors') }}</div>
+              <div class="hint">{{ t('coach.settings.ghostSectorsHint') }}</div>
+            </div>
+            <div class="control wide">
+              <gtt-slider [value]="s.ghostSectors" [min]="0" [max]="6" [step]="1" [label]="t('settings.ghostSectors')" (changed)="set({ ghostSectors: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.helpFirst') }}</div>
+              <div class="hint">{{ t('coach.settings.helpFirstHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.helpFirst" [label]="t('coach.settings.helpFirst')" (checkedChange)="set({ helpFirst: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.helpAssists') }}</div>
+              <div class="hint">{{ t('coach.settings.helpAssistsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.helpAssists" [disabled]="!s.helpFirst" [label]="t('coach.settings.helpAssists')" (checkedChange)="set({ helpAssists: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.focusLaps') }}</div>
+              <div class="hint">{{ t('coach.settings.focusLapsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="focusLapsOptions()" [value]="s.focusLaps" [disabled]="!s.helpFirst" (valueChange)="set({ focusLaps: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.coachQuits') }}</div>
+              <div class="hint">{{ t('coach.settings.coachQuitsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.coachQuits" [label]="t('coach.settings.coachQuits')" [disabled]="s.style !== 'cheeky'" (checkedChange)="set({ coachQuits: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.standInLaps') }}</div>
+              <div class="hint">{{ t('coach.settings.standInLapsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="standInLapsOptions" [value]="s.standInLaps" [disabled]="s.style !== 'cheeky' || !s.coachQuits" (valueChange)="set({ standInLaps: $event })" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Briefing -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="mic" /></div>
+            <h2>{{ t('coach.settings.briefing') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.briefingScope') }}</div>
+              <div class="hint">{{ t('coach.settings.briefingHint') }}</div>
+            </div>
+          </div>
+          <gtt-segmented [options]="briefingOptions()" [value]="s.briefing" (valueChange)="set({ briefing: $event })" />
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.debrief') }}</div>
+              <div class="hint">{{ t('coach.settings.debriefHint') }}</div>
+            </div>
+            <div class="control wide">
+              <gtt-slider [value]="s.debriefZones" [min]="0" [max]="10" [step]="1" [format]="mistakes"
+                          [label]="t('coach.settings.debrief')" (changed)="set({ debriefZones: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.debriefHandbrake') }}</div>
+              <div class="hint">{{ t('coach.settings.debriefHandbrakeHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.debriefHandbrake" [disabled]="!s.debriefZones" [label]="t('coach.settings.debriefHandbrake')"
+                          (checkedChange)="set({ debriefHandbrake: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.debriefBonus') }}</div>
+              <div class="hint">{{ t('coach.settings.debriefBonusHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.debriefBonus" [disabled]="s.style !== 'cheeky' || !s.debriefZones" [label]="t('coach.settings.debriefBonus')"
+                          (checkedChange)="set({ debriefBonus: $event })" />
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+</div>

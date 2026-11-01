@@ -1,0 +1,297 @@
+# A release, started by hand by a maintainer on main (Actions → Release → Run workflow), never by a tag or a merge.
+#
+#   1. plan:    the version from the inputs (or the package.json), what changes for it (scripts/release/plan.mjs:
+#               the version in every package.json, CHANGELOG "Unreleased" → the version, news/next.* → the
+#               version), and a preview in the run's summary. When something changes, a release commit on the
+#               branch release/v<version>. Stops unless the "release" environment has required reviewers.
+#   2. build:   the installers on Windows, Linux and macOS from exactly that commit, each tested as a user gets it.
+#               Official builds name this repository for updates.
+#   3. attest:  build provenance for every installer (gh attestation verify), in a job that runs no npm code.
+#   4. draft:   a draft release with each installer from its own build, one SHA256SUMS.txt and the notes: the
+#               preview on the Releases page (only maintainers see drafts).
+#   5. publish: waits for the approval of the "release" environment. Then it checks the draft once more (checksums,
+#               provenance), signs SHA256SUMS.txt with the project's key (the environment's secret
+#               RELEASE_SIGNING_KEY; the app takes no update without it), moves main to the release commit
+#               (fast-forward only) and publishes the release with its tag v<version>.
+#
+# Repository settings this relies on (docs/dev/building.md, "CI"): the environment "release" with required reviewers,
+# deployment branches limited to main and the secret RELEASE_SIGNING_KEY; immutable releases; a ruleset for tags v*.
+# Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md).
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Channel: alpha and beta are pre-releases (1.2.0-beta), full is a release (1.2.0)'
+        type: choice
+        options: [beta, alpha, full]
+        default: beta
+      bump:
+        description: 'Version bump (ignored when a version is given): none = the package.json version, pre = 1.0.0-beta → 1.0.0-beta.2'
+        type: choice
+        options: [none, pre, patch, minor, major]
+        default: none
+      version:
+        description: 'Exact version instead (e.g. 1.0.0-beta.2); empty = from the bump'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# One release at a time.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    # Only main: another branch would bring its own workflow and scripts.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      prerelease: ${{ steps.plan.outputs.prerelease }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: The approval must be set up
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # Without required reviewers GitHub would create the environment on the fly, and nothing would wait.
+          reviewers="$(gh api "repos/$GH_REPO/environments/release" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)"
+          if [ "$reviewers" -lt 1 ]; then
+            echo "::error::Create the environment \"release\" with required reviewers first (Settings → Environments)."; exit 1
+          fi
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22.23.2
+      # The release scripts read the Electron version from node_modules.
+      - run: npm ci
+      - name: Plan the version
+        id: plan
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          BUMP: ${{ inputs.bump }}
+          VERSION: ${{ inputs.version }}
+        run: node scripts/release/plan.mjs --apply "--channel=$CHANNEL" "--bump=$BUMP" "--version=$VERSION"
+      - name: The tag must be new
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
+        run: |
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::v$VERSION exists already."; exit 1
+          fi
+      - name: Release commit (only when something changed)
+        id: commit
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
+          CHANGED: ${{ steps.plan.outputs.changed }}
+        run: |
+          if [ "$CHANGED" = "true" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            # Only what the plan changed: the versions, CHANGELOG.md and the news (release/ is ignored).
+            git add -A
+            git commit -m "Release v$VERSION"
+            git push origin "HEAD:refs/heads/release/v$VERSION"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Preview
+        env:
+          VERSION: ${{ steps.plan.outputs.version }}
+          PRERELEASE: ${{ steps.plan.outputs.prerelease }}
+        run: |
+          {
+            echo "## Release preview: v$VERSION"
+            echo
+            echo "- Pre-release: $PRERELEASE"
+            echo "- Commit: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
+            echo "- After the build: a draft on the Releases page; publishing waits for the approval of the \"release\" environment."
+            echo
+            echo "### Notes"
+            echo
+            cat release/notes.md
+            for lang in en de; do
+              echo
+              echo "### News ($lang)"
+              echo
+              cat "apps/ui/public/news/$VERSION.$lang.md"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-notes
+          path: release/notes.md
+          retention-days: 7
+
+  build:
+    needs: plan
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+          - os: ubuntu-latest
+            name: linux
+          - os: macos-latest
+            name: mac
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 22.23.2
+      - run: npm ci
+      - if: matrix.name == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb
+      - name: Installers
+        env:
+          # The app looks for updates in this repository's releases (apps/desktop/src/updates.ts).
+          GTT_UPDATE_REPO: ${{ github.repository }}
+        run: node scripts/release/release.mjs --skip=mac-package
+      - uses: actions/upload-artifact@v7.0.2
+        with:
+          name: installers-${{ matrix.name }}
+          path: |
+            release/*/*.exe
+            release/*/*.deb
+            release/*/*.dmg
+            release/*/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  attest:
+    # Apart from the builds: no npm code runs where the provenance can be signed.
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: installers-*
+          path: artifacts
+      - uses: actions/attest-build-provenance@v4.2.2
+        with:
+          subject-path: |
+            artifacts/installers-windows/*/*.exe
+            artifacts/installers-linux/*/*.deb
+            artifacts/installers-mac/*/*.dmg
+
+  draft:
+    needs: [plan, attest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          path: artifacts
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.plan.outputs.version }}
+          PRERELEASE: ${{ needs.plan.outputs.prerelease }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: |
+          set -euo pipefail
+          mkdir upload
+          # Each installer from the build of its own system, exactly the expected ones.
+          take() {
+            local system="$1" name="$2"
+            local found=(artifacts/installers-"$system"/*/"$name")
+            [ "${#found[@]}" -eq 1 ] && [ -f "${found[0]}" ] || { echo "::error::$name not (or more than once) in the $system build"; exit 1; }
+            (cd "$(dirname "${found[0]}")" && grep -E "  $name\$" SHA256SUMS.txt | sha256sum -c -)
+            cp "${found[0]}" upload/
+          }
+          take windows "GT-Toolz-Setup-$VERSION-x64.exe"
+          take linux "gt-toolz_${VERSION}_amd64.deb"
+          take mac "GT-Toolz-$VERSION-mac-arm64.dmg"
+          take mac "GT-Toolz-$VERSION-mac-x64.dmg"
+          # One checksum list for the four installers.
+          (cd upload && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          flags=(--draft --title "GT Toolz $VERSION" --notes-file artifacts/release-notes/notes.md --target "$SHA")
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
+          gh release create "v$VERSION" "${flags[@]}" upload/*
+          echo "Draft: $(gh release view "v$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"
+
+  publish:
+    needs: [plan, draft]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The approval: required reviewers on this environment, which also holds the signing key.
+    environment: release
+    permissions:
+      contents: write
+      attestations: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+      - name: Check the draft once more
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          set -euo pipefail
+          # What was approved is what gets signed: the files as they are now, against the list and the provenance.
+          gh release download "v$VERSION" --dir draft
+          cd draft
+          [ ! -e SHA256SUMS.txt.sig ] || { echo "::error::the draft already has a signature"; exit 1; }
+          [ "$(ls | grep -cvx SHA256SUMS.txt)" -eq "$(wc -l < SHA256SUMS.txt)" ] || { echo "::error::files and SHA256SUMS.txt differ"; exit 1; }
+          sha256sum -c SHA256SUMS.txt
+          for file in *.exe *.deb *.dmg; do gh attestation verify "$file" --repo "$GH_REPO"; done
+      - name: Sign the checksum list
+        env:
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          set -euo pipefail
+          node scripts/release/sign.mjs draft/SHA256SUMS.txt
+          gh release upload "v$VERSION" draft/SHA256SUMS.txt.sig
+      - name: Main to the release commit (fast-forward only)
+        env:
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$SHA" ]; then
+            git merge-base --is-ancestor origin/main "$SHA" || { echo "::error::main moved on since the plan; run the release again."; exit 1; }
+            git push origin "$SHA:refs/heads/main"
+          fi
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: |
+          gh release edit "v$VERSION" --draft=false
+          git push origin --delete "release/v$VERSION" 2>/dev/null || true
+          echo "Published: $(gh release view "v$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"

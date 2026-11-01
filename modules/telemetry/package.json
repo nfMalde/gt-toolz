@@ -1,0 +1,21 @@
+{
+  "name": "@gt-toolz/telemetry-module",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "description": "The telemetry, the GT Toolz module every other one reads (docs/dev/modules.md): the connection to the PS5, frames, mode and driving, the car, recording, and the reference (learning, picking). main: the module in the main process",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./settings": "./src/settings.ts",
+    "./main": "./main/module.ts",
+    "./preload": "./main/preload.ts",
+    "./session": "./main/session.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/coach": "*",
+    "@gt-toolz/core": "*",
+    "@gt-toolz/runtime": "*",
+    "@gt-toolz/telemetry": "*"
+  }
+}

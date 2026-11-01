@@ -1,0 +1,22 @@
+{
+  "name": "@gt-toolz/crew",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "description": "The race crew, a GT Toolz module (docs/user/crew.md): in races on its own voice with the radio filter (positions, sectors, fuel and tyres, laps to go, cheeky remarks), the tyre calls outside races, and the team boss. src: the crew's logic and its contract; main: the module in the main process, through its host",
+  "exports": {
+    "./api": "./src/api.ts",
+    "./settings": "./src/settings.ts",
+    "./crew": "./src/crew.ts",
+    "./main": "./main/module.ts",
+    "./preload": "./main/preload.ts",
+    "./session": "./main/session.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/coach": "*",
+    "@gt-toolz/core": "*",
+    "@gt-toolz/runtime": "*",
+    "@gt-toolz/telemetry": "*"
+  }
+}

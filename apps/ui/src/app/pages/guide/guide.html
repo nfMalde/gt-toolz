@@ -1,0 +1,226 @@
+<div class="backdrop"></div>
+
+<div class="guide">
+  <header class="guide-top">
+    <ol class="progress-steps">
+      @for (s of steps(); track s.id; let i = $index) {
+        <li [class]="stepState(i)">
+          <button type="button" class="step-dot focusable" [disabled]="i > index()" (click)="go(i)" [attr.aria-current]="i === index() ? 'step' : null">
+            @if (stepState(i) === 'done') {
+              <gtt-icon name="check" [size]="14" [weight]="2.6" />
+            } @else {
+              <gtt-icon [name]="s.icon" [size]="14" />
+            }
+          </button>
+          <span class="step-name">{{ t(s.label) }}</span>
+        </li>
+      }
+    </ol>
+    @if (!firstRun()) {
+      <button type="button" class="btn ghost icon-only close" [title]="t('guide.close')" (click)="close()">
+        <gtt-icon name="x" />
+      </button>
+    }
+  </header>
+
+  <div class="guide-body">
+    @switch (step().id) {
+      <!-- Basics, with the modules to use -->
+      @case ('basics') {
+        <section class="step two-col">
+          <div class="col">
+            <div class="step-icon"><gtt-icon name="sliders" [size]="26" /></div>
+            <h1>{{ t('guide.basics.title') }}</h1>
+            <p class="muted">{{ t('guide.basics.text') }}</p>
+          </div>
+          <div class="col">
+            <div class="field">
+              <span class="label">{{ t('settings.language') }}</span>
+              <gtt-segmented [options]="languageOptions()" [value]="settings.language()" (valueChange)="setLanguage($event)" />
+              <span class="faint small">{{ t('guide.basics.languageHint') }}</span>
+            </div>
+            <div class="field">
+              <span class="label">{{ t('guide.audio.style') }}</span>
+              <gtt-segmented [options]="styleOptions()" [value]="settings.settings()?.style ?? 'cheeky'" (valueChange)="settings.update({ style: $event })" />
+              <span class="faint small">{{ t('guide.audio.styleHint') }}</span>
+            </div>
+            <!-- Switching on and off: here and on the Modules page (docs/dev/modules.md). -->
+            <div class="field">
+              <span class="label">{{ t('guide.basics.modules') }}</span>
+              <span class="faint small">{{ t('guide.basics.modulesHint') }}</span>
+              <div class="module-list">
+                @for (module of switchable; track module.id) {
+                  @let on = settings.moduleEnabled(module.id);
+                  @let name = t(module.name);
+                  <div class="module-row" [class.on]="on">
+                    <gtt-icon [name]="module.icon" [size]="18" />
+                    <div class="module-text">
+                      <b>{{ name }}</b>
+                      <span class="faint small">{{ t(module.description) }}</span>
+                    </div>
+                    <gtt-toggle [checked]="on" [label]="t(on ? 'modules.switchOff' : 'modules.switchOn', { name })" (checkedChange)="settings.setModuleEnabled(module.id, $event)" />
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="field toggle-field">
+              <div>
+                <span class="label">{{ t('streamer.title') }}</span>
+                <span class="faint small">{{ t('streamer.hint', { s: 10 }) }}</span>
+              </div>
+              <gtt-toggle [checked]="settings.settings()?.streamerMode ?? false" [label]="t('streamer.title')" (checkedChange)="settings.update({ streamerMode: $event })" />
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Voices -->
+      @case ('voices') {
+        <section class="step">
+          <div class="step-head">
+            <div class="step-icon"><gtt-icon name="mic" [size]="26" /></div>
+            <div>
+              <h1>{{ t('guide.voices.title') }}</h1>
+              <p class="muted">{{ t('guide.voices.text') }}</p>
+            </div>
+          </div>
+          <div class="two-col tight">
+            <div class="col">
+              <gtt-voice-packages [compact]="true" />
+            </div>
+            <div class="col">
+              <div class="label">{{ t('guide.voices.chooseVoice') }}</div>
+              <div class="picker-scroll">
+                <gtt-voice-picker role="coach" />
+              </div>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Name and earbud -->
+      @case ('name') {
+        <section class="step two-col">
+          <div class="col">
+            <div class="step-icon"><gtt-icon name="heart" [size]="26" /></div>
+            <h1>{{ t('guide.name.title') }}</h1>
+            <p class="muted">{{ t('guide.name.text') }}</p>
+            <div class="field">
+              <span class="label">{{ t('settings.name') }}</span>
+              <input class="input name-input" maxlength="30" spellcheck="false" [value]="settings.settings()?.driverName ?? ''"
+                     [placeholder]="t('settings.namePlaceholder')" (change)="saveName($event)" (keydown.enter)="saveName($event)" />
+              <span class="faint small">{{ t('settings.nameHint') }}</span>
+            </div>
+            <div class="field">
+              <span class="label">{{ t('settings.addressing') }}</span>
+              <gtt-segmented [options]="addressingOptions()" [value]="settings.settings()?.addressing ?? 'always'"
+                             [disabled]="!settings.settings()?.driverName" (valueChange)="settings.update({ addressing: $event })" />
+              <span class="faint small">{{ t('settings.addressingHint') }}</span>
+            </div>
+            <!-- How the name sounds (docs/dev/voices.md): judged right here with "Anhören". -->
+            @if (settings.settings(); as s) {
+              @if (s.driverName) {
+                <div class="field">
+                  <span class="label">{{ t('settings.nameSlower') }}</span>
+                  <gtt-slider [value]="s.nameSlower" [min]="1" [max]="4" [step]="0.1" [format]="factor"
+                              [label]="t('settings.nameSlower')" (changed)="settings.update({ nameSlower: $event })" />
+                  <span class="faint small">{{ t('settings.nameSlowerHint') }}</span>
+                </div>
+                <div class="field">
+                  <span class="label">{{ t('settings.namePauseBefore') }}</span>
+                  <gtt-slider [value]="s.namePauseBefore" [min]="0" [max]="2" [step]="0.05" [format]="seconds"
+                              [label]="t('settings.namePauseBefore')" (changed)="settings.update({ namePauseBefore: $event })" />
+                </div>
+                <div class="field">
+                  <span class="label">{{ t('settings.namePauseAfter') }}</span>
+                  <gtt-slider [value]="s.namePauseAfter" [min]="0" [max]="2" [step]="0.05" [format]="seconds"
+                              [label]="t('settings.namePauseAfter')" (changed)="settings.update({ namePauseAfter: $event })" />
+                </div>
+              }
+            }
+          </div>
+          <div class="col center">
+            <button type="button" class="play-orb focusable" [class.playing]="testing()" [disabled]="!voiceReady() || testing()" (click)="listen()">
+              <gtt-icon [name]="testing() ? 'volume' : 'play'" [size]="34" />
+            </button>
+            <div class="play-label">{{ settings.settings()?.driverName ? t('guide.name.listen') : t('settings.test') }}</div>
+            @if (voiceReady()) {
+              <p class="faint small center-text">{{ settings.settings()?.driverName ? t('guide.name.listenHint') : t('guide.audio.testHint') }}</p>
+            } @else {
+              <p class="faint small center-text">{{ t('guide.audio.preparing') }}</p>
+            }
+            <p class="faint small center-text">{{ t('guide.audio.text') }}</p>
+          </div>
+        </section>
+      }
+
+      <!-- Done: what is ready, and how it goes on the track -->
+      @case ('done') {
+        <section class="step done">
+          <div class="done-orb"><gtt-icon name="flag" [size]="36" /></div>
+          <h1 class="hero-title">{{ t('guide.done.title') }}</h1>
+          <div class="summary">
+            @for (check of checks(); track check.label) {
+              <div class="summary-item" [class.ok]="check.ok()">
+                <gtt-icon [name]="check.icon" />
+                <span>{{ t(check.label) }}</span>
+                <b>{{ check.ok() ? t('guide.done.ok') : t('guide.done.later') }}</b>
+              </div>
+            }
+          </div>
+          @for (warning of warnings(); track warning.text) {
+            <div class="banner warn"><gtt-icon [name]="warning.icon" /><span>{{ t(warning.text) }}</span></div>
+          }
+          <p class="muted">{{ t('guide.done.text') }}</p>
+          <ul class="tips">
+            @for (tip of tips(); track $index) {
+              <li>
+                @if (tipIcon(tip); as icon) { <gtt-icon [name]="icon" [size]="16" /> } @else { <span class="kbd">{{ tipKey(tip) }}</span> }
+                {{ tip.text() }}
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <!-- A module's step -->
+      @default {
+        @if (step().component; as component) {
+          <ng-container *ngComponentOutlet="component; inputs: stepInputs()" />
+        }
+      }
+    }
+  </div>
+
+  <footer class="guide-footer">
+    @if (index() > 0) {
+      <button type="button" class="btn ghost" (click)="back()"><gtt-icon name="chevronLeft" [size]="16" />{{ t('guide.back') }}</button>
+    }
+    <span class="spacer"></span>
+    <!-- First setup: no "later"; the step says what it still needs. -->
+    @if (missingText(); as need) {
+      <span class="needed small"><gtt-icon name="info" [size]="16" />{{ need }}</span>
+    }
+    @switch (step().id) {
+      @case ('voices') {
+        @if (!voices.installing() && !missing()) {
+          <button type="button" class="btn ghost" (click)="next()">{{ t('guide.voices.skip') }}</button>
+        }
+        <button type="button" class="btn primary lg" [disabled]="voices.installing() || !!missing()" (click)="next()">{{ t('guide.next') }}<gtt-icon name="chevronRight" [size]="18" /></button>
+      }
+      @case ('done') {
+        <button type="button" class="btn primary lg" (click)="finish()">{{ t('guide.finish') }}<gtt-icon name="chevronRight" [size]="18" /></button>
+      }
+      @default {
+        <!-- A module's step that may come later: "Later" until it is done (the first setup: "Next" once nothing is missing). -->
+        @if (step().done; as done) {
+          <button type="button" class="btn lg" [class.primary]="done()" [class.ghost]="!done()" [disabled]="!!missing()" (click)="next()">
+            {{ done() || firstRun() ? t('guide.next') : t('guide.later') }}<gtt-icon name="chevronRight" [size]="18" />
+          </button>
+        } @else {
+          <button type="button" class="btn primary lg" (click)="next()">{{ t('guide.next') }}<gtt-icon name="chevronRight" [size]="18" /></button>
+        }
+      }
+    }
+  </footer>
+</div>

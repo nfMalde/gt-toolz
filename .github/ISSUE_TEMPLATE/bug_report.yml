@@ -1,0 +1,94 @@
+name: Bug report
+description: Something does not work as it should. Please attach the log.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping! GT Toolz is a hobby project in beta, and your report helps a lot.
+
+        **The log is needed.** Without it the bug can hardly be found:
+        1. In GT Toolz open **Settings → Diagnostics** and switch on **Detailed log**.
+        2. Make the bug happen again (drive the spot, open the page, …).
+        3. Click **Log for a GitHub issue** and save the file. It is anonymous: no IPs, paths or player names.
+        4. Drag the file into the **Log** field below.
+
+        More help: [Troubleshooting](https://github.com/nfMalde/gt-toolz/blob/main/docs/user/troubleshooting.md).
+  - type: input
+    id: version
+    attributes:
+      label: GT Toolz version
+      description: Shown at the bottom left in the app, and under About & licenses.
+      placeholder: 1.0.0-beta
+    validations:
+      required: true
+  - type: dropdown
+    id: system
+    attributes:
+      label: System
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS (Apple silicon)
+        - macOS (Intel)
+        - Linux (Ubuntu or Debian)
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - Connection to the PS5 / telemetry
+        - References (learning, picking)
+        - Coach
+        - Race crew
+        - OBS overlays
+        - Vibration
+        - Voices or texts
+        - Installing or updating
+        - Somewhere else in the app
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you see or hear? Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How can it be made to happen again?
+      description: Game mode (race, time trial, lobby …), track and car, and what you did.
+      placeholder: |
+        1. Time trial at Spa, Gr.3 car
+        2. Drove three laps
+        3. In lap 3 the coach said …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: Drag the file from "Log for a GitHub issue" here (with the Detailed log switched on).
+      placeholder: Drop the .log file here.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send it
+      options:
+        - label: The Detailed log was on while the bug happened, and the log file is attached.
+          required: true
+        - label: I looked through the open issues, and this one is not there yet.
+          required: true

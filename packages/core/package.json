@@ -1,0 +1,15 @@
+{
+  "name": "@gt-toolz/core",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "description": "GT Toolz shell contract: modules, their host and config.json version 2 (docs/dev/modules.md), without Electron",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/telemetry": "*"
+  }
+}

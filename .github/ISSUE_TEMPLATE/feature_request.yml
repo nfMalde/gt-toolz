@@ -1,0 +1,33 @@
+name: Idea or wish
+description: Something GT Toolz could do, or do better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would help you?
+      description: What do you want to do, and what is in the way today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How could it work? What would you hear or see?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Coach
+        - Race crew
+        - OBS overlays
+        - Vibration
+        - Voices or texts
+        - References
+        - Something new (a module of its own)
+        - The app in general
+    validations:
+      required: true

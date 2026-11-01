@@ -1,0 +1,44 @@
+# One encoding and one line ending on every system: text is UTF-8 without BOM, with LF, in the repository and in
+# every working tree (also on Windows; .editorconfig tells the editors the same).
+* text=auto eol=lf
+
+# Text, named so that no tool's guess applies.
+*.ts        text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.js        text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.html      text eol=lf
+*.css       text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.svg       text eol=lf
+*.sh        text eol=lf
+*.command   text eol=lf
+*.LICENSE   text eol=lf
+LICENSE     text eol=lf
+.npmrc      text eol=lf
+.gitignore  text eol=lf
+# Windows scripts want CRLF.
+*.ps1       text eol=crlf
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+
+# Vendored data stays byte-identical: its SHA-256 is in the folder's SOURCE.md.
+packages/telemetry/data/*.json -text
+packages/coach/data/*.json     -text
+
+# Binary files: never changed, never diffed as text.
+*.png    binary
+*.jpg    binary
+*.ico    binary
+*.icns   binary
+*.woff2  binary
+*.wav    binary
+*.mp3    binary
+*.ogg    binary
+*.onnx   binary
+*.zip    binary
+*.gz     binary
+*.gtcap  binary

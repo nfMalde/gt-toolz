@@ -1,0 +1,152 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">{{ t('crew.module.name') }}</div>
+      <h1>{{ t('crew.nav.settings') }}</h1>
+    </div>
+  </div>
+
+  @if (s(); as s) {
+    @let c = crew();
+    <div class="columns">
+      <div class="stack">
+        <!-- Race crew -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="users" /></div>
+            <h2>{{ t('crew.settings.crewTitle') }}</h2>
+          </div>
+          @if (c) {
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.crewTalk') }}</div>
+                <div class="hint">{{ talkHint('crew', c.crewTalk) }}</div>
+              </div>
+              <div class="control">
+                <gtt-segmented [options]="talkOptions()" [value]="c.crewTalk" (valueChange)="setCrew({ crewTalk: $event })" />
+              </div>
+            </div>
+          }
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('crew.settings.raceCalls') }}</div>
+              <div class="hint">{{ t('crew.settings.raceCallsHint') }}</div>
+              @if (!s.coach) {
+                <div class="hint warn-text">{{ t('crew.settings.needsCoach') }}</div>
+              }
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.raceCalls" [disabled]="!s.coach" [label]="t('crew.settings.raceCalls')" (checkedChange)="set({ raceCalls: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('crew.settings.raceCallsScope') }}</div>
+              <div class="hint">{{ t('crew.settings.raceCallsScopeHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="raceCallScopeOptions()" [value]="s.raceCallsScope" [disabled]="!s.coach || !s.raceCalls" (valueChange)="set({ raceCallsScope: $event })" />
+            </div>
+          </div>
+          <p class="faint small note">{{ t('crew.settings.raceCallsFairPlay') }}</p>
+          @if (c) {
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.crewSectors') }}</div>
+                <div class="hint">{{ t('crew.settings.crewSectorsHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="c.crewSectors" [min]="1" [max]="6" [step]="1" [label]="t('crew.settings.crewSectors')" (changed)="setCrew({ crewSectors: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.crewStrategy') }}</div>
+                <div class="hint">{{ t('crew.settings.crewStrategyHint') }}</div>
+              </div>
+              <div class="control">
+                <gtt-toggle [checked]="c.crewStrategy" [label]="t('crew.settings.crewStrategy')" (checkedChange)="setCrew({ crewStrategy: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.practiceTyres') }}</div>
+                <div class="hint">{{ t('crew.settings.practiceTyresHint') }}</div>
+              </div>
+              <div class="control">
+                <gtt-toggle [checked]="c.practiceTyres" [label]="t('crew.settings.practiceTyres')" (checkedChange)="setCrew({ practiceTyres: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.pitLoss') }}</div>
+                <div class="hint">{{ t('crew.settings.pitLossHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="c.pitLossSeconds" [min]="10" [max]="60" [step]="1" [format]="wholeSeconds" [label]="t('crew.settings.pitLoss')"
+                            (changed)="setCrew({ pitLossSeconds: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.bossTakesOver') }}</div>
+                <div class="hint">{{ t('crew.settings.bossTakesOverHint') }}</div>
+              </div>
+              <div class="control">
+                <gtt-toggle [checked]="c.bossTakesOver" [label]="t('crew.settings.bossTakesOver')" [disabled]="s.style !== 'cheeky'" (checkedChange)="setCrew({ bossTakesOver: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('crew.settings.bossLaps') }}</div>
+                <div class="hint">{{ t('crew.settings.bossLapsHint') }}</div>
+              </div>
+              <div class="control">
+                <gtt-segmented [options]="bossLapsOptions" [value]="c.bossLaps" [disabled]="s.style !== 'cheeky' || !c.bossTakesOver" (valueChange)="setCrew({ bossLaps: $event })" />
+              </div>
+            </div>
+          }
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('crew.settings.radio') }}</div>
+              <div class="hint">{{ t('crew.settings.radioHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.radio" [label]="t('crew.settings.radio')" (checkedChange)="set({ radio: $event })" /></div>
+          </div>
+          <p class="faint small note">{{ t('crew.settings.crewNote') }}</p>
+        </section>
+      </div>
+
+      <div class="stack">
+        <!-- Voice: language and volume -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="headphones" /></div>
+            <h2>{{ t('settings.audio') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('crew.settings.crewLanguage') }}</div>
+              <div class="hint">{{ t('crew.settings.crewLanguageHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="speechLanguageOptions()" [value]="s.crewLanguage" (valueChange)="set({ crewLanguage: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('crew.settings.crewVolume') }}</div>
+              <div class="hint">{{ t('crew.settings.crewVolumeHint') }}</div>
+            </div>
+            <div class="control wide latency-row">
+              <gtt-slider [value]="s.crewVolume" [min]="0" [max]="100" [step]="5" [format]="percent" [label]="t('crew.settings.crewVolume')" (changed)="set({ crewVolume: $event })" />
+              <button type="button" class="btn icon-only" [title]="t('crew.settings.testCrew')" [disabled]="testing()" (click)="testCrew()">
+                <gtt-icon name="play" [size]="16" />
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,7 @@
+node_modules/
+/captures/
+/references/
+.cache/
+apps/*/dist/
+.angular/
+/release/

@@ -1,0 +1,11 @@
+# Newer versions of the GitHub Actions, proposed as pull requests once they are at least 14 days old (the project's
+# rule for every dependency, docs/dev/security.md). npm packages are updated by hand after the same checks.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 5

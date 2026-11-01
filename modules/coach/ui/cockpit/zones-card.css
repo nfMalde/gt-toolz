@@ -1,0 +1,138 @@
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -10px;
+}
+
+.zone-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.zone-index {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--surface-3);
+  color: var(--text-2);
+  flex: none;
+}
+
+.has-feedback .zone-index {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.zone-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.force {
+  font-weight: 650;
+}
+
+.force.full {
+  color: var(--brake);
+}
+
+.gears {
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.gears .faint {
+  margin: 0 3px;
+}
+
+.trail {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  cursor: help;
+}
+
+.curbs {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+
+/* Curb stripes, red and white like on track. */
+.curb {
+  font-size: 10.5px;
+  font-weight: 650;
+  padding: 1px 6px 1px 10px;
+  border-radius: 5px;
+  color: var(--text-2);
+  background:
+    repeating-linear-gradient(90deg, #e5484d 0 3px, #f2f2f2 3px 6px) left / 5px 100% no-repeat,
+    var(--surface-3);
+}
+
+/* The last column takes the remaining width: why the time was lost, in words and in numbers. */
+.last-cell {
+  width: 100%;
+}
+
+.last {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 6px;
+}
+
+.metric {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.metric.off {
+  background: var(--danger-soft);
+  color: #ffb3c1;
+}
+
+/* Help ladder: how far the help for a corner's repeated mistake has come. */
+.help-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  white-space: nowrap;
+}
+
+.help-step.exhausted {
+  background: var(--danger-soft);
+  color: #ffb3c1;
+}

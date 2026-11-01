@@ -1,0 +1,62 @@
+{
+  "$schema": "../../node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "ui": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "style": "css", "skipTests": true },
+        "@schematics/angular:service": { "skipTests": true }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "gtt",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "assets": [{ "glob": "**/*", "input": "public" }],
+            "styles": ["src/styles.css"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                { "type": "initial", "maximumWarning": "700kB", "maximumError": "1.5MB" },
+                { "type": "anyComponentStyle", "maximumWarning": "12kB", "maximumError": "20kB" }
+              ],
+              "optimization": {
+                "scripts": true,
+                "styles": { "minify": true, "inlineCritical": false },
+                "fonts": false
+              },
+              "outputHashing": "all",
+              "sourceMap": false
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": { "port": 4200 },
+          "configurations": {
+            "production": { "buildTarget": "ui:build:production" },
+            "development": { "buildTarget": "ui:build:development" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  }
+}

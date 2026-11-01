@@ -1,0 +1,85 @@
+.crew-grid {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) 260px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .crew-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.crew-big {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 750;
+  line-height: 1;
+  margin: 4px 0 14px;
+}
+
+.crew-mid {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.crew-big .faint,
+.crew-mid .faint {
+  font-size: 0.55em;
+}
+
+.crew-strategy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fuel-bar {
+  height: 10px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.fuel-bar > div {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #10b981, var(--ok));
+}
+
+.fuel-bar > div.low {
+  background: linear-gradient(90deg, #f59e0b, var(--warn));
+}
+
+.warn-text {
+  color: var(--warn);
+  font-weight: 600;
+}
+
+.tyres-label {
+  margin-top: 10px;
+}
+
+/* Front left, front right / rear left, rear right, like seen from above. */
+.tyre-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 54px);
+  gap: 6px 22px;
+}
+
+.tyre {
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tyre.cold { background: var(--live-soft); color: var(--live); }
+.tyre.ok { background: var(--ok-soft); color: var(--ok); }
+.tyre.hot { background: var(--danger-soft); color: #ff8aa0; }

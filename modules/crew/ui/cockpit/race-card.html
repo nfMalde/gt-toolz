@@ -1,0 +1,82 @@
+<!-- Race crew (races only) -->
+@if (crew(); as c) {
+  <section class="card">
+    <div class="card-header">
+      <div class="card-icon accent"><gtt-icon name="users" /></div>
+      <h2>{{ t('crew.title') }}</h2>
+      @if (c.excursions && settings.settings()?.style === 'cheeky') {
+        <span class="chip header-chip" [class]="'mood-' + c.mood">{{ t(c.excursions === 1 ? 'crew.excursion' : 'crew.excursions', { n: c.excursions }) }}</span>
+      }
+    </div>
+    <div class="crew-grid">
+      <div class="crew-race">
+        @if (c.position && c.cars) {
+          <div class="unit">{{ t('crew.position') }}</div>
+          <div class="crew-big num">P{{ c.position }}<span class="faint"> / {{ c.cars }}</span></div>
+        }
+        <div class="unit">{{ t('crew.lap') }}</div>
+        <div class="crew-mid num">{{ c.lap }}<span class="faint"> / {{ c.laps || '–' }}</span></div>
+      </div>
+
+      <div class="crew-sectors">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{{ t('crew.sector') }}</th>
+              <th>{{ t('crew.thisLap') }}</th>
+              <th>{{ t('crew.lastLap') }}</th>
+              <th>{{ t('crew.toBest') }}</th>
+              <th>{{ t('crew.ghost') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sector of c.sectors; track sector.sector) {
+              <tr>
+                <td class="num">{{ sector.sector }}</td>
+                <td class="num">{{ sectorTime(sector.timeMs) }}</td>
+                <td class="num faint">{{ sectorTime(sector.lastMs) }}</td>
+                <td class="num">
+                  @if (sector.deltaMs !== undefined) {
+                    <span class="loss" [class.bad]="sector.deltaMs > 50" [class.good]="sector.deltaMs < -50">{{ delta(sector.deltaMs) }}</span>
+                  }
+                </td>
+                <td class="num">
+                  @if (sector.ghostMs !== undefined) {
+                    <span class="loss" [class.bad]="sector.ghostMs > 50" [class.good]="sector.ghostMs < -50">{{ delta(sector.ghostMs) }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="crew-strategy">
+        @if (c.fuel; as fuel) {
+          <div class="unit">{{ t('crew.fuel') }}</div>
+          <div class="fuel-bar"><div [style.width.%]="(fuel.level / (fuel.capacity || 1)) * 100" [class.low]="!fuel.toFinish"></div></div>
+          <div class="small">{{ t('crew.fuelPerLap', { liters: number(fuel.perLap, 1), laps: number(fuel.lapsLeft, 1) }) }}</div>
+          <div class="small" [class.warn-text]="!fuel.toFinish">
+            {{ fuel.toFinish ? t('crew.fuelFinish') : fuel.pitLap ? t('crew.fuelPit', { lap: fuel.pitLap }) : '' }}
+          </div>
+        }
+        @if (c.tyres; as tyres) {
+          <div class="unit tyres-label">{{ t('crew.tyres') }}</div>
+          @if (tyres.temps; as temps) {
+            <div class="tyre-grid">
+              @for (temp of temps; track $index) {
+                <div class="tyre" [class]="tyreClass(temp)">{{ temp | number: '1.0-0' }}°</div>
+              }
+            </div>
+          }
+          @if (tyres.lossS !== undefined && tyres.lossS >= 0.1) {
+            <div class="small">{{ t('crew.tyreLoss', { seconds: number(tyres.lossS, 1) }) }}</div>
+          }
+          @if (tyres.pitNow) {
+            <div class="small warn-text">{{ t('crew.tyresPit') }}</div>
+          }
+        }
+      </div>
+    </div>
+  </section>
+}

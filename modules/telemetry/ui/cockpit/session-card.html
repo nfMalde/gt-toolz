@@ -1,0 +1,71 @@
+<!-- Session: connection steps, reference, state -->
+<section class="card session" data-tour="cockpit-session">
+  <div class="card-header">
+    <div class="card-icon accent"><gtt-icon name="wifi" /></div>
+    <h2>{{ t('telemetry.cockpit.session') }}</h2>
+  </div>
+
+  <ol class="stepper">
+    @for (step of steps(); track step.label) {
+      <li [class]="step.state">
+        <div class="node">
+          @if (step.state === 'done') {
+            <gtt-icon name="check" [size]="16" [weight]="2.4" />
+          } @else {
+            <gtt-icon [name]="step.icon" [size]="16" />
+          }
+        </div>
+        <div class="step-label">{{ t(step.label) }}</div>
+        @if (step.detail) {
+          <div class="step-detail faint mono">
+            @if (step.secret) { <gtt-secret [value]="step.detail" /> } @else { {{ step.detail }} }
+          </div>
+        }
+      </li>
+    }
+  </ol>
+
+  <div class="divider"></div>
+
+  <div class="reference-row">
+    <div class="ref-text">
+      <div class="eyebrow">{{ t('telemetry.cockpit.reference') }}</div>
+      @if (coach.reference(); as ref) {
+        <div class="ref-title">{{ ref.label || (ref.track ?? t('common.unknownTrack')) }}</div>
+        <div class="muted small">
+          @if (ref.label) { {{ ref.track ?? t('common.unknownTrack') }} · }
+          {{ modeText(ref) }} · {{ carLabel(ref) }} · {{ t('telemetry.cockpit.target') }} <span class="num strong">{{ ref.targetTime }}</span>
+          @if (ref.driver) { · <gtt-secret [value]="ref.driver" /> } @else { · <a routerLink="/telemetry/references">{{ t('telemetry.cockpit.addDriver') }}</a> }
+          · {{ t('telemetry.refs.zones', { n: ref.zones }) }}
+        </div>
+        @if (status()?.car; as car) {
+          @if (car.code === ref.carCode) {
+            <div class="car-check small"><gtt-icon name="check" [size]="12" />{{ t('telemetry.cockpit.sameCar') }}</div>
+          }
+        }
+      } @else {
+        <div class="ref-title">{{ t('telemetry.cockpit.state.learning') }}</div>
+        <div class="muted small">{{ t('telemetry.refs.learningActive') }}</div>
+      }
+    </div>
+    <div class="ref-actions">
+      <a class="btn sm" routerLink="/telemetry/references">{{ t('telemetry.cockpit.changeReference') }}</a>
+    </div>
+  </div>
+
+  <!-- What the driver drives right now: the automatic choice takes references for it (docs/dev/telemetry.md). -->
+  <div class="drive-row" [title]="t('telemetry.drive.hint')" data-tour="cockpit-drive">
+    <span class="eyebrow">{{ t('telemetry.drive.label') }}</span>
+    <gtt-segmented [options]="driveOptions()" [value]="driveMode()" (valueChange)="setDrive({ driveMode: $event })" />
+    <span class="bop">
+      <gtt-toggle [checked]="driveBop()" [disabled]="driveMode() === 'daily'" [label]="t('telemetry.refMode.bop')" (checkedChange)="setDrive({ driveBop: $event })" />
+      <span class="small">{{ t('telemetry.refMode.bop') }}</span>
+    </span>
+  </div>
+
+  <div class="state-line">
+    <span class="chip" [class.ok]="status()?.started" [class.accent]="coach.learning()">
+      <span class="dot" [class.pulse]="coach.isLive()"></span>{{ sessionState() }}
+    </span>
+  </div>
+</section>

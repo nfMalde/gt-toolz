@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: User guide
+    url: https://github.com/nfMalde/gt-toolz/blob/main/docs/user/README.md
+    about: How to install, set up and use GT Toolz, module by module.
+  - name: Security issue
+    url: https://github.com/nfMalde/gt-toolz/security/advisories/new
+    about: Please report security issues privately, not as a public issue (see SECURITY.md).

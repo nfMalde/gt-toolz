@@ -1,0 +1,255 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">{{ t('settings.eyebrow') }}</div>
+      <h1>{{ t('settings.title') }}</h1>
+    </div>
+  </div>
+
+  @if (s(); as s) {
+    <div class="columns">
+      <div class="stack">
+        <!-- Personal -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="heart" /></div>
+            <h2>{{ t('settings.personal') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('streamer.title') }}</div>
+              <div class="hint">{{ t('streamer.hint', { s: 10 }) }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.streamerMode" [label]="t('streamer.title')" (checkedChange)="set({ streamerMode: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.name') }}</div>
+              <div class="hint">{{ t('settings.nameHint') }}</div>
+            </div>
+            <div class="control ip-row">
+              <input class="input name" maxlength="30" spellcheck="false" [value]="name()" [placeholder]="t('settings.namePlaceholder')"
+                     (input)="name.set(inputValue($event))" (keydown.enter)="saveName()" (blur)="saveName()" />
+              <button type="button" class="btn" [disabled]="!s.driverName || coach.coachVoice()?.state !== 'ready'" (click)="listenName()">
+                <gtt-icon name="play" [size]="14" />{{ t('settings.listen') }}
+              </button>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.addressing') }}</div>
+              <div class="hint">{{ t('settings.addressingHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="addressingOptions()" [value]="s.addressing" [disabled]="!s.driverName" (valueChange)="set({ addressing: $event })" />
+            </div>
+          </div>
+          @if (s.driverName) {
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('settings.nameSlower') }}</div>
+                <div class="hint">{{ t('settings.nameSlowerHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="s.nameSlower" [min]="1" [max]="4" [step]="0.1" [format]="factor"
+                            [label]="t('settings.nameSlower')" (changed)="set({ nameSlower: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('settings.namePauseBefore') }}</div>
+                <div class="hint">{{ t('settings.namePauseBeforeHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="s.namePauseBefore" [min]="0" [max]="2" [step]="0.05" [format]="seconds"
+                            [label]="t('settings.namePauseBefore')" (changed)="set({ namePauseBefore: $event })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('settings.namePauseAfter') }}</div>
+                <div class="hint">{{ t('settings.namePauseAfterHint') }}</div>
+              </div>
+              <div class="control wide">
+                <gtt-slider [value]="s.namePauseAfter" [min]="0" [max]="2" [step]="0.05" [format]="seconds"
+                            [label]="t('settings.namePauseAfter')" (changed)="set({ namePauseAfter: $event })" />
+              </div>
+            </div>
+          }
+        </section>
+
+        <!-- Language -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="globe" /></div>
+            <h2>{{ t('settings.language') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.language') }}</div>
+              <div class="hint">{{ t('settings.languageHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="languageOptions()" [value]="s.language" (valueChange)="set({ language: $event })" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Volume of everything; coach and crew on their own pages -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="headphones" /></div>
+            <h2>{{ t('settings.audio') }}</h2>
+          </div>
+          <!-- Volume: everything, then coach and crew on their own (the user, 2026-10-25). -->
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.volume') }}</div>
+              <div class="hint">{{ t('settings.volumeHint') }}</div>
+            </div>
+            <div class="control wide">
+              <gtt-slider [value]="s.volume" [min]="0" [max]="100" [step]="5" [format]="percent" [label]="t('settings.volume')" (changed)="set({ volume: $event })" />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <!-- Personality: coach and crew together -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="sparkle" /></div>
+            <h2>{{ t('settings.personality') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.style') }}</div>
+              <div class="hint">{{ t('settings.styleHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="styleOptions()" [value]="s.style" (valueChange)="set({ style: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.patience') }}</div>
+              <div class="hint">{{ t('settings.patienceHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="patienceOptions()" [value]="s.patience" [disabled]="s.style !== 'cheeky'" (valueChange)="set({ patience: $event })" />
+            </div>
+          </div>
+        </section>
+
+        <!-- Updates (official installed builds; asked once in the news window) -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon"><gtt-icon name="download" /></div>
+            <h2>{{ t('updates.card') }}</h2>
+          </div>
+          @if (updates.status().available) {
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('updates.checkSetting') }}</div>
+                <div class="hint">{{ t('updates.checkSettingHint') }}</div>
+              </div>
+              <div class="control">
+                <gtt-toggle [checked]="s.updateCheck" [label]="t('updates.checkSetting')" (checkedChange)="set({ updateCheck: $event, updateAsked: true })" />
+              </div>
+            </div>
+            <div class="setting">
+              <div class="text">
+                <div class="title">{{ t('updates.version', { version: store.info()?.version ?? '' }) }}</div>
+                <div class="hint" [class.ok-text]="updates.status().state === 'none'">{{ updateLine() }}</div>
+              </div>
+              <div class="control">
+                @if (updates.found()) {
+                  <button type="button" class="btn primary" (click)="updates.show()"><gtt-icon name="download" [size]="16" />{{ t('updates.show') }}</button>
+                } @else {
+                  <button type="button" class="btn" [disabled]="updates.busy()" (click)="checkNow()"><gtt-icon name="refresh" [size]="16" />{{ t('updates.checkNow') }}</button>
+                }
+              </div>
+            </div>
+          } @else {
+            <p class="hint">{{ t('updates.unavailable') }}</p>
+          }
+        </section>
+
+        <!-- Diagnostics -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon"><gtt-icon name="info" /></div>
+            <h2>{{ t('settings.diagnostics') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.logs') }}</div>
+              <div class="hint">{{ t('settings.logsHint') }}</div>
+              @if (coach.status()?.logFile; as file) {
+                <div class="hint mono path selectable"><gtt-secret [value]="file" /></div>
+              }
+            </div>
+            <div class="control">
+              <button type="button" class="btn" (click)="openLogs()"><gtt-icon name="folder" [size]="16" />{{ t('settings.openFolder') }}</button>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.exportLog') }}</div>
+              <div class="hint">{{ t('settings.exportLogHint') }}</div>
+              @if (exported(); as e) {
+                <div class="hint" [class.ok-text]="!!e.file">{{ e.file ? t('settings.exportLogSaved', { file: e.file }) : e.empty ? t('settings.exportLogNone') : '' }}</div>
+              }
+            </div>
+            <div class="control">
+              <button type="button" class="btn" (click)="exportLog()"><gtt-icon name="download" [size]="16" />{{ t('settings.exportLogButton') }}</button>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.detailedLog') }}</div>
+              <div class="hint">{{ t('settings.detailedLogHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.detailedLog" [label]="t('settings.detailedLog')" (checkedChange)="set({ detailedLog: $event })" /></div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.reset') }}</div>
+              <div class="hint">{{ t('settings.resetHint') }}</div>
+            </div>
+            <div class="control">
+              <button type="button" class="btn danger" [disabled]="!!resetInfo()" (click)="askReset()"><gtt-icon name="trash" [size]="16" />{{ t('settings.resetButton') }}</button>
+            </div>
+          </div>
+          @if (resetInfo(); as info) {
+            <div class="reset-confirm">
+              @if (info.available) {
+                <b>{{ t('settings.resetConfirm') }}</b>
+                <ul class="small">
+                  <li>{{ t('settings.resetSettings') }}</li>
+                  <li>{{ t('settings.resetReferences', { n: info.references }) }}</li>
+                  <li>{{ t('settings.resetSessions', { n: info.sessions }) }}</li>
+                  <li>{{ t('settings.resetPacks', { n: info.recordedPacks }) }}</li>
+                  <li>{{ t('settings.resetVoices', { size: size(info.voicesBytes) }) }}</li>
+                </ul>
+                <label class="keep">
+                  <gtt-toggle [checked]="keepVoices()" [label]="t('settings.resetKeepVoices')" (checkedChange)="keepVoices.set($event)" />
+                  <span class="small">{{ t('settings.resetKeepVoices') }}</span>
+                </label>
+                <div class="row wrap">
+                  <button type="button" class="btn ghost" (click)="resetInfo.set(undefined)">{{ t('common.cancel') }}</button>
+                  <button type="button" class="btn danger" [disabled]="resetting()" (click)="reset()"><gtt-icon name="trash" [size]="16" />{{ t('settings.resetNow') }}</button>
+                </div>
+              } @else {
+                <span class="small">{{ t('settings.resetDev') }}</span>
+                <div class="row"><button type="button" class="btn ghost" (click)="resetInfo.set(undefined)">{{ t('common.close') }}</button></div>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    </div>
+  }
+</div>

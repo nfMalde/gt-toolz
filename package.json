@@ -1,0 +1,46 @@
+{
+  "name": "gt-toolz",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "description": "GT Toolz – Audio-Feedback für Gran Turismo 7 auf Basis der Telemetrie",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "modules/*",
+    "tools/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "node apps/desktop/scripts/dev.mjs",
+    "build:app": "npm run build -w @gt-toolz/ui && npm run build -w @gt-toolz/desktop",
+    "app": "npm run build:app && electron apps/desktop",
+    "capture": "tsx tools/capture/src/main.ts",
+    "fake-ps5": "tsx tools/capture/src/fake-ps5.ts",
+    "compare": "tsx tools/capture/src/compare.ts",
+    "probe": "tsx tools/capture/src/probe.ts",
+    "signals": "tsx tools/capture/src/signals.ts",
+    "reference": "tsx tools/capture/src/reference.ts",
+    "coach": "tsx tools/capture/src/coach.ts",
+    "simulate": "tsx tools/capture/src/simulate.ts",
+    "voices": "tsx tools/capture/src/voices-setup.ts",
+    "typecheck": "tsc",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "release": "node scripts/release/release.mjs"
+  },
+  "engines": {
+    "node": ">=22.22.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "electron-builder": "26.17.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  },
+  "overrides": {
+    "fast-uri": "3.1.9",
+    "node-gyp": {
+      "undici": "6.29.1"
+    }
+  }
+}

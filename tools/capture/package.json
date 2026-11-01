@@ -1,0 +1,14 @@
+{
+  "name": "@gt-toolz/capture",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@gt-toolz/telemetry": "*",
+    "@gt-toolz/coach": "*",
+    "@gt-toolz/crew": "*",
+    "@gt-toolz/runtime": "*",
+    "@gt-toolz/telemetry-module": "*"
+  }
+}

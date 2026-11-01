@@ -1,0 +1,63 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">{{ t('telemetry.cockpit.eyebrow') }}</div>
+      <h1>{{ title() }}</h1>
+    </div>
+    <div class="actions row wrap">
+      @if (status()?.mode; as mode) {
+        <span class="chip live"><span class="dot"></span>{{ t(modeKey(mode)) }}</span>
+      }
+      @for (chips of chips(); track chips) {
+        <ng-container *ngComponentOutlet="chips" />
+      }
+      @if (status()?.recording) {
+        <span class="chip danger"><span class="dot pulse"></span>{{ t('telemetry.cockpit.recording') }}</span>
+      }
+      @if (settings.muted()) {
+        <span class="chip danger"><gtt-icon name="volumeOff" [size]="14" />{{ t('app.muted') }}</span>
+      }
+    </div>
+  </div>
+
+  @if (coach.stage() === 'error') {
+    <div class="banner danger"><gtt-icon name="alert" /><span><b>{{ t('telemetry.conn.error') }}.</b> {{ t('telemetry.conn.errorHint') }}</span></div>
+  }
+  @for (banners of banners(); track banners) {
+    <ng-container *ngComponentOutlet="banners" />
+  }
+  @if (status()?.offReference) {
+    <div class="banner warn"><gtt-icon name="route" /><span>{{ t('telemetry.cockpit.offReference') }}</span></div>
+  }
+  @if (status()?.otherCar) {
+    <div class="banner warn"><gtt-icon name="alert" /><span>{{ otherCarText() }}</span></div>
+  }
+
+  <!-- The cards of every module that is on (docs/dev/modules.md). -->
+  <div class="cockpit">
+    @if (top().length) {
+      <div class="cockpit-row">
+        @for (card of top(); track card.id) {
+          <div class="cockpit-slot" [style.flex-grow]="card.weight ?? 1"><ng-container *ngComponentOutlet="card.component" /></div>
+        }
+      </div>
+    }
+    @for (card of wide(); track card.id) {
+      <div class="cockpit-slot"><ng-container *ngComponentOutlet="card.component" /></div>
+    }
+    @if (main().length || side().length) {
+      <div class="cockpit-row">
+        @for (card of main(); track card.id) {
+          <div class="cockpit-slot main" [style.flex-grow]="card.weight ?? 1"><ng-container *ngComponentOutlet="card.component" /></div>
+        }
+        @if (side().length) {
+          <div class="cockpit-side" [style.flex-grow]="sideWeight">
+            @for (card of side(); track card.id) {
+              <div class="cockpit-slot"><ng-container *ngComponentOutlet="card.component" /></div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

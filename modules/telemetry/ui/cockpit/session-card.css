@@ -1,0 +1,142 @@
+/* --- Connection stepper --- */
+.stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+}
+
+.stepper li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  position: relative;
+}
+
+.stepper li + li::before {
+  content: '';
+  position: absolute;
+  top: 17px;
+  right: calc(50% + 22px);
+  width: calc(100% - 44px);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--surface-3);
+}
+
+.stepper li.done + li::before,
+.stepper li.done + li.done::before {
+  background: linear-gradient(90deg, var(--ok), rgba(52, 211, 153, 0.4));
+}
+
+.node {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-3);
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+
+.done .node {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.active .node {
+  color: var(--warn);
+  border-color: rgba(251, 191, 36, 0.4);
+  background: var(--warn-soft);
+  animation: node-pulse 1.6s ease-in-out infinite;
+}
+
+.error .node {
+  color: #ff8aa0;
+  border-color: rgba(251, 72, 104, 0.4);
+  background: var(--danger-soft);
+}
+
+@keyframes node-pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.08);
+  }
+}
+
+.step-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.done .step-label {
+  color: var(--text);
+}
+
+.step-detail {
+  font-size: 11px;
+  margin-top: -4px;
+}
+
+.reference-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ref-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ref-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.ref-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 650;
+  margin-top: 2px;
+}
+
+.car-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  color: var(--ok);
+}
+
+.strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.state-line {
+  margin-top: 14px;
+}
+
+.drive-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.drive-row .bop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

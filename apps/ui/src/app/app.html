@@ -1,0 +1,157 @@
+<header class="titlebar">
+  <div class="brand">
+    <img class="logo" src="maldoe-64.png" alt="" width="28" height="28" />
+    <span class="name">{{ product }}</span>
+    <span class="byline">{{ byline }}</span>
+    @if (stage(); as stage) {
+      <span class="alpha">{{ t(stage) }}</span>
+    }
+  </div>
+  @if (bridge) {
+    <!-- A module's widget (the telemetry: the connection). -->
+    <div class="center">
+      @for (module of modules(); track module.id) {
+        @if (module.titleBar; as widget) {
+          <ng-container *ngComponentOutlet="widget" />
+        }
+      }
+    </div>
+    <div class="titlebar-end">
+      @if (updates.found()) {
+        <button type="button" class="update-button focusable" [title]="t('updates.buttonHint')" (click)="updates.show()">
+          <gtt-icon name="download" [size]="14" /><span>{{ t('updates.button', { version: updates.status().release?.version ?? '' }) }}</span>
+        </button>
+      }
+      <!-- Streamer mode: IPs, paths, other players' and device names hidden (core/streamer.ts). -->
+      <button type="button" class="streamer-toggle focusable" [class.on]="streamer.enabled()" [attr.aria-pressed]="streamer.enabled()"
+              [title]="t(streamer.enabled() ? 'streamer.toggleOff' : 'streamer.toggleOn')" (click)="streamer.toggle()">
+        <gtt-icon [name]="streamer.enabled() ? 'eyeOff' : 'eye'" [size]="14" />
+        @if (streamer.enabled()) { <span>{{ t('streamer.badge') }}</span> }
+      </button>
+      <div class="lang-switch" role="radiogroup" [attr.aria-label]="t('settings.language')">
+        @for (language of settings.languages(); track language.id) {
+          <button type="button" role="radio" class="focusable" [class.active]="settings.language() === language.id"
+                  [attr.aria-checked]="settings.language() === language.id" [title]="language.name" (click)="setLanguage(language.id)">
+            {{ language.id.toUpperCase() }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</header>
+
+@if (!bridge) {
+  <main class="no-bridge">
+    <div class="card empty">
+      <div class="card-icon accent"><gtt-icon name="alert" [size]="22" /></div>
+      <h2>{{ t('app.noBridge.title') }}</h2>
+      <p class="muted">{{ t('app.noBridge.text') }}</p>
+    </div>
+  </main>
+} @else {
+  <div class="shell">
+    <nav class="rail">
+      <div class="rail-scroll">
+        <div class="nav modules">
+          <a class="nav-item focusable" routerLink="/modules" routerLinkActive="active" data-tour="nav-modules">
+            <gtt-icon name="modules" />
+            <span>{{ t('nav.modules') }}</span>
+          </a>
+          <!-- Each module that is on, with its pages and buttons (core/module-ui.ts, modules.ts). -->
+          @for (module of modules(); track module.id) {
+            <div class="nav-group">{{ t(module.name) }}</div>
+            @for (page of module.pages; track page.path) {
+              <a class="nav-item focusable" [routerLink]="['/', module.id, page.path]" routerLinkActive="active" [attr.data-tour]="'nav-' + module.id + '-' + page.path">
+                <gtt-icon [name]="page.icon" />
+                <span>{{ t(page.label) }}</span>
+                @if (page.badge) {
+                  <span class="nav-badge">{{ t(page.badge) }}</span>
+                }
+              </a>
+            }
+            @for (action of actions.get(module.id); track action.id) {
+              <button type="button" class="nav-item focusable" [attr.data-tour]="'nav-' + module.id + '-' + action.id" (click)="action.run()">
+                <gtt-icon [name]="action.icon" />
+                <span>{{ t(action.label) }}</span>
+                @if (action.attention?.()) {
+                  <span class="attention" [title]="action.attentionTitle ? t(action.attentionTitle) : ''"></span>
+                }
+              </button>
+            }
+          }
+        </div>
+
+        <!-- The shell's pages: voices, recordings and the sound check for every module (the user, 2026-10-29). -->
+        <div class="nav secondary">
+          @for (item of nav; track item.path) {
+            <a class="nav-item focusable" [routerLink]="item.path" routerLinkActive="active" [attr.data-tour]="'nav-' + item.path.slice(1)">
+              <gtt-icon [name]="item.icon" />
+              <span>{{ t(item.label) }}</span>
+            </a>
+          }
+          <button type="button" class="nav-item focusable" data-tour="nav-guide" (click)="settings.openGuide()">
+            <gtt-icon name="guide" />
+            <span>{{ t('nav.guide') }}</span>
+          </button>
+          <button type="button" class="nav-item focusable" data-tour="nav-tour" (click)="settings.startTour()">
+            <gtt-icon name="route" />
+            <span>{{ t('nav.tour') }}</span>
+          </button>
+          <a class="nav-item focusable" routerLink="/about" routerLinkActive="active">
+            <gtt-icon name="info" />
+            <span>{{ t('nav.about') }}</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="rail-footer">
+        <div class="sound" data-tour="calls">
+          <div class="mute" [class.muted]="settings.muted()">
+            <gtt-icon [name]="settings.muted() ? 'volumeOff' : 'volume'" [size]="20" />
+            <div class="mute-text">
+              <b>{{ t('app.calls') }}</b>
+              <span class="small">{{ settings.muted() ? t('app.callsOff') : t('app.callsOn') }}</span>
+            </div>
+            <gtt-toggle [checked]="!settings.muted()" [label]="settings.muted() ? t('app.unmute') : t('app.mute')" (checkedChange)="settings.toggleMute()" />
+          </div>
+          <!-- The overall volume from every page; coach and crew on their own under Settings → Audio. -->
+          @if (settings.settings(); as s) {
+            <div class="volume" [title]="t('app.volumeHint')">
+              <gtt-slider [value]="s.volume" [min]="0" [max]="100" [step]="5" [format]="percent" [label]="t('settings.volume')" (changed)="settings.update({ volume: $event })" />
+            </div>
+          }
+        </div>
+        @if (settings.info(); as info) {
+          <div class="version faint small">v{{ info.version }}</div>
+        }
+      </div>
+    </nav>
+
+    <main class="content">
+      <router-outlet />
+      <!-- Donate and Maldö's channels, bottom right (the full links under About). -->
+      <gtt-link-bar />
+    </main>
+  </div>
+
+  @if (settings.welcomeOpen()) {
+    <gtt-welcome />
+  }
+  @if (settings.guideOpen()) {
+    <gtt-guide />
+  }
+  @if (settings.tourOpen()) {
+    <gtt-tour />
+  }
+  <!-- The modules' dialogs (the telemetry: what a reference is, after learning). -->
+  @for (module of modules(); track module.id) {
+    @for (dialog of module.dialogs; track $index) {
+      <ng-container *ngComponentOutlet="dialog" />
+    }
+  }
+  <!-- What is new in this version (once), and a newer version when there is one. -->
+  <gtt-news-dialog />
+  <gtt-update-dialog />
+  <!-- The warning before a value hidden by streamer mode is shown. -->
+  <gtt-reveal-dialog />
+}

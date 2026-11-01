@@ -1,0 +1,16 @@
+{
+  "name": "@gt-toolz/runtime",
+  "version": "1.0.0-beta",
+  "license": "GPL-3.0-only",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./app-api": "./src/app-api.ts"
+  },
+  "dependencies": {
+    "@gt-toolz/telemetry": "*",
+    "@gt-toolz/coach": "*",
+    "@gt-toolz/core": "*"
+  }
+}

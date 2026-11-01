@@ -1,0 +1,72 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <div class="eyebrow">{{ t('telemetry.module.name') }}</div>
+      <h1>{{ t('telemetry.nav.settings') }}</h1>
+    </div>
+  </div>
+
+  @if (s(); as s) {
+    <div class="columns">
+      <div class="stack">
+        <!-- Connection -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="wifi" /></div>
+            <h2>{{ t('telemetry.settings.connection') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('telemetry.settings.ip') }}</div>
+              <div class="hint">{{ t('telemetry.settings.ipHint') }}</div>
+              @if (!ipValid()) {
+                <div class="error-text">{{ t('telemetry.settings.ipInvalid') }}</div>
+              }
+            </div>
+            <div class="control ip-row">
+              <gtt-secret-field>
+                <input class="input ip mono" [class.invalid]="!ipValid()" [value]="ip()" [placeholder]="t('telemetry.settings.ipPlaceholder')"
+                       spellcheck="false" (input)="ip.set(inputValue($event))" (keydown.enter)="saveIp()" />
+              </gtt-secret-field>
+              <button type="button" class="btn" [disabled]="!ipChanged() || !ipValid()" (click)="saveIp()">{{ t('common.save') }}</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- References -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="flag" /></div>
+            <h2>{{ t('telemetry.settings.references') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('telemetry.settings.autoReference') }}</div>
+              <div class="hint">{{ t('telemetry.settings.autoReferenceHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.autoReference" [label]="t('telemetry.settings.autoReference')" (checkedChange)="set({ autoReference: $event })" />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <!-- Recording -->
+        <section class="card">
+          <div class="card-header">
+            <div class="card-icon accent"><gtt-icon name="wave" /></div>
+            <h2>{{ t('telemetry.settings.recording') }}</h2>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('telemetry.settings.record') }}</div>
+              <div class="hint">{{ t('telemetry.settings.recordHint') }}</div>
+            </div>
+            <div class="control"><gtt-toggle [checked]="s.record" [label]="t('telemetry.settings.record')" (checkedChange)="set({ record: $event })" /></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  }
+</div>
