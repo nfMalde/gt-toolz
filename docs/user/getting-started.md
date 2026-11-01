@@ -15,12 +15,12 @@ This page takes you from the download to your first drive with the coach.
 | **Screen** | 1280 × 720 | 1920 × 1080 |
 | **Sound** | any output device | a wireless earbud connected to the computer, for example by Bluetooth |
 | **Network** | computer and PS5 in the same home network (Wi-Fi or cable) | computer on cable, PS5 on cable or 5 GHz Wi-Fi |
-| **Console** | PS5 with Gran Turismo 7 | – |
+| **Console** | PS5 with Gran Turismo 7 (not the PS4) | – |
 | **Internet** | not needed while driving | only to download optional voices and updates |
 
 **Why an earbud?** The coach talks through your computer. With an earbud the game sound stays on your TV or headset, and you hear the coach on top. Bluetooth adds a small delay; the [calibration](coach.md#calibration) takes care of it.
 
-GT7 on a PS4 is not tested.
+**PS4:** GT Toolz has not been tested with GT7 on a PS4, and the PS4 is not officially supported.
 
 ## Install
 

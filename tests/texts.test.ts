@@ -19,6 +19,7 @@ import { de as telemetryDe } from '../modules/telemetry/ui/i18n/de';
 import { en as telemetryEn } from '../modules/telemetry/ui/i18n/en';
 import dePack from '../packages/coach/language-packs/de.json' with { type: 'json' };
 import enPack from '../packages/coach/language-packs/en.json' with { type: 'json' };
+import { builtInPhrases } from '../packages/coach/src/i18n';
 import { validateLanguagePack } from '../packages/coach/src/i18n/pack';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -45,6 +46,20 @@ test('the built-in language packs are valid and complete', () => {
     assert.deepEqual(warnings, [], `${pack.id}: warnings`);
   }
   assert.deepEqual(Object.keys(dePack.texts).sort(), Object.keys(enPack.texts).sort(), 'the same spoken texts in both packs');
+});
+
+test('a car name is spoken without its year and brackets, at once whatever the name', () => {
+  const en = builtInPhrases('en');
+  assert.equal(
+    en.referenceLoaded('Suzuka', { car: "Mazda RX-7 Spirit R Type A (FD) '02", driver: 'fast_guy' }),
+    'Reference loaded. Suzuka. Mazda RX-7 Spirit R Type A, driven by fast guy. You can start.',
+  );
+  assert.equal(en.referenceLoaded('Suzuka', { car: "Porsche 911 RSR (991) '17 Gr.3" }), 'Reference loaded. Suzuka. Porsche 911 RSR Group 3. You can start.');
+  // A name from a copied reference file: long runs of spaces or brackets cost no noticeable time.
+  const started = performance.now();
+  en.referenceLoaded('Suzuka', { car: `${' '.repeat(50_000)}x'1` });
+  en.referenceLoaded('Suzuka', { car: '('.repeat(50_000) });
+  assert.ok(performance.now() - started < 1000, `${Math.round(performance.now() - started)} ms`);
 });
 
 test('every licence notice on the licences page has its text', () => {

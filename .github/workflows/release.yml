@@ -20,7 +20,8 @@
 # Repository settings this relies on (docs/dev/building.md, "CI"): the environments "approval" and "release", both
 # with required reviewers and the deployment branch main, "release" with the secret; immutable releases; the rulesets
 # for main and tags v*.
-# Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md).
+# Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md). No package
+# cache: every install comes from the registry, and no other run can leave one behind for a release.
 name: Release
 
 on:
@@ -81,6 +82,7 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 22.23.2
+          package-manager-cache: false
       - run: npm ci
       - name: Plan the version
         id: plan
@@ -181,6 +183,7 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 22.23.2
+          package-manager-cache: false
       - run: npm ci
       - if: matrix.name == 'linux'
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb

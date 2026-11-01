@@ -182,6 +182,8 @@ The app takes an update only when `SHA256SUMS.txt` carries a valid signature of 
 - **Immutable releases** (Settings → General → Releases): a published release's files and tag cannot change.
 - **Rulesets:** `main` only by pull request (with the PR build green), tags `v*` created only by the release.
 - **The branch `cla-signatures`** for the CLA bot, and **private vulnerability reporting** (Settings → Security) for [SECURITY.md](../../SECURITY.md).
+- **Actions** (Settings → Actions → General): only actions by GitHub and `contributor-assistant/github-action@*` are allowed; workflow runs of pull requests from all outside contributors need a maintainer's approval.
+- **Code security** (Settings → Code security): secret scanning with push protection, and CodeQL's default setup (JavaScript/TypeScript and Actions, extended queries) for `main` and every pull request.
 
 **The signing key:** keep the private key in a password manager as well as in the secret. A lost key means installed apps take no more automatic updates; a new key has to come with a release signed with the old one. To make a pair: `node -e "const {privateKey,publicKey}=require('crypto').generateKeyPairSync('ed25519');console.log(privateKey.export({type:'pkcs8',format:'pem'})+publicKey.export({type:'spki',format:'pem'}))"`.
 

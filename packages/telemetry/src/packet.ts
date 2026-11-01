@@ -323,7 +323,7 @@ export function readFrame(data: Uint8Array, time: number): TelemetryFrame {
     frame.curbWheels =
       (surface[0] === curb ? CURB_FL : 0) | (surface[1] === curb ? CURB_FR : 0) | (surface[2] === curb ? CURB_RL : 0) | (surface[3] === curb ? CURB_RR : 0);
     frame.offTrackWheels = [...surface].filter((c) => c === 0x47 || c === 0x53).length;
-    frame.carCategory = String.fromCharCode(...data.subarray(0x16c, 0x170)).replace(/\0.*$/, '');
+    frame.carCategory = String.fromCharCode(...data.subarray(0x16c, 0x170)).split('\0', 1)[0];
   }
   return frame;
 }

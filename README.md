@@ -108,6 +108,7 @@ speakers agreed. Details: [Your own recorded voice](docs/user/voices.md#your-own
 
 Download the installer for your system from the **[releases page](https://github.com/nfMalde/gt-toolz/releases)**.
 You need a PS5 with Gran Turismo 7 and a computer in the same home network.
+**The PS4 is not supported:** GT Toolz has not been tested with GT7 on a PS4.
 
 > [!TIP]
 > **New to GitHub?** You need no account. Open the [releases page](https://github.com/nfMalde/gt-toolz/releases): the

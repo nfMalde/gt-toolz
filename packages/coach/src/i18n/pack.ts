@@ -529,8 +529,9 @@ export function phrasesFromPack(pack: LanguagePack, fallback: LanguagePack): Phr
   /** A car name as it is spoken: without the model year ("'17"), "Gr.3" as "Gruppe 3", "VGT" as "Vision GT". */
   const carSpoken = (name: string): string =>
     name
-      .replace(/\s*'\d{2}\b/g, '')
-      .replace(/\s*\([^)]*\)/g, '')
+      // The spaces around what is cut out go in the last two steps: a leading \s* would retry every space of a long run.
+      .replace(/'\d{2}\b/g, '')
+      .replace(/\([^()]*\)/g, '')
       .replace(/\bGr\.\s*(\w+)/g, (_, group: string) => text('car.group', { group }))
       .replace(/\bVGT\b/g, 'Vision GT')
       .replace(/\s+/g, ' ')

@@ -650,10 +650,19 @@ export class VoicePackStore {
     if (!PACK_ID.test(id)) return undefined;
     const file = path.join(this.dir(id), 'pack.json');
     try {
-      const changed = fs.statSync(file).mtimeMs;
-      const cached = this.cache.get(id);
-      if (cached?.changed === changed) return structuredClone(cached.pack);
-      const pack = JSON.parse(fs.readFileSync(file, 'utf8')) as PackFile;
+      // The date and the contents through one handle: the cache never keeps a date with other contents.
+      const fd = fs.openSync(file, 'r');
+      let changed: number;
+      let text: string;
+      try {
+        changed = fs.fstatSync(fd).mtimeMs;
+        const cached = this.cache.get(id);
+        if (cached?.changed === changed) return structuredClone(cached.pack);
+        text = fs.readFileSync(fd, 'utf8');
+      } finally {
+        fs.closeSync(fd);
+      }
+      const pack = JSON.parse(text) as PackFile;
       // A newer app's pack (after going back to an older version) is left alone.
       if (pack.format !== VOICE_PACK_FORMAT || !isVersion(pack.version) || pack.version > VOICE_PACK_VERSION || pack.id !== id || !LANGUAGE.test(pack.language)) return undefined;
       pack.recordings = validRecordings(pack.recordings);

@@ -109,7 +109,7 @@ test('serves its pages under its own name only, with a strict policy', async () 
     assert.equal(page.status, 200);
     assert.match(String(page.headers['content-security-policy']), /default-src 'none'.*frame-ancestors 'none'/);
     assert.equal(page.headers['x-content-type-options'], 'nosniff');
-    assert.doesNotMatch(page.body, /<script>|style=/, 'no inline code');
+    assert.doesNotMatch(page.body, /<script(?![^>]*\ssrc=)|style=/i, 'no inline code');
     assert.equal((await request(port, '/overlay.js')).body, '/* overlay client */');
     // A DNS trick (another name for 127.0.0.1), another web page, a cross-site request, anything but GET.
     assert.equal((await request(port, '/overlay', { headers: { Host: `evil.example:${port}` } })).status, 403);

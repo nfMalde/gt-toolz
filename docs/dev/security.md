@@ -159,7 +159,7 @@ The PS5's name and IP are shown in the app; streamer mode hides them on screen.
 | **Licenses shown** | Every shipped dependency is on the in-app licenses page (`apps/desktop/src/licenses.ts`; its text is collected at build time by `apps/desktop/scripts/build.mjs`, whose `shipped` list must name it) and in `THIRD-PARTY-NOTICES.md`. |
 | **Vendored data** | Only with source, commit, SHA-256 and the license of every part (`packages/telemetry/data/SOURCE.md`, `packages/coach/data/SOURCE.md`); updated only with app updates, and the 14-day rule applies to the data commit. |
 | **Own work** | No copied snippets: write it yourself, or credit it and check its license first. Icons are drawn for the project (`apps/ui/src/app/ui/icon.ts`), never taken from an icon set. |
-| **CI actions** | Pinned to exact version tags (`actions/checkout@v7.0.1`), each at least 14 days old when pinned. Dependabot proposes newer ones with a 14-day cooldown (`.github/dependabot.yml`); npm packages are updated by hand after the checks above. Release installers carry build provenance (`gh attestation verify`). |
+| **CI actions** | Only actions by GitHub and the CLA bot may run. Pinned to exact version tags (`actions/checkout@v7.0.1`), each at least 14 days old when pinned, without a package cache. Dependabot proposes newer ones with a 14-day cooldown (`.github/dependabot.yml`); npm packages are updated by hand after the checks above. Release installers carry build provenance (`gh attestation verify`). |
 
 **Adding or updating a dependency:**
 

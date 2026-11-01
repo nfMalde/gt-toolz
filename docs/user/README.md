@@ -15,7 +15,7 @@ Everything runs on your computer. There is no account and no tracking.
 
 ## Quick start (about 5 minutes)
 
-You need a PC or Mac in the same home network as your PS5, and ideally a wireless earbud connected to the computer. The game sound stays on your TV or headset; the coach talks in the earbud.
+You need a PC or Mac in the same home network as your PS5 (the PS4 is not supported), and ideally a wireless earbud connected to the computer. The game sound stays on your TV or headset; the coach talks in the earbud.
 
 1. **Download** the installer for your system from the [releases page](https://github.com/nfMalde/gt-toolz/releases):
    - Windows: `GT-Toolz-Setup-<version>-x64.exe`
