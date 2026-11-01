@@ -9,51 +9,157 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/nfMalde/gt-toolz/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/nfMalde/gt-toolz/build.yml?branch=main&label=build&style=flat-square"></a>
-  <a href="https://github.com/nfMalde/gt-toolz/actions/workflows/pr.yml"><img alt="PR build" src="https://img.shields.io/github/actions/workflow/status/nfMalde/gt-toolz/pr.yml?label=PR%20build&style=flat-square"></a>
-  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Release" src="https://img.shields.io/github/v/release/nfMalde/gt-toolz?include_prereleases&sort=semver&style=flat-square"></a>
-  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nfMalde/gt-toolz/total?style=flat-square"></a>
+  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Download GT Toolz" src="https://img.shields.io/github/v/release/nfMalde/gt-toolz?include_prereleases&sort=semver&style=for-the-badge&label=Download&color=orange"></a>
+</p>
+
+<p align="center">
+  <a href="#installing">How to install</a> · <a href="docs/user/README.md">User guide</a>
+</p>
+
+<p align="center">
+  <a href="#languages-and-voices"><img alt="Languages: German and English" src="https://img.shields.io/badge/languages-German%20%7C%20English-green?style=flat-square"></a>
   <img alt="Status: beta" src="https://img.shields.io/badge/status-beta-orange?style=flat-square">
   <img alt="Platforms" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square">
+  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nfMalde/gt-toolz/total?style=flat-square"></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-blue?style=flat-square"></a>
   <a href="https://www.paypal.com/donate/?hosted_button_id=SVZHLRTQ6H4VL"><img alt="Donate" src="https://img.shields.io/badge/donate-paypal-blue?style=flat-square"></a>
   <a href="https://www.twitch.tv/maldoe"><img alt="Twitch: maldoe" src="https://img.shields.io/badge/twitch-maldoe-9146FF?style=flat-square&logo=twitch&logoColor=white"></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Download GT Toolz" src="https://img.shields.io/github/v/release/nfMalde/gt-toolz?include_prereleases&sort=semver&style=for-the-badge&label=Download&color=orange"></a>
-</p>
-
-GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network. A **coach** counts you into
-every braking point and tells you what cost time, a **race crew** talks to you on the radio in races, and **overlays**
-show your throttle, brake, gear and tyres in OBS. Coach and crew have **a personality of their own**: make the same
-mistake once too often and they get cheeky, lose their patience and, in the end, quit on you. They can even speak with
-**your own voice**. Everything runs on your own computer: no account, no cloud, no ads.
-
-> [!IMPORTANT]
-> **GT Toolz is a hobby project, and this is a beta.** It still has bugs. Windows is fully tested; on **macOS and
-> Linux** it is only partly tested, and errors or crashes can happen there. Some German voices can be hard to
-> understand at times. Your feedback helps a lot: [report a bug or an idea](https://github.com/nfMalde/gt-toolz/issues/new/choose).
-
-## Contents
-
-- [What it does](#what-it-does) · [Coach and crew with moods](#coach-and-crew-with-moods) · [Your own voice](#your-own-voice) · [What GT Toolz is not](#what-gt-toolz-is-not)
-- **For users:** [Installing](#installing) · [First start](#first-start) · [Examples](#examples) · [Updates](#updates) · [Reporting a bug](#reporting-a-bug) · [User guide](docs/user/README.md)
-- **For contributors:** [Contributing](#contributing) · [Writing a module](#writing-a-module) · [Build from source](#build-from-source) · [Developer docs](docs/dev/README.md)
-- [Privacy](#privacy) · [License](#license) · [No warranty, no liability](#no-warranty-no-liability) · [Links and support](#links-and-support)
+GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network, so a coach and a race crew can
+talk to you while you drive. Everything runs on your own computer: free, no account, no cloud, no ads.
 
 ## What it does
 
-| Module | What you get |
-|---|---|
-| **Telemetry** | Finds your PS5, reads GT7's telemetry, recognises the track and the car, learns **reference laps** from your own driving or from a GT7 replay, and picks the right one by itself. |
-| **Coach** | Braking points as a countdown ("Full braking ahead … two, one, now"), the corner plan with gears and apex speed, fast corners (flat, lift), trail braking, feedback on the corners that cost the most, the cause of a spin, a briefing and a debrief. Neutral or cheeky. |
-| **Race crew** | A race engineer on a radio voice in races: positions, lap and sector times, laps to go, fuel and tyre strategy. Quiet in the lobby and in qualifying, and from the chequered flag on. |
-| **OBS overlays** | One browser source for OBS, put together by drag and drop: speed, gear, pedals, trace, tyres, laps, delta, position, steering. Runs on your PC only. |
-| **Vibration** | The calls as vibration: PS5 controller, bass shaker or haptic vest, for drivers who hear badly or want it quieter. |
-| **Voices and texts** | German and English; system voices, neural voices to download, or your own recorded voice. Every spoken text can be reworded. |
+- **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now"*) with the
+  corner plan, gears, apex speed, fast corners (flat, lift) and trail braking. GT Toolz recognises the track and the
+  car, learns the **reference lap** from your own driving or a GT7 replay, and picks the right one by itself.
+- **Feedback on your driving:** the corners that cost the most and what to try, the cause of a spin, a briefing and a
+  debrief.
+- **A race crew on the radio:** positions, lap and sector times, laps to go, fuel and tyre strategy. Quiet in the lobby,
+  in qualifying and from the chequered flag on.
+- **A personality:** make the same mistake once too often and coach and crew get cheeky, lose their patience and, in
+  the end, quit on you ([read more](#coach-and-crew-with-moods)). You can also choose the factual style without remarks.
+- **Your own voice:** record the calls yourself, or with a friend who agreed to it ([how](#your-own-voice)).
+- **Overlays for your stream:** one browser source for OBS, put together by drag and drop: speed, gear, pedals, trace,
+  tyres, laps, delta, position, steering. Runs on your PC only.
+- **Vibration:** the calls on a PS5 controller, bass shaker or haptic vest, for drivers who hear badly or want it
+  quieter.
 
-Each module can be switched on and off. The [user guide](docs/user/README.md) explains each of them in detail.
+Every spoken text can be reworded on the **Texts** page. The [user guide](docs/user/README.md) explains everything in
+detail.
+
+## Languages and voices
+
+**The app, the coach and the crew all speak German (Deutsch) and English.** You pick the language at the first start,
+and the **DE | EN** switch in the title bar changes it at any time. They can also differ: for example the app in
+English and the coach in German.
+
+The voices:
+
+- **Neural voices** sound more natural. They are an optional free download and then run offline on your computer.
+  **German:** Ramona, Eva K, Jan, CSS10 German. **English:** Kristin, Norman, John, Cori, LJSpeech.
+- **System voices** come with Windows and macOS and work right away. Linux has none that GT Toolz can use, so there you
+  download one neural voice.
+- **Your own voice:** a voice pack you record yourself, in German or English ([how](#your-own-voice)).
+
+Some German voices can be hard to understand at times. If so, try another one or lower its speed. More:
+[Voices](docs/user/voices.md).
+
+## Good to know
+
+> [!IMPORTANT]
+> **GT Toolz is a hobby project, and this is a beta.** It still has bugs. Windows is fully tested; on **macOS and
+> Linux** it is only partly tested, and errors or crashes can happen there. Your feedback helps a lot:
+> [report a bug or an idea](https://github.com/nfMalde/gt-toolz/issues/new/choose).
+
+- **PS5 only.** You need a PS5 with Gran Turismo 7 and a computer in the same home network. The PS4 is not supported:
+  GT Toolz has not been tested with GT7 on a PS4.
+- **Your system warns once when you install it,** because the installers are not signed.
+  [Installing](#installing) shows what to click.
+- **Not an AI, and it will not become one.** Coach and crew use fixed rules and texts written by hand
+  ([more](#what-gt-toolz-is-not)).
+- **No servers, and that keeps it free:** no leaderboards, no accounts, no cloud.
+- **Your data stays with you:** no analytics, no tracking, and the logs are anonymous ([Privacy](#privacy)).
+
+![The Cockpit while driving: live values, the countdown of the next braking zone, the reference and the feedback per corner](docs/images/cockpit.png)
+
+## Contents
+
+- **For users:** [Installing](#installing) · [First start](#first-start) · [Coach and crew with moods](#coach-and-crew-with-moods) · [Your own voice](#your-own-voice) · [Examples](#examples) · [What GT Toolz is not](#what-gt-toolz-is-not) · [Updates](#updates) · [Reporting a bug](#reporting-a-bug) · [Privacy](#privacy) · [User guide](docs/user/README.md)
+- **For contributors:** [Contributing](#contributing) · [Writing a module](#writing-a-module) · [Build from source](#build-from-source) · [Signing](#signing) · [Developer docs](docs/dev/README.md)
+- [License](#license) · [No warranty, no liability](#no-warranty-no-liability) · [Links and support](#links-and-support)
+
+## Installing
+
+Download the installer for your system from the **[releases page](https://github.com/nfMalde/gt-toolz/releases)**.
+You need a PS5 with Gran Turismo 7 and a computer in the same home network; the PS4 is not supported.
+
+> [!TIP]
+> **New to GitHub?** You need no account. Open the [releases page](https://github.com/nfMalde/gt-toolz/releases): the
+> newest version is at the top. Scroll down to **Assets** below its description and click the file for your system
+> from the table below; it downloads like any other file. The files named *Source code* are not needed.
+
+| System | File | Requirements |
+|---|---|---|
+| **Windows** | `GT-Toolz-Setup-<version>-x64.exe` | Windows 10 or 11, x64 |
+| **macOS** | `GT-Toolz-<version>-mac-arm64.dmg` (Apple silicon) or `…-mac-x64.dmg` (Intel) | macOS 13 Ventura or later |
+| **Linux** | `gt-toolz_<version>_amd64.deb` | Ubuntu 22.04 or later, Debian 12 or later, x64 |
+
+<details>
+<summary><b>Which Mac do you have?</b></summary>
+
+Apple menu → **About This Mac**: "Chip: Apple M…" means `mac-arm64`, "Processor: Intel" means `mac-x64`. The wrong file
+breaks nothing: the Apple silicon file does not start on an Intel Mac. The Intel file does run on Apple silicon through
+Rosetta 2, but it starts more slowly, needs more computing power and keeps updating as the Intel version until you
+install the other file, so take the matching one.
+
+</details>
+
+The installers are **not signed** (see [Signing](#signing)), so your system warns once:
+
+- **Windows:** run the installer. SmartScreen says "Windows protected your PC": choose **More info**, then **Run anyway**.
+  GT Toolz installs for your user only (no admin rights) and starts. When Windows asks about the firewall, allow
+  **private networks** only.
+- **macOS:** open the disk image and drag GT Toolz to **Applications**. On the first start macOS says it cannot check
+  the app: open **System Settings → Privacy & Security** and click **Open Anyway**. If macOS calls the app "damaged",
+  run `xattr -dr com.apple.quarantine "/Applications/GT Toolz.app"` in Terminal once. Allow the local network when
+  asked; that is how the app finds the PS5.
+- **Linux:** install with `sudo apt install ./gt-toolz_<version>_amd64.deb` (or open the file in your software
+  installer), then start GT Toolz from the menu or with `gt-toolz`.
+
+<details>
+<summary><b>Optional: check the file before installing</b></summary>
+
+Compare its SHA-256 with `SHA256SUMS.txt` from the same release (`Get-FileHash <file>` on Windows, `shasum -a 256 <file>`
+on macOS, `sha256sum <file>` on Linux), or verify where it was built with the [GitHub CLI](https://cli.github.com/):
+`gh attestation verify <file> --repo nfMalde/gt-toolz`.
+
+</details>
+
+<details>
+<summary><b>Uninstalling: what stays</b></summary>
+
+Your settings, references and voices stay when you uninstall: in `%APPDATA%\GT Toolz` (Windows),
+`~/Library/Application Support/GT Toolz` (macOS) or `~/.config/GT Toolz` (Linux).
+
+</details>
+
+## First start
+
+1. **Start GT Toolz.** The welcome window opens; pick **DE** or **EN** at the top and click **Start setup**.
+2. **Start GT7 on the PS5** and drive or watch a replay. The setup assistant finds the PS5 as soon as telemetry
+   arrives. Nothing needs to be set up in the game.
+3. **Pick a voice.** On Windows and macOS the system voice works right away; better offline voices are optional
+   downloads. On Linux, download one voice in the assistant.
+4. **Calibrate once:** start a time trial, click **Start calibration** and brake exactly at "now" five times.
+
+![The welcome window on the first start: connect, learn a reference, calibrate, drive and listen](docs/images/welcome.png)
+
+A wireless earbud on the computer works best: the game sound stays on your TV or headset, the coach talks in your ear.
+The full walkthrough is in [Getting started](docs/user/getting-started.md).
+
+Each part of GT Toolz is a module that you can switch on and off on the **Modules** page:
 
 ![The Modules page: telemetry, coach, crew, OBS overlays and vibration, each with a switch](docs/images/modules.png)
 
@@ -94,75 +200,6 @@ Packs can be **exported** as a `.gttvoice` file and **imported** on another PC, 
 voice with friends. GT Toolz uploads nothing and hosts nothing: you pass the file on yourself, and only voices whose
 speakers agreed. Details: [Your own recorded voice](docs/user/voices.md#your-own-recorded-voice).
 
-## What GT Toolz is not
-
-- **Not an AI, and it will not become one.** Everything coach and crew say comes from fixed rules and from texts
-  written by hand, which you can change on the Texts page. Nothing is generated, there is no chatbot, and nothing
-  about you is sent anywhere to be analysed. When GT Toolz "learns" a reference, it records a lap and measures where
-  the braking points are: measuring, not machine learning. The optional neural voices are trained speech models that
-  only read these texts aloud. An AI coach would need servers and money, and GT Toolz stays free and offline.
-- **No servers: no leaderboards, no accounts, no cloud.** Online rankings, shared ghost databases, cloud saves or a
-  web service would mean hosting costs every month. GT Toolz stays free, so there will be none of that. Everything
-  stays on your PC; the only internet connections are the voice downloads you start yourself and the update check
-  you agreed to.
-- **Not an official product** of Sony Interactive Entertainment or Polyphony Digital (see
-  [No warranty, no liability](#no-warranty-no-liability)).
-
-## Installing
-
-Download the installer for your system from the **[releases page](https://github.com/nfMalde/gt-toolz/releases)**.
-You need a PS5 with Gran Turismo 7 and a computer in the same home network.
-**The PS4 is not supported:** GT Toolz has not been tested with GT7 on a PS4.
-
-> [!TIP]
-> **New to GitHub?** You need no account. Open the [releases page](https://github.com/nfMalde/gt-toolz/releases): the
-> newest version is at the top. Scroll down to **Assets** below its description and click the file for your system
-> from the table below; it downloads like any other file. The files named *Source code* are not needed.
-
-| System | File | Requirements |
-|---|---|---|
-| **Windows** | `GT-Toolz-Setup-<version>-x64.exe` | Windows 10 or 11, x64 |
-| **macOS** | `GT-Toolz-<version>-mac-arm64.dmg` (Apple silicon) or `…-mac-x64.dmg` (Intel) | macOS 13 Ventura or later |
-| **Linux** | `gt-toolz_<version>_amd64.deb` | Ubuntu 22.04 or later, Debian 12 or later, x64 |
-
-**Which Mac do you have?** Apple menu → **About This Mac**: "Chip: Apple M…" means `mac-arm64`, "Processor: Intel" means
-`mac-x64`. The wrong file breaks nothing: the Apple silicon file does not start on an Intel Mac. The Intel file does run
-on Apple silicon through Rosetta 2, but it starts more slowly, needs more computing power and keeps updating as the Intel
-version until you install the other file, so take the matching one.
-
-The installers are **not signed** (see [Signing](#signing)), so your system warns once:
-
-- **Windows:** run the installer. SmartScreen says "Windows protected your PC": choose **More info**, then **Run anyway**.
-  GT Toolz installs for your user only (no admin rights) and starts. When Windows asks about the firewall, allow
-  **private networks** only.
-- **macOS:** open the disk image and drag GT Toolz to **Applications**. On the first start macOS says it cannot check
-  the app: open **System Settings → Privacy & Security** and click **Open Anyway**. If macOS calls the app "damaged",
-  run `xattr -dr com.apple.quarantine "/Applications/GT Toolz.app"` in Terminal once. Allow the local network when
-  asked; that is how the app finds the PS5.
-- **Linux:** install with `sudo apt install ./gt-toolz_<version>_amd64.deb` (or open the file in your software
-  installer), then start GT Toolz from the menu or with `gt-toolz`.
-
-Optional: check the file before installing. Compare its SHA-256 with `SHA256SUMS.txt` from the same release
-(`Get-FileHash <file>` on Windows, `shasum -a 256 <file>` on macOS, `sha256sum <file>` on Linux), or verify where it was
-built with the [GitHub CLI](https://cli.github.com/): `gh attestation verify <file> --repo nfMalde/gt-toolz`.
-
-Your settings, references and voices stay when you uninstall: in `%APPDATA%\GT Toolz` (Windows),
-`~/Library/Application Support/GT Toolz` (macOS) or `~/.config/GT Toolz` (Linux).
-
-## First start
-
-1. **Start GT Toolz.** The welcome window opens; pick **DE** or **EN** at the top and click **Start setup**.
-2. **Start GT7 on the PS5** and drive or watch a replay. The setup assistant finds the PS5 as soon as telemetry
-   arrives. Nothing needs to be set up in the game.
-3. **Pick a voice.** On Windows and macOS the system voice works right away; better offline voices are optional
-   downloads. On Linux, download one voice in the assistant.
-4. **Calibrate once:** start a time trial, click **Start calibration** and brake exactly at "now" five times.
-
-![The welcome window on the first start: connect, learn a reference, calibrate, drive and listen](docs/images/welcome.png)
-
-A wireless earbud on the computer works best: the game sound stays on your TV or headset, the coach talks in your ear.
-The full walkthrough is in [Getting started](docs/user/getting-started.md).
-
 ## Examples
 
 **Learn a track and get coached**
@@ -172,8 +209,6 @@ The full walkthrough is in [Getting started](docs/user/getting-started.md).
    gear. Two, one, now."*
 3. After the lap the coach tells you the corner that cost the most and what to try. No replay at hand? Just drive three
    laps: GT Toolz takes your fastest as the reference.
-
-![The Cockpit while driving: live values, the countdown of the next braking zone, the reference and the feedback per corner](docs/images/cockpit.png)
 
 **Race with your crew**
 1. Start any race (offline or in a lobby). In the lobby and in qualifying the crew stays quiet.
@@ -189,6 +224,20 @@ The full walkthrough is in [Getting started](docs/user/getting-started.md).
 
 More: [coach](docs/user/coach.md) · [race crew](docs/user/crew.md) · [overlays](docs/user/overlays.md) ·
 [vibration](docs/user/haptics.md) · [voices](docs/user/voices.md) · [texts](docs/user/texts.md).
+
+## What GT Toolz is not
+
+- **Not an AI, and it will not become one.** Everything coach and crew say comes from fixed rules and from texts
+  written by hand, which you can change on the Texts page. Nothing is generated, there is no chatbot, and nothing
+  about you is sent anywhere to be analysed. When GT Toolz "learns" a reference, it records a lap and measures where
+  the braking points are: measuring, not machine learning. The optional neural voices are trained speech models that
+  only read these texts aloud. An AI coach would need servers and money, and GT Toolz stays free and offline.
+- **No servers: no leaderboards, no accounts, no cloud.** Online rankings, shared ghost databases, cloud saves or a
+  web service would mean hosting costs every month. GT Toolz stays free, so there will be none of that. Everything
+  stays on your PC; the only internet connections are the voice downloads you start yourself and the update check
+  you agreed to.
+- **Not an official product** of Sony Interactive Entertainment or Polyphony Digital (see
+  [No warranty, no liability](#no-warranty-no-liability)).
 
 ## Updates
 
@@ -229,7 +278,16 @@ folder** opens it. More help: [Troubleshooting](docs/user/troubleshooting.md).
 Security issues please [privately](https://github.com/nfMalde/gt-toolz/security/advisories/new), see
 [SECURITY.md](SECURITY.md).
 
+## Privacy
+
+GT Toolz talks to your PS5 in the home network. The OBS overlay server listens on `127.0.0.1` only, and only while it
+is on. The app goes online only for what you agreed to: voice downloads you start yourself, and the update check (asked
+once). No analytics, no tracking, no account. Logs are anonymous (see [Reporting a bug](#reporting-a-bug)). Details: [Privacy](docs/user/privacy.md).
+
 ## Contributing
+
+<a href="https://github.com/nfMalde/gt-toolz/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/nfMalde/gt-toolz/build.yml?branch=main&label=build&style=flat-square"></a>
+<a href="https://github.com/nfMalde/gt-toolz/actions/workflows/pr.yml"><img alt="PR build" src="https://img.shields.io/github/actions/workflow/status/nfMalde/gt-toolz/pr.yml?label=PR%20build&style=flat-square"></a>
 
 Fixes, ideas and new modules are welcome. The short version:
 
@@ -296,12 +354,6 @@ therefore warn once (see [Installing](#installing)). To make up for it, every re
 installer, so you can check that a file was built by this repository's release workflow. The checksum list itself is
 signed with the project's key (`SHA256SUMS.txt.sig`): the app installs an update only when that signature is valid.
 Free code signing for open-source projects may follow later.
-
-## Privacy
-
-GT Toolz talks to your PS5 in the home network. The OBS overlay server listens on `127.0.0.1` only, and only while it
-is on. The app goes online only for what you agreed to: voice downloads you start yourself, and the update check (asked
-once). No analytics, no tracking, no account. Logs are anonymous (see [Reporting a bug](#reporting-a-bug)). Details: [Privacy](docs/user/privacy.md).
 
 ## License
 

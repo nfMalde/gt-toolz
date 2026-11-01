@@ -7,8 +7,9 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 
 ## [1.0.0-beta] - 2026-11-01
 
-The first public release: GT Toolz is open source now. It is a beta. Windows is fully tested; macOS and Linux are only
-partly tested and may still show errors or crashes. Some German voices can be hard to understand at times.
+The first public release: GT Toolz is open source now. The app, the coach and the crew speak German and English. It
+is a beta. Windows is fully tested; macOS and Linux are only partly tested and may still show errors or crashes. Some
+German voices can be hard to understand at times.
 
 ### What GT Toolz does
 
