@@ -121,6 +121,11 @@ You need a PS5 with Gran Turismo 7 and a computer in the same home network.
 | **macOS** | `GT-Toolz-<version>-mac-arm64.dmg` (Apple silicon) or `…-mac-x64.dmg` (Intel) | macOS 13 Ventura or later |
 | **Linux** | `gt-toolz_<version>_amd64.deb` | Ubuntu 22.04 or later, Debian 12 or later, x64 |
 
+**Which Mac do you have?** Apple menu → **About This Mac**: "Chip: Apple M…" means `mac-arm64`, "Processor: Intel" means
+`mac-x64`. The wrong file breaks nothing: the Apple silicon file does not start on an Intel Mac. The Intel file does run
+on Apple silicon through Rosetta 2, but it starts more slowly, needs more computing power and keeps updating as the Intel
+version until you install the other file, so take the matching one.
+
 The installers are **not signed** (see [Signing](#signing)), so your system warns once:
 
 - **Windows:** run the installer. SmartScreen says "Windows protected your PC": choose **More info**, then **Run anyway**.
