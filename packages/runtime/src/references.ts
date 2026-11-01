@@ -22,8 +22,16 @@ const POINT_FIELDS = ['s', 't', 'x', 'y', 'z', 'speed', 'throttle', 'brake', 'ge
 const TEXT_FIELDS = ['driver', 'carName', 'label', 'carCategory', 'source'] as const;
 
 export function readReference(file: string): ReferenceLap {
-  if (fs.statSync(file).size > MAX_FILE_BYTES) throw new Error(`${path.basename(file)} is too large for a reference lap`);
-  const ref = JSON.parse(fs.readFileSync(file, 'utf8')) as ReferenceLap;
+  // The size and the contents through one handle: the file checked is the file read.
+  const fd = fs.openSync(file, 'r');
+  let text: string;
+  try {
+    if (fs.fstatSync(fd).size > MAX_FILE_BYTES) throw new Error(`${path.basename(file)} is too large for a reference lap`);
+    text = fs.readFileSync(fd, 'utf8');
+  } finally {
+    fs.closeSync(fd);
+  }
+  const ref = JSON.parse(text) as ReferenceLap;
   // A copied or hand-edited file is checked before the coach works with it (release check 2026-10-28: one file
   // without a date broke the whole list, and with it the automatic choice on every packet).
   if (!isReferenceLap(ref)) throw new Error(`${path.basename(file)} is not a reference lap`);

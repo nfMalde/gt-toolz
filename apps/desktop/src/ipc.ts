@@ -325,8 +325,16 @@ export function registerIpc(ctx: IpcContext): void {
     const result = window ? await dialog.showOpenDialog(window, options) : await dialog.showOpenDialog(options);
     const file = result.filePaths[0];
     if (result.canceled || !file) return null;
-    if ((await fs.promises.stat(file)).size > MAX_PACK_FILE_BYTES) throw new Error('pack-file-too-large');
-    const info = packs.importPack(await fs.promises.readFile(file), languageIds());
+    // The size and the contents through one handle: the file checked is the file imported.
+    const handle = await fs.promises.open(file, 'r');
+    let data: Buffer;
+    try {
+      if ((await handle.stat()).size > MAX_PACK_FILE_BYTES) throw new Error('pack-file-too-large');
+      data = await handle.readFile();
+    } finally {
+      await handle.close();
+    }
+    const info = packs.importPack(data, languageIds());
     runner.log(`RECORDING imported pack ${info.id} (${info.language}, ${info.recordings} recordings)`);
     return info;
   });
