@@ -132,7 +132,7 @@ A dmg can only be built on a Mac. `7-mac-package.mjs` packs the built app on any
 |---|---|
 | **Windows** | Builds the `.exe`, tests it and the Mac package. If GT Toolz is installed for your user, the installer test would replace and remove it: uninstall first, run with `--force`, or leave it out with `--skip=verify`. |
 | **Linux** | Ubuntu 22.04 or later, or WSL2. `dpkg-deb` comes with Ubuntu; without a display the installer test needs `xvfb`. Without password-free `sudo` the test runs the unpacked package without the sandbox. |
-| **macOS** | `hdiutil`, `codesign`, `ditto` and `plutil` come with macOS. Both disk images are built on one Mac; the Intel one is tested only where Rosetta 2 is installed. |
+| **macOS** | `hdiutil`, `codesign`, `ditto` and `plutil` come with macOS. Both disk images are built on one Mac; the Intel one is tested only where Rosetta 2 is installed, with five times the waits of the self-test (`GTT_SELF_TEST_SLOW`: its first start under Rosetta takes about two minutes on a CI Mac). |
 
 A local build is a build from source: without `GTT_UPDATE_REPO` it never looks for updates. Only the release workflow sets it.
 
@@ -169,7 +169,7 @@ GitHub Actions workflows in `.github/workflows`. All of them use Node 22.23.2 an
 2. **build:** the installers on Windows, Linux and macOS from exactly that commit, each tested as a user gets it, with `GTT_UPDATE_REPO` set to the repository (the official builds that look for updates).
 3. **attest:** build provenance for every installer (`actions/attest-build-provenance`; check with `gh attestation verify`), in a job of its own that runs no npm code.
 4. **draft:** a draft release `v<version>` with each installer taken from the build of its own system (exactly one each), one `SHA256SUMS.txt` for them and the notes. Only maintainers see drafts.
-5. **publish:** waits for the approval of the `release` environment. It downloads the draft again and checks every file against `SHA256SUMS.txt` and its provenance, signs `SHA256SUMS.txt` with the project's Ed25519 key (`scripts/release/sign.mjs`, the environment secret `RELEASE_SIGNING_KEY`) and uploads `SHA256SUMS.txt.sig`. Then it moves `main` to the release commit (fast-forward only; it stops if `main` moved on) and publishes the release with its tag.
+5. **publish:** waits for the approval of the `release` environment. It downloads the draft again and checks every file against `SHA256SUMS.txt` and its provenance, signs `SHA256SUMS.txt` with the project's Ed25519 key (`scripts/release/sign.mjs`, the environment secret `RELEASE_SIGNING_KEY`) and uploads `SHA256SUMS.txt.sig`. Then it publishes the release with its tag. When the plan made a release commit, `main` gets it by a pull request from `release/v<version>` (the ruleset lets nothing else change `main`); merge it with a merge commit so the tag stays in `main`'s history. The run's summary shows the `gh pr create` line.
 
 The app takes an update only when `SHA256SUMS.txt` carries a valid signature of the key in `RELEASE_PUBLIC_KEY` (`packages/runtime/src/app-updates.ts`), so a release changed by anyone without the approval cannot reach an installed app. `sign.mjs` refuses a key that does not belong to that public key.
 

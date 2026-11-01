@@ -11,8 +11,8 @@
 #               preview on the Releases page (only maintainers see drafts).
 #   5. publish: waits for the approval of the "release" environment. Then it checks the draft once more (checksums,
 #               provenance), signs SHA256SUMS.txt with the project's key (the environment's secret
-#               RELEASE_SIGNING_KEY; the app takes no update without it), moves main to the release commit
-#               (fast-forward only) and publishes the release with its tag v<version>.
+#               RELEASE_SIGNING_KEY; the app takes no update without it) and publishes the release with its tag
+#               v<version>. A release commit reaches main by a pull request (main's ruleset); the summary says how.
 #
 # Repository settings this relies on (docs/dev/building.md, "CI"): the environment "release" with required reviewers,
 # deployment branches limited to main and the secret RELEASE_SIGNING_KEY; immutable releases; a ruleset for tags v*.
@@ -276,22 +276,24 @@ jobs:
           set -euo pipefail
           node scripts/release/sign.mjs draft/SHA256SUMS.txt
           gh release upload "v$VERSION" draft/SHA256SUMS.txt.sig
-      - name: Main to the release commit (fast-forward only)
-        env:
-          SHA: ${{ needs.plan.outputs.sha }}
-        run: |
-          set -euo pipefail
-          git fetch origin main
-          if [ "$(git rev-parse origin/main)" != "$SHA" ]; then
-            git merge-base --is-ancestor origin/main "$SHA" || { echo "::error::main moved on since the plan; run the release again."; exit 1; }
-            git push origin "$SHA:refs/heads/main"
-          fi
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.plan.outputs.version }}
+          SHA: ${{ needs.plan.outputs.sha }}
         run: |
+          set -euo pipefail
           gh release edit "v$VERSION" --draft=false
-          git push origin --delete "release/v$VERSION" 2>/dev/null || true
           echo "Published: $(gh release view "v$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"
+          # main changes only by pull request (its ruleset): a release commit comes to main by one, merged as a merge
+          # commit so that the tag stays in main's history.
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$SHA" ]; then
+            {
+              echo
+              echo "**Next:** open a pull request from \`release/v$VERSION\` to \`main\` and merge it with a merge commit, so that main carries the version:"
+              echo
+              echo "\`gh pr create --repo $GH_REPO --base main --head release/v$VERSION --title \"Release v$VERSION\" --body \"Version, changelog and news of v$VERSION.\"\`"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
