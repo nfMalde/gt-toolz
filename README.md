@@ -200,11 +200,17 @@ detailed log:**
 
 1. In GT Toolz open **Settings → Diagnostics** and switch on **Detailed log**.
 2. Make the bug happen again.
-3. Click **Log for a GitHub issue** and save the file. It is anonymous: names, IP addresses and folders are replaced.
+3. Click **Log for a GitHub issue** and save the file. It is anonymous, see below.
 4. Open a [bug report](https://github.com/nfMalde/gt-toolz/issues/new?template=bug_report.yml) and drag the file into
    the **Log** field.
 
 ![Settings → Diagnostics: the session logs, Log for a GitHub issue, and the Detailed log switch](docs/images/diagnostics.png)
+
+**The logs are anonymous, always.** Before a line is written to a log, GT Toolz replaces everything that could
+identify you or others: your driver name (`<driver>`), other players' names (`<player>`), your console's name
+(`<console>`), IP addresses (`<lan-ip>`), e-mail and hardware addresses, the app's folders and the user name in any path
+(`<user>`). That holds for the normal and the detailed log, and for the file you attach to an issue. This is a fixed
+rule of the project: no change may ever write personal data into a log (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 The app also keeps its session logs in the `sessions` folder of its data folder (`%APPDATA%\GT Toolz\sessions`,
 `~/Library/Application Support/GT Toolz/sessions`, `~/.config/GT Toolz/sessions`); **Settings → Diagnostics → Open
@@ -285,7 +291,7 @@ Free code signing for open-source projects may follow later.
 
 GT Toolz talks to your PS5 in the home network. The OBS overlay server listens on `127.0.0.1` only, and only while it
 is on. The app goes online only for what you agreed to: voice downloads you start yourself, and the update check (asked
-once). No analytics, no tracking, no account. Details: [Privacy](docs/user/privacy.md).
+once). No analytics, no tracking, no account. Logs are anonymous (see [Reporting a bug](#reporting-a-bug)). Details: [Privacy](docs/user/privacy.md).
 
 ## License
 
