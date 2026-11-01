@@ -260,6 +260,8 @@ function createWindow(): void {
       devTools: dev || process.env.GTT_DEVTOOLS === '1',
       // Vibration patterns (accessibility) play here the moment a cue is due, without a click first.
       autoplayPolicy: 'no-user-gesture-required',
+      // The dev screenshot script: a window behind others would stop painting, and its screenshots show old frames.
+      backgroundThrottling: !(dev && process.env.GTT_SCREENSHOTS),
     },
   });
   // The installer check runs without showing the window.
@@ -311,6 +313,8 @@ function runScreenshotScript(win: BrowserWindow, scriptFile: string): void {
   const steps = JSON.parse(fs.readFileSync(scriptFile, 'utf8')) as ScreenshotStep[];
   const dir = path.dirname(path.resolve(scriptFile));
   win.webContents.once('did-finish-load', async () => {
+    // In front for the screenshots (with backgroundThrottling off it paints behind others too).
+    win.moveTop();
     for (const step of steps) {
       if ('route' in step) await win.webContents.executeJavaScript(`location.hash = ${JSON.stringify('#' + step.route)}; void 0`);
       if ('click' in step) await win.webContents.executeJavaScript(`document.querySelector(${JSON.stringify(step.click)})?.click(); void 0`);

@@ -44,6 +44,18 @@ How the code fits together: [Architecture](docs/dev/architecture.md) and the [co
 6. Add a line under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md) for anything users notice.
 7. Update `docs/user` or `docs/dev` where users or developers need to know.
 
+## Logs stay anonymous
+
+Logs end up in public GitHub issues. Every line goes through the anonymizer of the session log
+(`packages/runtime/src/session-log.ts`) before it is written, and **that must stay so**:
+
+- Write log lines only through the session log (`runner.log`, a module's `host.log`), never into a file of your own.
+- Names the anonymizer does not know yet (a new kind of player or device name) go into its privacy lists
+  (`LogPrivacy`, see `anonymousLog`/`logPrivacy` in `packages/runtime/src/runner.ts`), paths into its folders.
+- Never log tokens, keys, full URLs with personal parts, or raw packets that could hold names.
+- `tests/session-log.test.ts` checks the anonymizer; a change to it needs a test. A pull request that writes personal
+  data into a log is not merged.
+
 ## Pull requests
 
 - One topic per pull request, to `main`. Describe what changes and why, and how you tested it (with a PS5, a
