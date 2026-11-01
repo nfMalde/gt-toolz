@@ -20,6 +20,10 @@
   <a href="https://www.twitch.tv/maldoe"><img alt="Twitch: maldoe" src="https://img.shields.io/badge/twitch-maldoe-9146FF?style=flat-square&logo=twitch&logoColor=white"></a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Download GT Toolz" src="https://img.shields.io/github/v/release/nfMalde/gt-toolz?include_prereleases&sort=semver&style=for-the-badge&label=Download&color=orange"></a>
+</p>
+
 GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network. A **coach** counts you into
 every braking point and tells you what cost time, a **race crew** talks to you on the radio in races, and **overlays**
 show your throttle, brake, gear and tyres in OBS. Coach and crew have **a personality of their own**: make the same
