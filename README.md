@@ -28,7 +28,8 @@ GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home net
 every braking point and tells you what cost time, a **race crew** talks to you on the radio in races, and **overlays**
 show your throttle, brake, gear and tyres in OBS. Coach and crew have **a personality of their own**: make the same
 mistake once too often and they get cheeky, lose their patience and, in the end, quit on you. They can even speak with
-**your own voice**. Everything runs on your own computer: no account, no cloud, no ads.
+**your own voice**. Everything runs on your own computer: no account, no cloud, no ads. **The app, the coach and the
+crew speak German and English.**
 
 > [!IMPORTANT]
 > **GT Toolz is a hobby project, and this is a beta.** It still has bugs. Windows is fully tested; on **macOS and
