@@ -165,20 +165,20 @@ GitHub Actions workflows in `.github/workflows`. All of them use Node 22.23.2 an
 
 **`release.yml`**, with the inputs `channel` (`beta`, `alpha`, `full`), `bump` (`none`, `pre`, `patch`, `minor`, `major`) and `version` (an exact version instead of the bump):
 
-Before the approval nothing is built or uploaded: only the plan, the checks and a preview.
+Two approvals: before the first nothing is built or uploaded (only the plan, the checks and a preview); before the second nothing is published.
 
-1. **plan** (only on `main`): stops unless the environment `approval` has required reviewers. Then `plan.mjs --apply` with the inputs; the tag `v<version>` must be new; `npm audit signatures`, the type check and the tests. When the plan changed files, a release commit goes to the branch `release/v<version>`. A preview (version, commit, notes, the news in both languages) goes into the run's summary.
-2. **approve:** waits for the approval of the environment `approval` (its required reviewers). Read the preview, then approve or reject.
+1. **plan** (only on `main`): stops unless both environments, `approval` and `release`, have required reviewers. Then `plan.mjs --apply` with the inputs; the tag `v<version>` must be new; `npm audit signatures`, the type check and the tests. When the plan changed files, a release commit goes to the branch `release/v<version>`. A preview (version, commit, notes, the news in both languages) goes into the run's summary.
+2. **approve:** the first approval (environment `approval`). Read the preview, then approve or reject.
 3. **build:** the installers on Windows, Linux and macOS from exactly the planned commit, each tested as a user gets it, with `GTT_UPDATE_REPO` set to the repository (the official builds that look for updates). They go to the next jobs as artifacts kept for one day.
 4. **attest:** build provenance for every installer (`actions/attest-build-provenance`; check with `gh attestation verify`), in a job of its own that runs no npm code.
-5. **publish:** takes each installer from the build of its own system (exactly one each), checks it against that build's checksums and its provenance, makes one `SHA256SUMS.txt`, signs it with the project's Ed25519 key (`scripts/release/sign.mjs`, the secret `RELEASE_SIGNING_KEY` of the environment `release`) and publishes the release with its tag, all files at once. When the plan made a release commit, `main` gets it by a pull request from `release/v<version>` (the ruleset lets nothing else change `main`); merge it with a merge commit so the tag stays in `main`'s history. The run's summary shows the `gh pr create` line.
+5. **publish:** the second approval (environment `release`, which holds the signing key): when the builds are green, approve to publish, or reject and nothing becomes public. Then it takes each installer from the build of its own system (exactly one each), checks it against that build's checksums and its provenance, makes one `SHA256SUMS.txt`, signs it with the project's Ed25519 key (`scripts/release/sign.mjs`, the secret `RELEASE_SIGNING_KEY` of the environment `release`) and publishes the release with its tag, all files at once. When the plan made a release commit, `main` gets it by a pull request from `release/v<version>` (the ruleset lets nothing else change `main`); merge it with a merge commit so the tag stays in `main`'s history. The run's summary shows the `gh pr create` line.
 
 The app takes an update only when `SHA256SUMS.txt` carries a valid signature of the key in `RELEASE_PUBLIC_KEY` (`packages/runtime/src/app-updates.ts`), so a release changed by anyone without the approval cannot reach an installed app. `sign.mjs` refuses a key that does not belong to that public key.
 
 **Repository settings the release relies on** (set them once in the public repository):
 
-- **Environment `approval`** (Settings → Environments): required reviewers (the maintainers), deployment branches limited to `main`. Only the approve job uses it, so one approval releases.
-- **Environment `release`:** deployment branches limited to `main`, no reviewers of its own, and the secret `RELEASE_SIGNING_KEY` (the private key, PEM). Only the publish job uses it, after the approval; `main` changes only by reviewed pull requests.
+- **Environment `approval`** (Settings → Environments): required reviewers (the maintainers), deployment branches limited to `main`. Only the approve job uses it.
+- **Environment `release`:** required reviewers too, deployment branches limited to `main`, and the secret `RELEASE_SIGNING_KEY` (the private key, PEM). Only the publish job uses it; so the key is never used without an approval right before it.
 - **Immutable releases** (Settings → General → Releases): a published release's files and tag cannot change.
 - **Rulesets:** `main` only by pull request (with the PR build green), tags `v*` created only by the release.
 - **The branch `cla-signatures`** for the CLA bot, and **private vulnerability reporting** (Settings → Security) for [SECURITY.md](../../SECURITY.md).

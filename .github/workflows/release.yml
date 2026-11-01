@@ -1,25 +1,25 @@
 # A release, started by hand by a maintainer on main (Actions → Release → Run workflow), never by a tag or a merge.
-# Before the approval nothing is built or uploaded: only the plan, the checks and a preview. Installers exist only
-# after it.
+# Two approvals: before the first nothing is built or uploaded (only the plan, the checks and a preview); before the
+# second nothing is published (the installers are built and checked, the signing key is not used yet).
 #
 #   1. plan:    the version from the inputs (or the package.json), what changes for it (scripts/release/plan.mjs:
 #               the version in every package.json, CHANGELOG "Unreleased" → the version, news/next.* → the
 #               version), the type check and the tests, and a preview in the run's summary. When something
-#               changes, a release commit on the branch release/v<version>. Stops unless the environment
-#               "approval" has required reviewers.
-#   2. approve: waits for the approval of the environment "approval" (its required reviewers).
+#               changes, a release commit on the branch release/v<version>. Stops unless both environments,
+#               "approval" and "release", have required reviewers.
+#   2. approve: the first approval (environment "approval"): build the installers.
 #   3. build:   the installers on Windows, Linux and macOS from exactly the planned commit, each tested as a user
 #               gets it. Official builds name this repository for updates.
 #   4. attest:  build provenance for every installer (gh attestation verify), in a job that runs no npm code.
-#   5. publish: each installer from the build of its own system, checked against that build's checksums and its
-#               provenance; one SHA256SUMS.txt, signed with the project's key (scripts/release/sign.mjs; the
-#               app takes no update without it), and the release with its tag v<version>. The key is the secret
-#               RELEASE_SIGNING_KEY of the environment "release" (deployment branch main, no reviewers of its own:
-#               it is reached only through the approval). A release commit reaches main by a pull request (main's
-#               ruleset); the summary says how.
+#   5. publish: the second approval (environment "release", which holds the signing key RELEASE_SIGNING_KEY):
+#               each installer from the build of its own system, checked against that build's checksums and its
+#               provenance; one SHA256SUMS.txt, signed with the project's key (scripts/release/sign.mjs; the app
+#               takes no update without it), and the release with its tag v<version>. A release commit reaches main
+#               by a pull request (main's ruleset); the summary says how.
 #
-# Repository settings this relies on (docs/dev/building.md, "CI"): the environments "approval" (required reviewers,
-# branch main) and "release" (branch main, the secret); immutable releases; the rulesets for main and tags v*.
+# Repository settings this relies on (docs/dev/building.md, "CI"): the environments "approval" and "release", both
+# with required reviewers and the deployment branch main, "release" with the secret; immutable releases; the rulesets
+# for main and tags v*.
 # Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md).
 name: Release
 
@@ -63,16 +63,18 @@ jobs:
       prerelease: ${{ steps.plan.outputs.prerelease }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - name: The approval must be set up
+      - name: The approvals must be set up
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          # Without required reviewers GitHub would create the environment on the fly, and nothing would wait.
-          reviewers="$(gh api "repos/$GH_REPO/environments/approval" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)"
-          if [ "$reviewers" -lt 1 ]; then
-            echo "::error::Create the environment \"approval\" with required reviewers first (Settings → Environments)."; exit 1
-          fi
+          # Without required reviewers GitHub would create an environment on the fly, and nothing would wait.
+          for environment in approval release; do
+            reviewers="$(gh api "repos/$GH_REPO/environments/$environment" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)"
+            if [ "$reviewers" -lt 1 ]; then
+              echo "::error::The environment \"$environment\" needs required reviewers (Settings → Environments)."; exit 1
+            fi
+          done
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
@@ -125,7 +127,7 @@ jobs:
             echo
             echo "- Pre-release: $PRERELEASE"
             echo "- Commit: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
-            echo "- Type check and tests passed. Nothing is built or uploaded before the approval of the environment \"approval\"."
+            echo "- Type check and tests passed. Nothing is built or uploaded before the first approval (environment \"approval\"), nothing is published before the second (environment \"release\")."
             echo
             echo "### Notes"
             echo
@@ -148,7 +150,7 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # The approval: required reviewers on this environment. Nothing else happens here.
+    # The first approval: required reviewers on this environment. Nothing else happens here.
     environment: approval
     steps:
       - env:
@@ -224,7 +226,7 @@ jobs:
     needs: [plan, attest]
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # The signing key: a secret of this environment (deployment branch main), reached only through the approval.
+    # The second approval, right before anything becomes public; this environment also holds the signing key.
     environment: release
     permissions:
       contents: write
