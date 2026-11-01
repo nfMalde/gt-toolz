@@ -22,7 +22,9 @@
 
 GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network. A **coach** counts you into
 every braking point and tells you what cost time, a **race crew** talks to you on the radio in races, and **overlays**
-show your throttle, brake, gear and tyres in OBS. Everything runs on your own computer: no account, no cloud, no ads.
+show your throttle, brake, gear and tyres in OBS. Coach and crew have **a personality of their own**: make the same
+mistake once too often and they get cheeky, lose their patience and, in the end, quit on you. They can even speak with
+**your own voice**. Everything runs on your own computer: no account, no cloud, no ads.
 
 > [!IMPORTANT]
 > **GT Toolz is a hobby project, and this is a beta.** It still has bugs. Windows is fully tested; on **macOS and
@@ -31,7 +33,7 @@ show your throttle, brake, gear and tyres in OBS. Everything runs on your own co
 
 ## Contents
 
-- [What it does](#what-it-does)
+- [What it does](#what-it-does) · [Coach and crew with moods](#coach-and-crew-with-moods) · [Your own voice](#your-own-voice) · [What GT Toolz is not](#what-gt-toolz-is-not)
 - **For users:** [Installing](#installing) · [First start](#first-start) · [Examples](#examples) · [Updates](#updates) · [Reporting a bug](#reporting-a-bug) · [User guide](docs/user/README.md)
 - **For contributors:** [Contributing](#contributing) · [Writing a module](#writing-a-module) · [Build from source](#build-from-source) · [Developer docs](docs/dev/README.md)
 - [Privacy](#privacy) · [License](#license) · [No warranty, no liability](#no-warranty-no-liability) · [Links and support](#links-and-support)
@@ -49,10 +51,68 @@ show your throttle, brake, gear and tyres in OBS. Everything runs on your own co
 
 Each module can be switched on and off. The [user guide](docs/user/README.md) explains each of them in detail.
 
+![The Modules page: telemetry, coach, crew, OBS overlays and vibration, each with a switch](docs/images/modules.png)
+
+## Coach and crew with moods
+
+GT Toolz is not a neutral voice prompt. With the **cheeky** coach style (**Settings → Personality**) coach and crew
+have a personality, and they react to how you drive:
+
+- **The coach helps first.** It explains a mistake, gives you a tip and guides you through the corner. If you keep
+  making the same mistake anyway, it gets pointed: *"Late again. A braking point is not a braking suggestion."* Then it
+  gets loud: *"Unbelievable! Braking zone 2! Again! I quit!"*
+- **When its patience runs out, it really quits:** *"You know what? Do it yourself. I am getting a coffee."* A
+  **stand-in** with another voice takes over for a few laps (*"Stand-in here. Your coach is crying in the pit box. We
+  just keep driving."*), until it has had enough too and fetches your coach back.
+- **The race crew** gets annoyed by every trip into the gravel, from a friendly hint to open sarcasm. Keep going off,
+  and the race engineer hands the radio to the **team boss**: *"Right. Handing over to the team boss. He has more
+  patience. Or so he says."*
+- **The debrief** may add a bonus mistake: *"Mistake number 4: racing today instead of mowing the lawn. The lawn would
+  have been happy."*
+- **Clean laps calm them down again.** You choose how fast they lose their patience (**A lot**, **Normal**, **Little**),
+  or the **Factual** style without remarks. The braking calls themselves always stay factual, so a remark never costs
+  you a braking point.
+
+Every line, cheeky or not, can be reworded on the **Texts** page.
+
+## Your own voice
+
+Coach, crew and stand-in can speak with **your own voice**, or with a friend's who agreed to it:
+
+1. Open **Recordings**, create a voice pack and record the texts one by one: Space starts and stops, the arrow keys
+   go to the next text. The app trims the silence and levels each take.
+2. Start with the short corner calls ("now", the countdown, the gears) and your name; the rest is optional. Sentences
+   your pack can say completely come from your recordings, the voice you picked says everything else.
+3. Under **Voices**, pick the role and choose your pack in **Own recordings**, and you hear yourself counting down the
+   next braking point.
+
+Packs can be **exported** as a `.gttvoice` file and **imported** on another PC, so you can share the coach in your
+voice with friends. GT Toolz uploads nothing and hosts nothing: you pass the file on yourself, and only voices whose
+speakers agreed. Details: [Your own recorded voice](docs/user/voices.md#your-own-recorded-voice).
+
+## What GT Toolz is not
+
+- **Not an AI, and it will not become one.** Everything coach and crew say comes from fixed rules and from texts
+  written by hand, which you can change on the Texts page. Nothing is generated, there is no chatbot, and nothing
+  about you is sent anywhere to be analysed. When GT Toolz "learns" a reference, it records a lap and measures where
+  the braking points are: measuring, not machine learning. The optional neural voices are trained speech models that
+  only read these texts aloud. An AI coach would need servers and money, and GT Toolz stays free and offline.
+- **No servers: no leaderboards, no accounts, no cloud.** Online rankings, shared ghost databases, cloud saves or a
+  web service would mean hosting costs every month. GT Toolz stays free, so there will be none of that. Everything
+  stays on your PC; the only internet connections are the voice downloads you start yourself and the update check
+  you agreed to.
+- **Not an official product** of Sony Interactive Entertainment or Polyphony Digital (see
+  [No warranty, no liability](#no-warranty-no-liability)).
+
 ## Installing
 
 Download the installer for your system from the **[releases page](https://github.com/nfMalde/gt-toolz/releases)**.
 You need a PS5 with Gran Turismo 7 and a computer in the same home network.
+
+> [!TIP]
+> **New to GitHub?** You need no account. Open the [releases page](https://github.com/nfMalde/gt-toolz/releases): the
+> newest version is at the top. Scroll down to **Assets** below its description and click the file for your system
+> from the table below; it downloads like any other file. The files named *Source code* are not needed.
 
 | System | File | Requirements |
 |---|---|---|
@@ -88,6 +148,8 @@ Your settings, references and voices stay when you uninstall: in `%APPDATA%\GT T
    downloads. On Linux, download one voice in the assistant.
 4. **Calibrate once:** start a time trial, click **Start calibration** and brake exactly at "now" five times.
 
+![The welcome window on the first start: connect, learn a reference, calibrate, drive and listen](docs/images/welcome.png)
+
 A wireless earbud on the computer works best: the game sound stays on your TV or headset, the coach talks in your ear.
 The full walkthrough is in [Getting started](docs/user/getting-started.md).
 
@@ -101,6 +163,8 @@ The full walkthrough is in [Getting started](docs/user/getting-started.md).
 3. After the lap the coach tells you the corner that cost the most and what to try. No replay at hand? Just drive three
    laps: GT Toolz takes your fastest as the reference.
 
+![The Cockpit while driving: live values, the countdown of the next braking zone, the reference and the feedback per corner](docs/images/cockpit.png)
+
 **Race with your crew**
 1. Start any race (offline or in a lobby). In the lobby and in qualifying the crew stays quiet.
 2. At the start: *"Radio check. Your crew here."* Then the position when it changes, your lap times, fuel per lap,
@@ -110,6 +174,8 @@ The full walkthrough is in [Getting started](docs/user/getting-started.md).
 1. Switch on **OBS overlays** on the **Modules** page, open **Browser sources** and copy the link.
 2. In OBS add a **Browser source** with that link, 1920 × 1080. Arrange the elements in the app's editor by drag
    and drop; the overlay hides by itself outside sessions.
+
+![The Browser sources page: the address for OBS, the steps to add it, and the overlay editor](docs/images/obs-overlays.png)
 
 More: [coach](docs/user/coach.md) · [race crew](docs/user/crew.md) · [overlays](docs/user/overlays.md) ·
 [vibration](docs/user/haptics.md) · [voices](docs/user/voices.md) · [texts](docs/user/texts.md).
@@ -123,6 +189,10 @@ installs it; **Later** asks again at the next start, and the **Update** button i
 Switch it off under **Settings → Updates**. Versions built from source never look. Details:
 [Updates and news](docs/user/updates.md).
 
+After each update a short window shows what is new:
+
+![The news window of 1.0.0 Beta](docs/images/news.png)
+
 ## Reporting a bug
 
 Bugs are reported in the [issues](https://github.com/nfMalde/gt-toolz/issues/new/choose). **Please attach the
@@ -133,6 +203,8 @@ detailed log:**
 3. Click **Log for a GitHub issue** and save the file. It is anonymous: names, IP addresses and folders are replaced.
 4. Open a [bug report](https://github.com/nfMalde/gt-toolz/issues/new?template=bug_report.yml) and drag the file into
    the **Log** field.
+
+![Settings → Diagnostics: the session logs, Log for a GitHub issue, and the Detailed log switch](docs/images/diagnostics.png)
 
 The app also keeps its session logs in the `sessions` folder of its data folder (`%APPDATA%\GT Toolz\sessions`,
 `~/Library/Application Support/GT Toolz/sessions`, `~/.config/GT Toolz/sessions`); **Settings → Diagnostics → Open
