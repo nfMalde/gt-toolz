@@ -1,21 +1,25 @@
 # A release, started by hand by a maintainer on main (Actions → Release → Run workflow), never by a tag or a merge.
+# Two approvals: before the first nothing is built or uploaded (only the plan, the checks and a preview); before the
+# second nothing is published (the installers are built and checked, the signing key is not used yet).
 #
 #   1. plan:    the version from the inputs (or the package.json), what changes for it (scripts/release/plan.mjs:
 #               the version in every package.json, CHANGELOG "Unreleased" → the version, news/next.* → the
-#               version), and a preview in the run's summary. When something changes, a release commit on the
-#               branch release/v<version>. Stops unless the "release" environment has required reviewers.
-#   2. build:   the installers on Windows, Linux and macOS from exactly that commit, each tested as a user gets it.
-#               Official builds name this repository for updates.
-#   3. attest:  build provenance for every installer (gh attestation verify), in a job that runs no npm code.
-#   4. draft:   a draft release with each installer from its own build, one SHA256SUMS.txt and the notes: the
-#               preview on the Releases page (only maintainers see drafts).
-#   5. publish: waits for the approval of the "release" environment. Then it checks the draft once more (checksums,
-#               provenance), signs SHA256SUMS.txt with the project's key (the environment's secret
-#               RELEASE_SIGNING_KEY; the app takes no update without it) and publishes the release with its tag
-#               v<version>. A release commit reaches main by a pull request (main's ruleset); the summary says how.
+#               version), the type check and the tests, and a preview in the run's summary. When something
+#               changes, a release commit on the branch release/v<version>. Stops unless both environments,
+#               "approval" and "release", have required reviewers.
+#   2. approve: the first approval (environment "approval"): build the installers.
+#   3. build:   the installers on Windows, Linux and macOS from exactly the planned commit, each tested as a user
+#               gets it. Official builds name this repository for updates.
+#   4. attest:  build provenance for every installer (gh attestation verify), in a job that runs no npm code.
+#   5. publish: the second approval (environment "release", which holds the signing key RELEASE_SIGNING_KEY):
+#               each installer from the build of its own system, checked against that build's checksums and its
+#               provenance; one SHA256SUMS.txt, signed with the project's key (scripts/release/sign.mjs; the app
+#               takes no update without it), and the release with its tag v<version>. A release commit reaches main
+#               by a pull request (main's ruleset); the summary says how.
 #
-# Repository settings this relies on (docs/dev/building.md, "CI"): the environment "release" with required reviewers,
-# deployment branches limited to main and the secret RELEASE_SIGNING_KEY; immutable releases; a ruleset for tags v*.
+# Repository settings this relies on (docs/dev/building.md, "CI"): the environments "approval" and "release", both
+# with required reviewers and the deployment branch main, "release" with the secret; immutable releases; the rulesets
+# for main and tags v*.
 # Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md).
 name: Release
 
@@ -50,7 +54,7 @@ jobs:
     # Only main: another branch would bring its own workflow and scripts.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: write
       actions: read
@@ -59,23 +63,24 @@ jobs:
       prerelease: ${{ steps.plan.outputs.prerelease }}
       sha: ${{ steps.commit.outputs.sha }}
     steps:
-      - name: The approval must be set up
+      - name: The approvals must be set up
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          # Without required reviewers GitHub would create the environment on the fly, and nothing would wait.
-          reviewers="$(gh api "repos/$GH_REPO/environments/release" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)"
-          if [ "$reviewers" -lt 1 ]; then
-            echo "::error::Create the environment \"release\" with required reviewers first (Settings → Environments)."; exit 1
-          fi
+          # Without required reviewers GitHub would create an environment on the fly, and nothing would wait.
+          for environment in approval release; do
+            reviewers="$(gh api "repos/$GH_REPO/environments/$environment" --jq '[.protection_rules[]? | select(.type == "required_reviewers")] | length' 2>/dev/null || echo 0)"
+            if [ "$reviewers" -lt 1 ]; then
+              echo "::error::The environment \"$environment\" needs required reviewers (Settings → Environments)."; exit 1
+            fi
+          done
       - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 22.23.2
-      # The release scripts read the Electron version from node_modules.
       - run: npm ci
       - name: Plan the version
         id: plan
@@ -92,6 +97,11 @@ jobs:
           if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
             echo "::error::v$VERSION exists already."; exit 1
           fi
+      - name: Check
+        run: |
+          npm audit signatures
+          npm run typecheck
+          npm test
       - name: Release commit (only when something changed)
         id: commit
         env:
@@ -117,7 +127,7 @@ jobs:
             echo
             echo "- Pre-release: $PRERELEASE"
             echo "- Commit: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
-            echo "- After the build: a draft on the Releases page; publishing waits for the approval of the \"release\" environment."
+            echo "- Type check and tests passed. Nothing is built or uploaded before the first approval (environment \"approval\"), nothing is published before the second (environment \"release\")."
             echo
             echo "### Notes"
             echo
@@ -129,14 +139,26 @@ jobs:
               cat "apps/ui/public/news/$VERSION.$lang.md"
             done
           } >> "$GITHUB_STEP_SUMMARY"
+      # The notes for the release page (text only).
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: release-notes
           path: release/notes.md
-          retention-days: 7
+          retention-days: 1
+
+  approve:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # The first approval: required reviewers on this environment. Nothing else happens here.
+    environment: approval
+    steps:
+      - env:
+          VERSION: ${{ needs.plan.outputs.version }}
+        run: echo "v$VERSION approved."
 
   build:
-    needs: plan
+    needs: [plan, approve]
     strategy:
       fail-fast: true
       matrix:
@@ -167,6 +189,7 @@ jobs:
           # The app looks for updates in this repository's releases (apps/desktop/src/updates.ts).
           GTT_UPDATE_REPO: ${{ github.repository }}
         run: node scripts/release/release.mjs --skip=mac-package
+      # Only for the next jobs of this run, kept for one day; the release is the download.
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: installers-${{ matrix.name }}
@@ -176,7 +199,7 @@ jobs:
             release/*/*.dmg
             release/*/SHA256SUMS.txt
           if-no-files-found: error
-          retention-days: 7
+          retention-days: 1
 
   attest:
     # Apart from the builds: no npm code runs where the provenance can be signed.
@@ -195,54 +218,15 @@ jobs:
       - uses: actions/attest-build-provenance@v4.2.2
         with:
           subject-path: |
-            artifacts/installers-windows/*/*.exe
-            artifacts/installers-linux/*/*.deb
-            artifacts/installers-mac/*/*.dmg
-
-  draft:
-    needs: [plan, attest]
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v8.0.2
-        with:
-          path: artifacts
-      - name: Draft release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          VERSION: ${{ needs.plan.outputs.version }}
-          PRERELEASE: ${{ needs.plan.outputs.prerelease }}
-          SHA: ${{ needs.plan.outputs.sha }}
-        run: |
-          set -euo pipefail
-          mkdir upload
-          # Each installer from the build of its own system, exactly the expected ones.
-          take() {
-            local system="$1" name="$2"
-            local found=(artifacts/installers-"$system"/*/"$name")
-            [ "${#found[@]}" -eq 1 ] && [ -f "${found[0]}" ] || { echo "::error::$name not (or more than once) in the $system build"; exit 1; }
-            (cd "$(dirname "${found[0]}")" && grep -E "  $name\$" SHA256SUMS.txt | sha256sum -c -)
-            cp "${found[0]}" upload/
-          }
-          take windows "GT-Toolz-Setup-$VERSION-x64.exe"
-          take linux "gt-toolz_${VERSION}_amd64.deb"
-          take mac "GT-Toolz-$VERSION-mac-arm64.dmg"
-          take mac "GT-Toolz-$VERSION-mac-x64.dmg"
-          # One checksum list for the four installers.
-          (cd upload && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt)
-          flags=(--draft --title "GT Toolz $VERSION" --notes-file artifacts/release-notes/notes.md --target "$SHA")
-          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
-          gh release create "v$VERSION" "${flags[@]}" upload/*
-          echo "Draft: $(gh release view "v$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"
+            artifacts/installers-windows/**/*.exe
+            artifacts/installers-linux/**/*.deb
+            artifacts/installers-mac/**/*.dmg
 
   publish:
-    needs: [plan, draft]
+    needs: [plan, attest]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # The approval: required reviewers on this environment, which also holds the signing key.
+    timeout-minutes: 20
+    # The second approval, right before anything becomes public; this environment also holds the signing key.
     environment: release
     permissions:
       contents: write
@@ -252,38 +236,50 @@ jobs:
         with:
           ref: ${{ needs.plan.outputs.sha }}
           fetch-depth: 0
-      - name: Check the draft once more
+          persist-credentials: false
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          path: artifacts
+      - name: Collect and check the installers
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.plan.outputs.version }}
         run: |
           set -euo pipefail
-          # What was approved is what gets signed: the files as they are now, against the list and the provenance.
-          gh release download "v$VERSION" --dir draft
-          cd draft
-          [ ! -e SHA256SUMS.txt.sig ] || { echo "::error::the draft already has a signature"; exit 1; }
-          [ "$(ls | grep -cvx SHA256SUMS.txt)" -eq "$(wc -l < SHA256SUMS.txt)" ] || { echo "::error::files and SHA256SUMS.txt differ"; exit 1; }
-          sha256sum -c SHA256SUMS.txt
-          for file in *.exe *.deb *.dmg; do gh attestation verify "$file" --repo "$GH_REPO"; done
+          mkdir upload
+          # Each installer from the build of its own system, exactly the expected ones, against that build's
+          # checksums and its provenance.
+          take() {
+            local system="$1" name="$2"
+            mapfile -t found < <(find "artifacts/installers-$system" -type f -name "$name")
+            [ "${#found[@]}" -eq 1 ] || { echo "::error::$name not (or more than once) in the $system build"; exit 1; }
+            (cd "$(dirname "${found[0]}")" && grep -E "  $name\$" SHA256SUMS.txt | sha256sum -c -)
+            gh attestation verify "${found[0]}" --repo "$GH_REPO"
+            cp "${found[0]}" upload/
+          }
+          take windows "GT-Toolz-Setup-$VERSION-x64.exe"
+          take linux "gt-toolz_${VERSION}_amd64.deb"
+          take mac "GT-Toolz-$VERSION-mac-arm64.dmg"
+          take mac "GT-Toolz-$VERSION-mac-x64.dmg"
+          (cd upload && sha256sum -- * > SHA256SUMS.txt && cat SHA256SUMS.txt)
       - name: Sign the checksum list
         env:
           RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          VERSION: ${{ needs.plan.outputs.version }}
-        run: |
-          set -euo pipefail
-          node scripts/release/sign.mjs draft/SHA256SUMS.txt
-          gh release upload "v$VERSION" draft/SHA256SUMS.txt.sig
+        run: node scripts/release/sign.mjs upload/SHA256SUMS.txt
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ needs.plan.outputs.version }}
+          PRERELEASE: ${{ needs.plan.outputs.prerelease }}
           SHA: ${{ needs.plan.outputs.sha }}
         run: |
           set -euo pipefail
+          # Every file first (as a draft, for a moment), then published at once: a published release cannot change.
+          flags=(--draft --title "GT Toolz $VERSION" --notes-file artifacts/release-notes/notes.md --target "$SHA")
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); else flags+=(--latest); fi
+          gh release create "v$VERSION" "${flags[@]}" upload/*
           gh release edit "v$VERSION" --draft=false
           echo "Published: $(gh release view "v$VERSION" --json url --jq .url)" >> "$GITHUB_STEP_SUMMARY"
           # main changes only by pull request (its ruleset): a release commit comes to main by one, merged as a merge

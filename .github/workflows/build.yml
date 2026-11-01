@@ -1,6 +1,6 @@
-# Every push to main: the installers of all three systems, each tested the way a user gets it (installed, started
-# with --self-test, uninstalled). They stay as artifacts of the run for 14 days; nothing is published, and these
-# builds never look for updates (only the release workflow names the repository for that).
+# Every push to main: the type check, the tests and the app build on Windows, Linux and macOS. No installers and no
+# uploads: installers are made only by the release workflow, after the approval (release.yml).
+# Actions are pinned to exact versions, each at least 14 days old when pinned (docs/dev/security.md).
 name: Build (main)
 
 on:
@@ -16,19 +16,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  installers:
+  build:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-            name: windows
-          - os: ubuntu-latest
-            name: linux
-          - os: macos-latest
-            name: mac
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -36,20 +30,9 @@ jobs:
       - uses: actions/setup-node@v7.1.0
         with:
           node-version: 22.23.2
+      # .npmrc: no install scripts, exact versions from the lockfile.
       - run: npm ci
-      # The installer test starts the app; Linux runners have no display.
-      - if: matrix.name == 'linux'
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends xvfb
-      - run: node scripts/release/release.mjs --skip=mac-package
-      - if: always()
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: gt-toolz-${{ matrix.name }}
-          path: |
-            release/*/*.exe
-            release/*/*.deb
-            release/*/*.dmg
-            release/*/SHA256SUMS.txt
-            release/test/*.json
-          if-no-files-found: warn
-          retention-days: 14
+      - run: npm audit signatures
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build:app
