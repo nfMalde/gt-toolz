@@ -29,6 +29,13 @@
 GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network, so a coach and a race crew can
 talk to you while you drive. Everything runs on your own computer: free, no account, no cloud, no ads.
 
+## How it works
+
+1. **Install GT Toolz on your computer:** Windows, Mac or Linux. There is no phone app for now.
+2. **Start GT7 on your PS5** in the same home network. GT Toolz finds it by itself.
+3. **Put in an earbud connected to the computer.** The game sound stays on your TV or headset, and the coach talks in
+   your ear.
+
 ## What it does
 
 - **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now"*) with the
