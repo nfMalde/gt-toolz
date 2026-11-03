@@ -16,8 +16,8 @@
 #               provenance; one SHA256SUMS.txt, signed with the project's key (scripts/release/sign.mjs; the app
 #               takes no update without it), and the release with its tag v<version>. A release commit reaches main
 #               by a pull request (main's ruleset); the summary says how.
-#   6. announce: the news on Discord (scripts/release/announce.mjs, the repository secret DISCORD_WEBHOOK_URL), up to
-#               three tries. The release is out by then: a failure here is only a warning, and the run stays green.
+#   6. announce: the English news on Discord (scripts/release/announce.mjs, the repository secret DISCORD_WEBHOOK_URL), up
+#               to three tries. The release is out by then: a failure here is only a warning, and the run stays green.
 #
 # Repository settings this relies on (docs/dev/building.md, "CI"): the environments "approval" and "release", both
 # with required reviewers and the deployment branch main, "release" with the secret; immutable releases; the rulesets

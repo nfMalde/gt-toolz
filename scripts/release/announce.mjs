@@ -1,4 +1,4 @@
-// The release's announcement on Discord: the version's news in both languages, sent to the webhook in the secret
+// The release's announcement on Discord: the version's English news, sent to the webhook in the secret
 // DISCORD_WEBHOOK_URL. Runs in the release workflow's announce job, once the release is public. Plain Node, no packages.
 //
 //   DISCORD_WEBHOOK_URL=<url> node scripts/release/announce.mjs --version=1.0.0-beta.2   sends it, up to three tries
@@ -18,28 +18,15 @@ const TRIES = 3;
 const TRY_TIMEOUT_MS = 20_000;
 const PAUSE_S = 10;
 const MAX_PAUSE_S = 60;
-/** Discord takes 6000 characters over all embeds of a message: two languages, with their titles and links. */
-const MAX_NEWS = 2600;
+/** Discord takes 4096 characters in an embed's description: the news, then the links below them. */
+const MAX_NEWS = 3700;
 /** The app's accent colour. */
 const COLOR = 0xff8a3d;
 
-const TEXTS = {
-  de: {
-    title: (version) => `GT Toolz ${version} ist da`,
-    links: (release, install) => `**[Herunterladen](${release})** · [So installierst du es](${install})`,
-    update: 'Schon installiert? Mit eingeschalteter Update-Prüfung bietet dir die App das Update beim Start an.',
-  },
-  en: {
-    title: (version) => `GT Toolz ${version} is out`,
-    links: (release, install) => `**[Download](${release})** · [How to install](${install})`,
-    update: 'Already installed? With the update check on, the app offers you the update when it starts.',
-  },
-};
-
-/** The news of a version; before the release plan has renamed them, the next release's. */
-function readNews(version, language) {
-  const file = [version, 'next'].map((name) => path.join(NEWS_DIR, `${name}.${language}.md`)).find((f) => fs.existsSync(f));
-  if (!file) throw new Error(`no news for ${version} (${language})`);
+/** The English news of a version; before the release plan has renamed them, the next release's. */
+function readNews(version) {
+  const file = [version, 'next'].map((name) => path.join(NEWS_DIR, `${name}.en.md`)).find((f) => fs.existsSync(f));
+  if (!file) throw new Error(`no news for ${version}`);
   return fs.readFileSync(file, 'utf8');
 }
 
@@ -55,20 +42,16 @@ export function discordText(news) {
   return fit(news.replace(/\r\n/g, '\n').replace(/^#{1,6}\s+(.+)$/gm, '**$1**').trim());
 }
 
-/** The webhook message: one embed per language, German first. */
+/** The webhook message. */
 export function buildMessage(version, repo, news = readNews) {
   const release = `https://github.com/${repo}/releases/tag/v${version}`;
-  const install = `https://github.com/${repo}#installing`;
+  const links = `**[Download](${release})** · [How to install](https://github.com/${repo}#installing)`;
+  const update = 'Already installed? With the update check on, the app offers you the update when it starts.';
   return {
     username: 'GT Toolz',
     avatar_url: `https://raw.githubusercontent.com/${repo}/main/apps/ui/public/maldoe-256.png`,
     allowed_mentions: { parse: [] },
-    embeds: Object.entries(TEXTS).map(([language, text]) => ({
-      title: text.title(version),
-      url: release,
-      color: COLOR,
-      description: `${discordText(news(version, language))}\n\n${text.links(release, install)}\n${text.update}`,
-    })),
+    embeds: [{ title: `GT Toolz ${version} is out`, url: release, color: COLOR, description: `${discordText(news(version))}\n\n${links}\n${update}` }],
   };
 }
 

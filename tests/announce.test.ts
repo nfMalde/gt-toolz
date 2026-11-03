@@ -1,5 +1,5 @@
-// The release's announcement on Discord (scripts/release/announce.mjs): the news in both languages, nobody pinged, up
-// to three tries against a real local server, and nothing here can fail a release (the user, 2026-11-03).
+// The release's announcement on Discord (scripts/release/announce.mjs): the English news, nobody pinged, up to three
+// tries against a real local server, and nothing here can fail a release (the user, 2026-11-03).
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -41,34 +41,29 @@ async function printed(run: () => Promise<unknown>): Promise<string> {
   return lines.join('\n');
 }
 
-const NEWS = { de: '## Korrekturen\n\n- **Die Crew** funkt.', en: '## Fixes\n\n- **The crew** talks.' };
-
-test('the message has the news in German and English, links the release and pings nobody', () => {
-  const message = buildMessage('1.2.3-beta.2', 'owner/repo', (_version: string, language: 'de' | 'en') => NEWS[language]);
+test('the message has the news, links the release and pings nobody', () => {
+  const message = buildMessage('1.2.3-beta.2', 'owner/repo', () => '## Fixes\n\n- **The crew** talks.');
   assert.deepEqual(message.allowed_mentions, { parse: [] });
-  assert.equal(message.embeds.length, 2);
-  const [de, en] = message.embeds;
-  assert.equal(de.title, 'GT Toolz 1.2.3-beta.2 ist da');
-  assert.equal(en.title, 'GT Toolz 1.2.3-beta.2 is out');
-  assert.equal(de.url, 'https://github.com/owner/repo/releases/tag/v1.2.3-beta.2');
-  assert.match(de.description, /^\*\*Korrekturen\*\*\n\n- \*\*Die Crew\*\* funkt\./);
-  assert.match(en.description, /\[Download\]\(https:\/\/github\.com\/owner\/repo\/releases\/tag\/v1\.2\.3-beta\.2\)/);
+  assert.equal(message.embeds.length, 1);
+  const [embed] = message.embeds;
+  assert.equal(embed.title, 'GT Toolz 1.2.3-beta.2 is out');
+  assert.equal(embed.url, 'https://github.com/owner/repo/releases/tag/v1.2.3-beta.2');
+  assert.match(embed.description, /^\*\*Fixes\*\*\n\n- \*\*The crew\*\* talks\./);
+  assert.match(embed.description, /\[Download\]\(https:\/\/github\.com\/owner\/repo\/releases\/tag\/v1\.2\.3-beta\.2\)/);
 });
 
-test('the published news of a version make a message, also with a next release not named yet', () => {
-  const message = buildMessage('1.0.0-beta', 'owner/repo');
-  assert.match(message.embeds[0].description, /\*\*Beta-Release\*\*/);
-  assert.match(message.embeds[1].description, /\*\*Beta release\*\*/);
+test('it takes the English news of a version, not the German', () => {
+  const { description } = buildMessage('1.0.0-beta', 'owner/repo').embeds[0];
+  assert.match(description, /\*\*Beta release\*\*/);
+  assert.doesNotMatch(description, /Beta-Release/);
 });
 
-test('long news are cut at a line end, and two languages stay within what Discord takes', () => {
+test('long news are cut at a line end, and stay within what Discord takes', () => {
   assert.equal(fit('short'), 'short');
   assert.equal(fit('line one\nline two', 12), 'line one\n…');
   const long = Array.from({ length: 400 }, (_, i) => `- line number ${i} of the news`).join('\n');
-  const message = buildMessage('1.0.0', 'owner/repo', () => long);
-  const total = message.embeds.reduce((sum: number, embed: { title: string; description: string }) => sum + embed.title.length + embed.description.length, 0);
-  assert.ok(total <= 6000, `${total} characters`);
-  for (const embed of message.embeds) assert.ok(embed.description.length <= 4096);
+  const { description } = buildMessage('1.0.0', 'owner/repo', () => long).embeds[0];
+  assert.ok(description.length <= 4096, `${description.length} characters`);
   assert.match(discordText(long), /\n…$/);
 });
 
