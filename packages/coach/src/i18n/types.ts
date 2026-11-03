@@ -60,6 +60,8 @@ export interface Phrases {
   numberWords: readonly string[];
   decimalWord: string;
   now: string;
+  /** The action after "now", or alone at the braking point after a turn-in that came first. */
+  brake: string;
   gear(gear: number): string;
   brakeIntro(force: BrakeForce): string;
   turn(direction: Direction, strength: SteerStrength): string;

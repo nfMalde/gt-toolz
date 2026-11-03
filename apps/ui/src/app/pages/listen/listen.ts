@@ -28,6 +28,7 @@ const LABELS: Record<string, TextKey> = {
   'plan-full': 'settings.plan',
   'plan-short': 'listen.planShort',
   countdown: 'settings.countdown',
+  'turn-first': 'listen.turnFirst',
   gear: 'settings.gearAfter',
   turn: 'settings.turnIn',
   'note-flat': 'listen.noteFlat',

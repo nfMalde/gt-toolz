@@ -39,7 +39,7 @@ talk to you while you drive. Everything runs on your own computer: free, no acco
 
 ## What it does
 
-- **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now"*) with the
+- **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now, brake"*) with the
   corner plan, gears, apex speed, fast corners (flat, lift) and trail braking. GT Toolz recognises the track and the
   car, learns the **reference lap** from your own driving or a GT7 replay, and picks the right one by itself.
 - **Feedback on your driving:** the corners that cost the most and what to try, the cause of a spin, a briefing and a
@@ -189,8 +189,8 @@ have a personality, and they react to how you drive:
   patience. Or so he says."*
 - **The debrief** may add a bonus mistake: *"Mistake number 4: racing today instead of mowing the lawn. The lawn would
   have been happy."*
-- **Clean laps calm them down again.** You choose how fast they lose their patience (**A lot**, **Normal**, **Little**),
-  or the **Factual** style without remarks. The braking calls themselves always stay factual, so a remark never costs
+- **Clean laps calm them down again.** For the coach and the crew you choose how fast each loses their patience
+  (**A lot**, **Normal**, **Little**), or the **Factual** style without remarks. The braking calls themselves always stay factual, so a remark never costs
   you a braking point.
 
 Every line, cheeky or not, can be reworded on the **Texts** page.
@@ -201,7 +201,7 @@ Coach, crew and stand-in can speak with **your own voice**, or with a friend's w
 
 1. Open **Recordings**, create a voice pack and record the texts one by one: Space starts and stops, the arrow keys
    go to the next text. The app trims the silence and levels each take.
-2. Start with the short corner calls ("now", the countdown, the gears) and your name; the rest is optional. Sentences
+2. Start with the short corner calls ("now", "brake", the countdown, the gears) and your name; the rest is optional. Sentences
    your pack can say completely come from your recordings, the voice you picked says everything else.
 3. Under **Voices**, pick the role and choose your pack in **Own recordings**, and you hear yourself counting down the
    next braking point.
@@ -216,7 +216,7 @@ speakers agreed. Details: [Your own recorded voice](docs/user/voices.md#your-own
 1. In GT7 open **Sport mode → Daily Race**, start the replay of a fast driver from the leaderboard and let one full lap
    play. GT Toolz learns the braking points from it.
 2. Start a time trial on the same track. From the line on you hear: *"Full braking ahead. Hairpin right. In with first
-   gear. Two, one, now."*
+   gear. Two, one, now, brake."*
 3. After the lap the coach tells you the corner that cost the most and what to try. No replay at hand? Just drive three
    laps: GT Toolz takes your fastest as the reference.
 

@@ -31,6 +31,8 @@ const STRENGTHS: SteerStrength[] = ['slight', 'medium', 'sharp'];
 export function coachClips(phrases: Phrases): Record<string, string> {
   const clips: Record<string, string> = {
     now: phrases.now,
+    brake: phrases.brake,
+    'brake-point': phrases.brake,
     'intro-full': phrases.brakeIntro('full'),
     'assist-wait': phrases.assistWait,
     'assist-throttle': phrases.assistThrottle,
@@ -167,6 +169,9 @@ export function clipFor(cue: Cue): string {
       return `count-${cue.count}`;
     case 'now':
       return 'now';
+    case 'brake':
+    case 'brake-point':
+      return cue.kind;
     case 'gear':
       return `gear-${cue.gear}`;
     case 'turn-in':

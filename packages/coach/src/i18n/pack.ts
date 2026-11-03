@@ -22,6 +22,8 @@ export const TEXT_KEYS: Record<string, readonly string[]> = {
   /** The word for the decimal mark ("Komma", "point"), for recorded voices. */
   'spell.decimal': [],
   now: [],
+  /** The action after "now", or alone at the braking point after a turn-in that came first. */
+  brake: [],
   gear: ['gear', 'gearWord'],
   'brakeIntro.full': [],
   'brakeIntro.percent': ['percent'],
@@ -555,6 +557,7 @@ export function phrasesFromPack(pack: LanguagePack, fallback: LanguagePack): Phr
     numberWords: list('spell.numbers'),
     decimalWord: text('spell.decimal'),
     now: text('now'),
+    brake: text('brake'),
     gear: (gear) => text('gear', { gear, gearWord: word('numbers', gear) }),
     brakeIntro: (force) => (force === 'full' ? text('brakeIntro.full') : text('brakeIntro.percent', { percent: force })),
     turn: (direction, strength) => text('turn', { direction: text(`direction.${direction}`), strength: text(`strength.${strength}`) }),

@@ -38,14 +38,16 @@ For each braking zone, the session fixes a cue plan about 30 s ahead (`PLAN_HORI
 4. corner plan: full (shape, trail braking, gears, curbs), short (shape and gears) or shape only, as sentences or pace notes;
 5. countdown: up to `countdownSeconds` numbers, each followed by `countPause` (or `countPauseShort` when time is tight);
 6. "now" at the braking point;
-7. after "now": the entry gear (optional, `announceGear`), the gears where the reference shifts in the corner (`announceShifts`: the entry gear at its shift point when that is 1 s or more after the braking point, the mid gear, the exit gear), helping cues, the calls through a big problem corner, turn-in. A turn-in that would overlap "now" or the gear after it moves to right after them, if that is still before the apex.
+7. after "now": the action it names (`announceAction`: "brake"), the entry gear (optional, `announceGear`), the turn-in, the gears where the reference shifts in the corner (`announceShifts`: the entry gear at its shift point when that is 1 s or more after the braking point, the mid gear, the exit gear), helping cues, the calls through a big problem corner. A turn-in that would overlap "now, brake" or the gear after it moves to right after them, if that is still before the apex. A gear said ahead of its shift waits for what is being said, at the latest until the shift itself.
+
+**The first action** (`announceAction`, the setting `actionAfterNow`): where the reference turns in before it brakes (`Corner.turnFirstS`: it steers into the corner from 0.6 to 4 s before its braking point, not still from the previous corner), and "now" and the turn-in phrase fit before the braking point, steps 1 to 6 are built back from the turn-in instead: "two, one, now, right, sharp", then "brake" alone at the braking point (the cue `brake-point`, felt like "now"). Without the turn-in calls, or when the words do not fit, braking goes first.
 
 Rules the timing follows:
 
 - Every cue comes earlier by the calibrated output latency (`latencySeconds`, the coach's `outputLatencySeconds`).
 - The time to a point is the shorter of the current speed's estimate and the reference's own time over the distance, so sentences out of a slow corner are not promised too much time.
 - A cue that would come too late is dropped, never played late (0.25 s for timed cues, 0.6 s for announcements).
-- After "now" the cues are checked against each other; of two that would overlap, the more important one stays. "Now" is never talked over.
+- After "now" the cues are checked against each other; of two that would overlap, the more important one stays. "Now" and its action are never talked over.
 - A braking zone that follows the previous one within 6 s is part of a chain: the first zone's plan names it, and it gets no announcement, plan or feedback of its own (`chainCalls`).
 - Corners without braking get a pace note ("Flat right", "Then lift to 140, right") when there is room (`fastCorners`).
 

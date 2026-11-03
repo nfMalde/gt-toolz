@@ -141,6 +141,15 @@
               <gtt-segmented [options]="patienceOptions()" [value]="s.patience" [disabled]="s.style !== 'cheeky'" (valueChange)="set({ patience: $event })" />
             </div>
           </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('settings.crewPatience') }}</div>
+              <div class="hint">{{ t('settings.crewPatienceHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-segmented [options]="patienceOptions()" [value]="s.crewPatience" [disabled]="s.style !== 'cheeky'" (valueChange)="set({ crewPatience: $event })" />
+            </div>
+          </div>
         </section>
 
         <!-- Updates (official installed builds; asked once in the news window) -->

@@ -12,6 +12,7 @@
     "spell.numbers": ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"],
     "spell.decimal": "point",
     "now": "now",
+    "brake": "brake",
     "gear": "gear {gearWord}",
     "brakeIntro.full": "Full braking ahead",
     "brakeIntro.percent": "{percent} percent braking ahead",

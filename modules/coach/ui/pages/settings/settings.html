@@ -122,6 +122,15 @@
           </div>
           <div class="setting">
             <div class="text">
+              <div class="title">{{ t('settings.actionAfter') }}</div>
+              <div class="hint">{{ t('coach.settings.actionAfterHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.actionAfterNow" [label]="t('settings.actionAfter')" (checkedChange)="set({ actionAfterNow: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
               <div class="title">{{ t('settings.gearAfter') }}</div>
               <div class="hint">{{ t('coach.settings.gearAfterHint') }}</div>
             </div>

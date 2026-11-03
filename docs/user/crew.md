@@ -76,7 +76,7 @@ With **Coach style: Cheeky** (in the app [Settings](settings.md#personality)), t
 - "You know the grey stuff is the track, right?"
 - "Did you know there are drivers who at least pretend they can drive?"
 
-A lap without a trip calms the crew down a little. **Patience** in Settings sets how fast it gets annoyed.
+A lap without a trip calms the crew down a little. **Patience of the crew** in Settings sets how fast it gets annoyed.
 
 **Race engineer quits** (level 4): "You know what? I am out. The team boss wants a word." The **team boss** takes the radio with the stand-in's voice, race information too: "This is the team boss. My race engineer needs a break. You need a track. Take the grey one." After a few laps the engineer is back: "I am back. The boss says you behaved. More or less."
 

@@ -182,6 +182,13 @@ test('the race engineer quits, the team boss takes the radio on his own voice an
   assert.ok(crew.heard.length > engineerBefore, 'on his own voice again');
 });
 
+test('the crew goes by its own patience, not the coach\'s', async () => {
+  const { r, drive } = setup({ style: 'cheeky', patience: 'high', crewPatience: 'low' });
+  await drive(grid(5000));
+  await drive(race(laps(1, 1)).slice(0, 300));
+  assert.equal((r.crew as unknown as { options: { patience: string } }).options.patience, 'low');
+});
+
 test('in a race the cause of a spin is said on the radio, in the crew\'s voice', async () => {
   const { r, coach, crew, drive } = setup({ slides: true, slidesInRace: true });
   await drive(grid(5000));

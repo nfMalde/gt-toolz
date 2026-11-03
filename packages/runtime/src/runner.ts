@@ -242,7 +242,7 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
 
   private voice: ClipVoice | undefined;
   private voiceGeneration = 0;
-  private durations: ClipDurations = { tone: 0.25, intro: 1.2, now: 0.4, gear: 0.5, turnIn: 1.1, count: 0.6 };
+  private durations: ClipDurations = { tone: 0.25, intro: 1.2, now: 0.4, brake: 0.5, gear: 0.5, turnIn: 1.1, count: 0.6 };
   /** Coach and crew speak one at a time; a sentence waits for a quiet moment (docs/dev/modules.md). */
   private readonly floor = new SpeechFloor({
     // Without the coach talking (no reference, or quiet in a race) every moment is a quiet one.
@@ -796,6 +796,16 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
     const curbOut = corner ? curbCall(corner.curbOut, corner.curbOutLevel) : 'full';
     const force = corner ? brakeForce(corner) : 'full';
     const direction = corner ? turnDirection(corner) : 'right';
+    // The countdown as the coach says it: with the action on, "bremsen" right after "jetzt".
+    const action = this.settings.actionAfterNow;
+    const countdownWords = `${p.count(3)}, ${p.count(2)}, ${p.count(1)}, ${p.now}${action ? `, ${p.brake}` : ''}`;
+    const countdownClips = (at: number): [string, number][] => [
+      ['count-3', at],
+      ['count-2', at + step],
+      ['count-1', at + 2 * step],
+      ['now', at + 3 * step],
+      ...(action ? ([['brake', at + 3 * step + length('now') + 0.05]] as [string, number][]) : []),
+    ];
     const track = this.reference?.track?.name ?? p.unknownTrack;
     // The active reference's car and player; without them, an example.
     // Streamer mode: no other player's name (the stream would hear it).
@@ -855,10 +865,10 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       at += length(intro) + 0.3;
       steps.push([planClipName, at]);
       at += planSeconds + 0.35;
-      steps.push(['count-3', at], ['count-2', at + step], ['count-1', at + 2 * step], ['now', at + 3 * step]);
-      const now = at + 3 * step;
-      if (this.settings.gearAfterNow) steps.push([`gear-${gears.entry}`, now + length('now') + 0.05]);
-      steps.push([`turn-${direction}-sharp`, now + length('now') + (this.settings.gearAfterNow ? length(`gear-${gears.entry}`) + 0.4 : 0.6)]);
+      steps.push(...countdownClips(at));
+      const said = at + 3 * step + length('now') + (action ? length('brake') + 0.05 : 0);
+      if (this.settings.gearAfterNow) steps.push([`gear-${gears.entry}`, said + 0.05]);
+      steps.push([`turn-${direction}-sharp`, said + (this.settings.gearAfterNow ? length(`gear-${gears.entry}`) + 0.4 : 0.6)]);
       await timeline(steps)(token);
     };
 
@@ -983,14 +993,26 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
     };
 
     return [
-      { id: 'zone', group: 'corner', sequence: true, text: [p.brakeIntro(force), planFull, `${p.count(3)}, ${p.count(2)}, ${p.count(1)}, ${p.now}`, p.turn(direction, 'sharp')].join(' · '), play: sequence },
+      { id: 'zone', group: 'corner', sequence: true, text: [p.brakeIntro(force), planFull, countdownWords, p.turn(direction, 'sharp')].join(' · '), play: sequence },
       { id: 'tone', group: 'corner', text: '', play: timeline([['tone', 0]]) },
       { id: 'intro-full', group: 'corner', text: p.brakeIntro('full'), play: timeline([['intro-full', 0]]) },
       { id: 'intro-40', group: 'corner', text: p.brakeIntro(40), play: timeline([['intro-40', 0]]) },
       { id: 'shape', group: 'corner', text: shapeText, play: sayIt(shapeText) },
       { id: 'plan-full', group: 'corner', text: planFull, play: sayIt(planFull) },
       { id: 'plan-short', group: 'corner', text: planShort, play: sayIt(planShort) },
-      { id: 'countdown', group: 'corner', text: `${p.count(3)}, ${p.count(2)}, ${p.count(1)}, ${p.now}`, play: timeline([['count-3', 0], ['count-2', step], ['count-1', 2 * step], ['now', 3 * step]]) },
+      { id: 'countdown', group: 'corner', text: countdownWords, play: timeline(countdownClips(0)) },
+      {
+        id: 'turn-first',
+        group: 'corner',
+        text: `${p.count(2)}, ${p.count(1)}, ${p.now}, ${p.turn(direction, 'sharp')} · ${p.brake}`,
+        play: timeline([
+          ['count-2', 0],
+          ['count-1', step],
+          ['now', 2 * step],
+          [`turn-${direction}-sharp`, 2 * step + length('now') + 0.05],
+          ['brake-point', 2 * step + length('now') + length(`turn-${direction}-sharp`) + 0.45],
+        ]),
+      },
       { id: 'gear', group: 'corner', text: p.gear(gears.entry), play: timeline([[`gear-${gears.entry}`, 0]]) },
       { id: 'turn', group: 'corner', text: p.turn(direction, 'sharp'), play: timeline([[`turn-${direction}-sharp`, 0]]) },
       { id: 'note-flat', group: 'corner', text: flatNote, play: sayIt(flatNote) },
@@ -1381,6 +1403,7 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       tone: duration('tone'),
       intro: longest('intro-'),
       now: duration('now'),
+      brake: duration('brake'),
       gear: longest('gear-'),
       turnIn: longest('turn-'),
       count: longest('count-'),

@@ -16,11 +16,17 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
   the Cockpit's "I drive" switch did not match what the reference is for (still on "own race" from the race before,
   the reference a Daily Race). Choosing a reference now sets the switch to the reference's mode and BoP.
 - The turn-in call ("right, sharp") was lost in most corners: a turn-in at or shortly after the braking point would
-  have talked over "now" and was dropped. It now comes right after "now" (and the gear), as long as that is before
-  the apex.
+  have talked over "now" and was dropped. It now comes right after "now, brake" (and the gear), as long as that is
+  before the apex.
 
 ### Changed
 
+- The countdown runs to the first action and names it: "two, one, now, brake". Where the reference turns in before it
+  brakes, it runs to the turn-in: "two, one, now, right, sharp", then "brake" at the braking point. If the words do not
+  fit between the two, braking goes first. Switch it off under Coach → Settings → Countdown to the first action.
+- The turn-in goes before the gears in the corner; a gear waits for it up to its shift.
+- Coach and crew each have their own patience under Settings → Personality. A setting saved before applies to both
+  until you change one.
 - The coach calls the gears where the reference shifts in the corner whenever the corner plan is on: down into the
   entry gear when that comes later than the braking point (first gear at the apex of a hairpin), further down after
   the apex, up into the exit gear. Before, these came only with "Gear after now". That setting now only adds the

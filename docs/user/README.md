@@ -28,7 +28,7 @@ You need a PC or Mac in the same home network as your PS5 (the PS4 is not suppor
 6. **Pick a voice.** On Windows and macOS the system voice works at once. Better offline voices are optional downloads. On Linux, download one voice.
 7. **Learn your first reference.** In GT7, open **Sport mode → Daily Race**, start the replay of a fast driver from the leaderboard and let one full lap play. GT Toolz learns the braking points by itself.
 8. **Calibrate once.** Start any time trial, click **Start calibration**, and brake exactly at "now" five times. Then click **Apply**.
-9. **Drive.** Start a time trial on the same track. The out lap is quiet. From the start line on, the coach counts down every braking point: "Full braking ahead. Hairpin right. In with first gear. Two, one, now."
+9. **Drive.** Start a time trial on the same track. The out lap is quiet. From the start line on, the coach counts down every braking point: "Full braking ahead. Hairpin right. In with first gear. Two, one, now, brake."
 
 The full walkthrough is in [Getting started](getting-started.md).
 

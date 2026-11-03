@@ -107,7 +107,7 @@ With **Coach style: Cheeky** (in the app [Settings](settings.md#personality), on
 
 - Every repeat raises the coach's mood, a lap without one lowers it. The Cockpit shows it: **Coach relaxed**, **amused**, **annoyed**, **lost it**.
 - Level 1: "Braked too early again. The brake is not an anchor." Level 3: "Unbelievable! Turn 19! Again! I quit!"
-- **Patience** (in Settings) sets how fast it gets annoyed.
+- **Patience of the coach** (in Settings) sets how fast it gets annoyed.
 - **Level 4, coach quits**: "I quit. I cannot watch this anymore. Find someone else!" A **stand-in** with another voice takes over for a few laps: "Hello, this is the stand-in. Your coach needs a break. I will take it from here." Then the coach is back: "Right. I am back. I have calmed down. Almost."
 - A clean problem corner gives relief: "There you go! Told you so!"
 - **Cheeky bonus mistake** in the debrief, with lots of mistakes: "And mistake number five: installing GT7. And then starting it."
@@ -142,7 +142,7 @@ Open **Coach → Settings**. The talk level ([How much the coach says](#how-much
 
 | Setting | Default | What it does |
 |---|---|---|
-| **Countdown** | 2 numbers | "two, one, now" before every braking point. 0 to 5 numbers; 0 = **Only "now"**. |
+| **Countdown** | 2 numbers | "two, one, now, brake" before every braking point. 0 to 5 numbers; 0 = **Only "now"**. |
 | **Pause between the numbers** | 1 s | Silence after each number when there is enough time. 0.2 to 2 s. |
 | **Pause when time is short** | 0.8 s | The pause when announcement, plan and countdown would not fit otherwise. |
 | **Attention tone** | on | Short chime before each braking zone. |
@@ -154,8 +154,9 @@ Open **Coach → Settings**. The talk level ([How much the coach says](#how-much
 | **Call trail braking** | on | "Ease off the brake into the corner." where the reference trail-brakes. Mistakes with trail braking are always reported. Needs the corner plan. |
 | **Corners without braking** | on | Flat, lift and part-throttle corners: "Flat right, two wheels on the curb.", "Lift to 125, left." |
 | **Combine corner sequences** | on | Braking zones less than 6 s apart are named together, without explanations in between. |
-| **Gear after "now"** | off | The entry gear right after the braking point, again ("now. gear two."). |
-| **Turn-in** | on | Direction and strength before turning in: "right, sharp". Where the car turns in at the braking point, it comes right after "now". |
+| **Countdown to the first action** | on | The countdown runs to the first thing to do and names it: "now, brake". Where the reference turns in before it brakes, it runs to the turn-in: "now, right, sharp", then "brake" at the braking point. If the words do not fit between the two, braking goes first. Off: only "now" at the braking point. |
+| **Gear after "now"** | off | The entry gear right after the braking point, again ("now, brake, gear two."). |
+| **Turn-in** | on | Direction and strength before turning in: "right, sharp". Where the car turns in at the braking point, it comes right after "now, brake". |
 | **Silent out lap** | on | Coaching starts at the first start/finish crossing. |
 | **Calls during replays** | off | On: watch a ghost replay with its calls to learn the track. Learning a reference from a replay works either way. |
 

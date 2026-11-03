@@ -172,7 +172,12 @@ export interface RunnerSettings {
   chainCalls: boolean;
   /** Trail braking in the corner plan ("Bremse in die Kurve hinein lösen.") where the reference brakes into the corner (docs/dev/coach-and-texts.md). */
   trailCalls: boolean;
-  /** The gear once more right after "jetzt", and where the reference shifts in the corner (down after the apex, up to the exit gear). */
+  /**
+   * The countdown runs to the first action and names it: "jetzt, bremsen", or where the reference turns in before it
+   * brakes, "jetzt, rechts, stark" and then "bremsen" at the braking point. Off: "jetzt" at the braking point only.
+   */
+  actionAfterNow: boolean;
+  /** The entry gear once more, right after "jetzt". */
   gearAfterNow: boolean;
   turnIn: boolean;
   feedback: FeedbackSetting;
@@ -203,7 +208,10 @@ export interface RunnerSettings {
   /** Laps of a focus exercise on one corner, one run of it per lap (0 = none). */
   focusLaps: number;
   style: CoachStyle;
+  /** How fast the cheeky coach gets annoyed. */
   patience: Patience;
+  /** How fast the cheeky crew gets annoyed. */
+  crewPatience: Patience;
   /** Cheeky style, absolute escalation: the coach quits ("Ich hör auf …") and a stand-in with another voice takes over. */
   coachQuits: boolean;
   /** Laps the stand-in coaches before the coach comes back. */
@@ -449,7 +457,7 @@ export interface RecordingCatalog {
 
 export type SessionMode = 'race' | 'practice' | 'replay' | 'menu';
 /** note: the pace note of a corner without braking. */
-export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'gear' | 'turn-in' | 'assist' | 'note';
+export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'brake' | 'brake-point' | 'gear' | 'turn-in' | 'assist' | 'note';
 /** How much of the car goes on a curb: one wheel, half (one side), the whole car. */
 export type CurbLevelKind = 'touch' | 'half' | 'full';
 

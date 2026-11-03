@@ -21,6 +21,11 @@ export interface Corner extends CurbUse {
   brakeEndS: number;
   /** Turn-in point; undefined if the car barely steers (straight-line braking, chicane exit). */
   turnInS?: number;
+  /**
+   * Where the reference turns in before its braking point (a braking zone that starts in the bend); undefined: it
+   * brakes first. Computed on load.
+   */
+  turnFirstS?: number;
   /** Trail braking (trail.ts): the reference's brake at turn-in (0..1) when it brakes into the corner; computed on load. */
   trailBrake?: number;
   /** Signed steering at the corner's maximum, rad. */
@@ -186,6 +191,29 @@ function toPoints(frames: TelemetryFrame[]): ReferencePoint[] {
   });
 }
 
+/** A turn-in counts as coming before the braking point when it is at least this long before it ... */
+const TURN_FIRST_MIN_MS = 600;
+/** ... and at most this long: still steering further back is a long bend, not a turn-in. */
+const TURN_FIRST_MAX_MS = 4000;
+
+/**
+ * Where the reference begins to steer into the corner before it brakes (the user, 2026-11-03: the countdown runs to the
+ * first action, braking or turning). notBefore: the end of the previous braking zone; still steering there, it is the
+ * same bend and no turn-in of its own.
+ */
+function turnBeforeBraking(points: ReferencePoint[], startIndex: number, notBefore: number, maxSteer: number, threshold: number): number | undefined {
+  const start = points[startIndex]!;
+  const turning = (p: ReferencePoint) => Math.sign(p.steer) === Math.sign(maxSteer) && Math.abs(p.steer) >= threshold;
+  if (Math.abs(maxSteer) < 0.03 || !turning(start)) return undefined;
+  let first = startIndex;
+  while (first > notBefore && turning(points[first - 1]!)) {
+    first--;
+    if (start.t - points[first]!.t > TURN_FIRST_MAX_MS) return undefined;
+  }
+  if (first === notBefore) return undefined;
+  return start.t - points[first]!.t >= TURN_FIRST_MIN_MS ? points[first]!.s : undefined;
+}
+
 export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_OPTIONS): Corner[] {
   const zones = findBrakingZones(points, options);
   return zones.map(([startIndex, endIndex], index) => {
@@ -220,6 +248,8 @@ export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_O
       }
     }
 
+    const turnFirstS = turnBeforeBraking(points, startIndex, zones[index - 1]?.[1] ?? 0, maxSteer, turnInThreshold);
+
     let peakBrake = 0;
     for (let i = startIndex; i <= endIndex; i++) peakBrake = Math.max(peakBrake, points[i]!.brake);
 
@@ -234,6 +264,7 @@ export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_O
       peakBrake,
       brakeEndS: end.s,
       turnInS,
+      ...(turnFirstS !== undefined ? { turnFirstS } : {}),
       maxSteer,
       apexS: apex.s,
       apexSpeedKmh: apex.speed * 3.6,

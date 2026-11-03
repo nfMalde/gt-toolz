@@ -81,6 +81,8 @@ export const DEFAULT_RUNNER_SETTINGS: RunnerSettings = {
   chainCalls: DEFAULT_COACH_SETTINGS.chainCalls,
   // The user, 2026-10-22: trail braking in the corner plan too.
   trailCalls: true,
+  // The user, 2026-11-03: the countdown runs to the first action and names it.
+  actionAfterNow: true,
   gearAfterNow: false,
   turnIn: true,
   // The two worst corners (stream feedback, 2026-10-23: seven feedbacks on seven braking zones were too many).
@@ -100,6 +102,7 @@ export const DEFAULT_RUNNER_SETTINGS: RunnerSettings = {
   // On by default; the user can switch it off (settings, start guide).
   style: 'cheeky',
   patience: 'normal',
+  crewPatience: 'normal',
   coachQuits: true,
   standInLaps: 2,
   // The modules on at the first start (the user, 2026-10-29): coach and crew (modules/crew); the overlays and the
@@ -200,6 +203,7 @@ export function normalizeSettings(value: unknown, base: RunnerSettings = DEFAULT
     fastCorners: bool(v.fastCorners, d.fastCorners),
     chainCalls: bool(v.chainCalls, d.chainCalls),
     trailCalls: bool(v.trailCalls, d.trailCalls),
+    actionAfterNow: bool(v.actionAfterNow, d.actionAfterNow),
     gearAfterNow: bool(v.gearAfterNow, d.gearAfterNow),
     turnIn: bool(v.turnIn, d.turnIn),
     feedback,
@@ -215,7 +219,9 @@ export function normalizeSettings(value: unknown, base: RunnerSettings = DEFAULT
     helpAssists: bool(v.helpAssists, d.helpAssists),
     focusLaps: Math.round(clamp(v.focusLaps, 0, 5, d.focusLaps)),
     style: v.style === 'neutral' || v.style === 'cheeky' ? (v.style as CoachStyle) : d.style,
-    patience: v.patience === 'high' || v.patience === 'normal' || v.patience === 'low' ? (v.patience as Patience) : d.patience,
+    patience: patienceOf(v.patience, d.patience),
+    // The user, 2026-11-03: coach and crew each have their own. Until then the crew went by the one setting.
+    crewPatience: patienceOf(v.crewPatience, patienceOf(v.patience, d.crewPatience)),
     coachQuits: bool(v.coachQuits, d.coachQuits),
     standInLaps: Math.round(clamp(v.standInLaps, 1, 5, d.standInLaps)),
     coach: bool(v.coach, d.coach),
@@ -292,10 +298,15 @@ export interface ClipDurations {
   tone: number;
   intro: number;
   now: number;
+  brake: number;
   gear: number;
   turnIn: number;
   /** The longest countdown number. */
   count: number;
+}
+
+function patienceOf(value: unknown, fallback: Patience): Patience {
+  return value === 'high' || value === 'normal' || value === 'low' ? value : fallback;
 }
 
 function talkLevel(value: unknown, fallback: TalkLevel): TalkLevel {
@@ -341,11 +352,13 @@ export function coachSettingsFrom(settings: RunnerSettings, durations: ClipDurat
     announceIntro: settings.intro,
     introSeconds: durations.intro,
     nowSeconds: durations.now,
+    brakeSeconds: durations.brake,
     gearSeconds: durations.gear,
     turnInSeconds: durations.turnIn,
     // The plan cue carries the shape, the gears, or both.
     announcePlan: settings.plan || settings.cornerShape,
     raceCalls: settings.raceCalls ? settings.raceCallsScope : 'off',
+    announceAction: settings.actionAfterNow,
     announceGear: settings.gearAfterNow,
     // The corner plan's gears, and where the reference shifts in the corner.
     announceShifts: settings.plan,

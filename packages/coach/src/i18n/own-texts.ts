@@ -20,6 +20,7 @@ export type TextGroup = (typeof TEXT_GROUPS)[number];
 export const QUICK_TEXTS: readonly string[] = [
   'count',
   'now',
+  'brake',
   'gear',
   'brakeIntro.full',
   'brakeIntro.percent',

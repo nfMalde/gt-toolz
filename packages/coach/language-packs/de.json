@@ -19,6 +19,7 @@
     "spell.numbers": ["null", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf", "dreizehn", "vierzehn", "fünfzehn", "sechzehn", "siebzehn", "achtzehn", "neunzehn", "zwanzig"],
     "spell.decimal": "Komma",
     "now": "jetzt",
+    "brake": "bremsen",
     "gear": "Gang {gearWord}",
     "brakeIntro.full": "Gleich voll bremsen",
     "brakeIntro.percent": "Gleich {percent} Prozent",

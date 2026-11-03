@@ -42,7 +42,8 @@ The coach and the crew share their personality.
 | Setting | Default | What it does |
 |---|---|---|
 | **Coach style** | Cheeky | **Cheeky**: remarks when a mistake keeps coming despite the help, and at some point the coach loses it. **Factual**: no remarks. Braking calls stay factual in both. |
-| **Patience** | Normal | How fast the cheeky coach and the crew get annoyed: **A lot**, **Normal** or **Little**. Only with the cheeky style. |
+| **Patience of the coach** | Normal | How fast the cheeky coach gets annoyed: **A lot**, **Normal** or **Little**. Only with the cheeky style. |
+| **Patience of the crew** | Normal | The same for the cheeky crew. Only with the cheeky style. |
 
 ### Updates
 

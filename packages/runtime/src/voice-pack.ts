@@ -242,7 +242,7 @@ export function templatePieces(template: string): string[] {
 }
 
 /** Pack texts that the cue section already has in full. */
-const CUE_KEYS = new Set(['now', 'gear', 'brakeIntro.full', 'brakeIntro.percent', 'turn', 'direction.left', 'direction.right', 'strength.slight', 'strength.medium', 'strength.sharp']);
+const CUE_KEYS = new Set(['now', 'brake', 'gear', 'brakeIntro.full', 'brakeIntro.percent', 'turn', 'direction.left', 'direction.right', 'strength.slight', 'strength.medium', 'strength.sharp']);
 /** Lists of words that the number section has, and texts without fixed words. */
 const SKIP_KEYS = new Set(['count', 'numbers', 'spell.numbers', 'spell.decimal', 'address']);
 
