@@ -2,6 +2,8 @@
 
 GT7 sends its "Simulator Interface" telemetry over UDP, about 60 packets a second, encrypted with Salsa20. This page covers the connection, the packet, the fields the app reads, how the session's mode, laps, race start and end and the track are worked out, and the reference laps the coach works with.
 
+**Status of this interface:** Polyphony Digital has not published it, and neither Sony nor Polyphony Digital has approved GT Toolz. What is known comes from the community and our own recordings, and any update can change or end it. Do not call it "official" or "public" (see [the rules for contributions](../../CONTRIBUTING.md#hands-off-the-console-and-the-game)). What users are told: [Fair play and your account](../user/fair-play.md).
+
 Code: `packages/telemetry` (the library), `packages/runtime/src/connection.ts` (finding the PS5), `modules/telemetry/main/session.ts` (`TelemetrySession`, the module that runs it all). The packet layout follows public community documentation (PDTools, gt7-udp, gt-telemetry); the implementation is our own.
 
 ## Connection

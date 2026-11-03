@@ -83,6 +83,7 @@ In development the app keeps its data in the repository (`.cache/`, `references/
 - **Changes users notice** get a line under `## [Unreleased]` in [CHANGELOG.md](../../CHANGELOG.md).
 - **No new dependency without review** ([security.md](security.md#dependency-policy)).
 - **No network access** beyond the places listed in [security.md](security.md#network). `tests/network.test.ts` fails on anything new.
+- **Hands off the console and the game:** no access to them, no input to the game, no cheats ([CONTRIBUTING.md](../../CONTRIBUTING.md#hands-off-the-console-and-the-game)).
 - **Spoken texts live in language packs**, never in code ([coach-and-texts.md](coach-and-texts.md)).
 - **Every setting has a default and a check** in one place ([modules.md](modules.md#settings-defaults-and-normalize)).
 - **Only clearly licensed voices** ([voices.md](voices.md#licensing-rules)).

@@ -14,4 +14,5 @@
 - [ ] Docs updated where users or developers need to know (`docs/user`, `docs/dev`, `CHANGELOG.md` under "Unreleased").
 - [ ] No new dependency, or it is discussed in an issue first (see CONTRIBUTING.md).
 - [ ] Logs stay anonymous: new log lines go through the session log, and nothing personal gets into them.
+- [ ] Hands off the console and the game: no access to them, no input to the game (see CONTRIBUTING.md).
 - [ ] I signed the CLA (the bot asks on your first pull request).

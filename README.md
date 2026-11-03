@@ -27,7 +27,7 @@
   <a href="https://www.twitch.tv/maldoe"><img alt="Twitch: maldoe" src="https://img.shields.io/badge/twitch-maldoe-9146FF?style=flat-square&logo=twitch&logoColor=white"></a>
 </p>
 
-GT Toolz reads the official telemetry that Gran Turismo 7 sends on your home network, so a coach and a race crew can
+GT Toolz reads the telemetry that Gran Turismo 7 sends on your home network, so a coach and a race crew can
 talk to you while you drive. Everything runs on your own computer: free, no account, no cloud, no ads.
 
 ## How it works
@@ -83,6 +83,9 @@ Some German voices can be hard to understand at times. If so, try another one or
 
 - **PS5 only.** You need a PS5 with Gran Turismo 7 and a computer in the same home network. The PS4 is not supported:
   GT Toolz has not been tested with GT7 on a PS4.
+- **Fair play: check the rules.** GT Toolz changes nothing in the game and never drives for you, but its calls are a
+  real-time aid. Leagues and tournaments may forbid such aids, also when practising in their lobbies, so check before
+  you join. Please read [Fair play and your account](docs/user/fair-play.md).
 - **Your system warns once when you install it,** because the installers are not signed.
   [Installing](#installing) shows what to click.
 - **Not an AI, and it will not become one.** Coach and crew use fixed rules and texts written by hand
@@ -246,8 +249,14 @@ More: [coach](docs/user/coach.md) · [race crew](docs/user/crew.md) · [overlays
   web service would mean hosting costs every month. GT Toolz stays free, so there will be none of that. Everything
   stays on your PC; the only internet connections are the voice downloads you start yourself and the update check
   you agreed to.
+- **Not a mod, and no licence to use it everywhere.** GT Toolz reads the telemetry GT7 sends on your home network. It
+  changes nothing in the game, on the console or in your save data, and you still drive yourself. Its calls during a
+  race are a real-time aid all the same, and whether that is welcome is up to each league and tournament: check their
+  rules first. You can switch them off under **Crew → Settings → Corner calls in races**. More in
+  [Fair play and your account](docs/user/fair-play.md).
 - **Not an official product** of Sony Interactive Entertainment or Polyphony Digital (see
-  [No warranty, no liability](#no-warranty-no-liability)).
+  [No warranty, no liability](#no-warranty-no-liability)). Polyphony Digital has not published this telemetry
+  interface, so a game update can change it or end it.
 
 ## Updates
 
@@ -381,10 +390,14 @@ keep their own licenses; they are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY
 GT Toolz is provided **"as is", without warranty of any kind**, express or implied, including the warranties of
 merchantability and fitness for a particular purpose (GPL-3.0, sections 15 and 16). To the extent permitted by
 applicable law, the authors and contributors are **not liable** for any damage or loss arising from the use of GT
-Toolz, including lost races, results or data. You use it at your own risk.
+Toolz, including lost races, results or data, penalties, disqualifications, suspended or restricted accounts, and
+updates that stop it from working. You use it at your own risk.
 
-Driving aids in online races or events can be against the rules of a league or an organiser; whether you may use GT
-Toolz there is your responsibility.
+**You are responsible for how you use GT Toolz.** That includes keeping to the terms of PlayStation and Gran Turismo 7
+and to the rules of leagues and organisers. Nobody promises that using GT Toolz is allowed anywhere. Driving aids in
+online races or events can be against the rules of a league or an organiser; whether you may use GT Toolz there is
+your responsibility. Please read [Fair play and your account](docs/user/fair-play.md). Nothing in this project is legal
+advice.
 
 GT Toolz is an independent tool. It is not affiliated with, endorsed, sponsored or approved by Sony Interactive
 Entertainment Inc. or Polyphony Digital Inc. "Gran Turismo", "GT7", "PlayStation" and "PS5" are trademarks or registered
