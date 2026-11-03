@@ -341,6 +341,7 @@ Plain Node scripts (no packages) that build and test a release the same way loca
 |---|---|
 | `release.mjs` | Runs the steps in order (`--steps=`, `--skip=`, `--force`) |
 | `plan.mjs` | The release plan: the next version from channel and bump, and with `--apply` the versions, `CHANGELOG.md` and the news for it; writes `release/notes.md` |
+| `announce.mjs` | The release's announcement on Discord: the news in both languages, up to three tries; never fails the release |
 | `1-build.mjs` | Production build and staging (`release/stage`) |
 | `2-test.mjs` | Type check, tests, `npm audit signatures`, `npm audit` |
 | `3-installer-windows.mjs`, `4-installer-linux.mjs`, `5-installer-mac.mjs` | The installers (each only on its own system) |

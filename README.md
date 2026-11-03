@@ -13,11 +13,12 @@
 </p>
 
 <p align="center">
-  <a href="#installing">How to install</a> · <a href="docs/user/README.md">User guide</a>
+  <a href="#installing">How to install</a> · <a href="docs/user/README.md">User guide</a> · <a href="https://discord.gg/GbvU9sns5z">Discord</a>
 </p>
 
 <p align="center">
   <a href="#languages-and-voices"><img alt="Languages: German and English" src="https://img.shields.io/badge/languages-German%20%7C%20English-green?style=flat-square"></a>
+  <a href="https://discord.gg/GbvU9sns5z"><img alt="Discord" src="https://img.shields.io/badge/discord-join-5865F2?style=flat-square&logo=discord&logoColor=white"></a>
   <img alt="Status: beta" src="https://img.shields.io/badge/status-beta-orange?style=flat-square">
   <img alt="Platforms" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square">
   <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nfMalde/gt-toolz/total?style=flat-square"></a>
@@ -88,6 +89,8 @@ Some German voices can be hard to understand at times. If so, try another one or
   ([more](#what-gt-toolz-is-not)).
 - **No servers, and that keeps it free:** no leaderboards, no accounts, no cloud.
 - **Your data stays with you:** no analytics, no tracking, and the logs are anonymous ([Privacy](#privacy)).
+- **Questions?** Ask on our [Discord](https://discord.gg/GbvU9sns5z). New releases are announced there too. Bugs go to
+  the [issues](https://github.com/nfMalde/gt-toolz/issues/new/choose).
 
 ![The Cockpit while driving: live values, the countdown of the next braking zone, the reference and the feedback per corner](docs/images/cockpit.png)
 
@@ -393,6 +396,7 @@ belong to their owners.
 GT Toolz is a project by **Maldö**. It stays free; if you like it, you can support it with a donation (no perks, just
 thanks).
 
+- **Community:** [Discord](https://discord.gg/GbvU9sns5z)
 - **Donate:** [PayPal](https://www.paypal.com/donate/?hosted_button_id=SVZHLRTQ6H4VL)
 - **Maldö:** [Twitch](https://www.twitch.tv/maldoe) · [YouTube](https://www.youtube.com/@dermaldoe) ·
   [X](https://x.com/DerMaldoe) · [Instagram](https://www.instagram.com/maldoe_gaming/) ·
