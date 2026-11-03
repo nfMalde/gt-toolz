@@ -63,11 +63,12 @@ function setup(options: { coach?: boolean; mute?: boolean } = {}) {
   const crewVoice = fakeVoice('crew');
   r.voice = coachVoice;
   setCrewVoice(crewVoice);
-  const coach = { quiet: Infinity, holds: [] as number[], quietSeconds: () => coach.quiet, holdUntil: (until: number) => void coach.holds.push(until) };
-  // No reference on the track: the coach says nothing of its own, but its quiet time counts.
+  // A coach on its reference that says nothing of its own (no events), but its quiet time counts. (It has to get
+  // the frames: a coach without them, the reference lost, cannot cue, and the runner counts it as quiet.)
+  const coach = { quiet: Infinity, holds: [] as number[], quietSeconds: () => coach.quiet, holdUntil: (until: number) => void coach.holds.push(until), update: () => [], currentLap: 1, isStarted: true };
   if (options.coach !== false) {
     r.coach = coach;
-    inside.lost = true;
+    inside.ref = {};
   }
   const felt: HapticCue[] = [];
   runner.on('feel', (cue) => void felt.push(cue));

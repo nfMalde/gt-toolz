@@ -193,8 +193,8 @@ export class TelemetrySession extends EventEmitter<TelemetryEvents> implements T
 
   // --- The reference: chosen in the app ---
 
-  /** A reference from the app, or none: learn a new one (learn: its player and target time). */
-  choose(file: string | undefined, learn: ReferenceDetails = {}): void {
+  /** A reference from the app (returned), or none: learn a new one (learn: its player and target time). */
+  choose(file: string | undefined, learn: ReferenceDetails = {}): ReferenceLap | undefined {
     if (!file) {
       this.learnDetails = learn;
       this.ref = undefined;
@@ -204,12 +204,13 @@ export class TelemetrySession extends EventEmitter<TelemetryEvents> implements T
       this.learnRequested = true;
       this.emit('status');
       this.emit('reference', { why: 'learn' });
-      return;
+      return undefined;
     }
     const ref = readReference(file);
     this.use(ref, file);
     this.emit('status');
     this.emit('reference', { reference: ref, file, why: 'chosen' });
+    return ref;
   }
 
   /** Player or target time of a reference changed on disk: the one in use takes them over. */

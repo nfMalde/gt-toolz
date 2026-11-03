@@ -347,6 +347,8 @@ export function coachSettingsFrom(settings: RunnerSettings, durations: ClipDurat
     announcePlan: settings.plan || settings.cornerShape,
     raceCalls: settings.raceCalls ? settings.raceCallsScope : 'off',
     announceGear: settings.gearAfterNow,
+    // The corner plan's gears, and where the reference shifts in the corner.
+    announceShifts: settings.plan,
     announceTurnIn: settings.turnIn,
     feedback: settings.feedback !== 'off',
     feedbackPerLap: typeof settings.feedback === 'number' ? Math.max(1, settings.feedback) : 'all',

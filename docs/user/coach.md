@@ -149,13 +149,13 @@ Open **Coach → Settings**. The talk level ([How much the coach says](#how-much
 | **Announcement** | on | "Full braking ahead" or "40 percent braking ahead". |
 | **Call style** | Sentences | **Sentences**: "In with second gear, two wheels on the inside curb." **Pace notes**: short, in one line, like a co-driver: "Hairpin right, gear two, two wheels on the curb." |
 | **Corner shape** | on | What the corner looks like, right after the announcement: "hairpin right", "fast left", "chicane, right left". |
-| **Corner plan** | on | Gear in and out, right after the announcement. |
+| **Corner plan** | on | Gear in and out, right after the announcement; and the gear where the reference shifts in the corner: "gear one" at the apex of a hairpin taken down to first, "gear three" on the way out. |
 | **Curbs in the plan** | on | Where and how far the reference used the curbs. Needs the corner plan or corners without braking. |
 | **Call trail braking** | on | "Ease off the brake into the corner." where the reference trail-brakes. Mistakes with trail braking are always reported. Needs the corner plan. |
 | **Corners without braking** | on | Flat, lift and part-throttle corners: "Flat right, two wheels on the curb.", "Lift to 125, left." |
 | **Combine corner sequences** | on | Braking zones less than 6 s apart are named together, without explanations in between. |
-| **Gear after "now"** | off | The gear right after the braking point, and where the reference shifts in the corner. |
-| **Turn-in** | on | Direction and strength before turning in: "right, sharp". |
+| **Gear after "now"** | off | The entry gear right after the braking point, again ("now. gear two."). |
+| **Turn-in** | on | Direction and strength before turning in: "right, sharp". Where the car turns in at the braking point, it comes right after "now". |
 | **Silent out lap** | on | Coaching starts at the first start/finish crossing. |
 | **Calls during replays** | off | On: watch a ghost replay with its calls to learn the track. Learning a reference from a replay works either way. |
 

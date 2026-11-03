@@ -36,6 +36,8 @@ export interface Corner extends CurbUse {
    * up again before the slowest point (a hairpin taken down to first, second at the apex; stream, 2026-10-23).
    */
   entryGear: number;
+  /** Where the reference shifts down into its entry gear, when it does so after the braking point (undefined: already in it). */
+  entryGearS?: number;
   /** A lower gear the reference shifts down to after the apex, still in the corner (a chicane's second part), and where. */
   midGear?: number;
   midGearS?: number;
@@ -282,13 +284,16 @@ function shiftPoints(
   startIndex: number,
   apex: ReferencePoint,
   exit: ReferencePoint,
-): Pick<Corner, 'entryGear' | 'midGear' | 'midGearS' | 'exitGear' | 'exitGearS'> {
+): Pick<Corner, 'entryGear' | 'entryGearS' | 'midGear' | 'midGearS' | 'exitGear' | 'exitGearS'> {
   let to = startIndex;
   while (to < points.length - 1 && points[to + 1]!.t <= exit.t + GEARS_AFTER_EXIT_MS) to++;
   const spans = gearSpans(points, startIndex, to).filter((span) => span.s <= exit.s);
   const toApex = spans.filter((span) => span.s <= apex.s);
   const afterApex = spans.filter((span) => span.s > apex.s);
   const entryGear = toApex.length ? Math.min(...toApex.map((span) => span.gear)) : apex.gear;
+  // Where the entry gear goes in (the user, 2026-11-03: a corner taken down to first at the apex gets its call there, not after "jetzt").
+  const entrySpan = toApex.find((span) => span.gear === entryGear);
+  const entryGearS = entrySpan && entrySpan.s > points[startIndex]!.s ? entrySpan.s : undefined;
   const lowAfter = afterApex.length ? Math.min(...afterApex.map((span) => span.gear)) : Infinity;
   const mid = lowAfter < entryGear ? afterApex.find((span) => span.gear === lowAfter) : undefined;
   const last = spans.at(-1);
@@ -299,6 +304,7 @@ function shiftPoints(
   const exitGearS = last && before && exitGear > lowest && before.gear < exitGear ? last.s : undefined;
   return {
     entryGear,
+    ...(entryGearS !== undefined ? { entryGearS } : {}),
     ...(mid ? { midGear: mid.gear, midGearS: mid.s } : {}),
     exitGear,
     ...(exitGearS !== undefined ? { exitGearS } : {}),

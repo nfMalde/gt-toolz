@@ -241,7 +241,7 @@ Coach and crew react to the telemetry's `reference` event (`ReferenceEvent` in `
 | `why` | When |
 |---|---|
 | `start` | at start: the reference the last session ended with (the telemetry setting `activeReference`), or none |
-| `chosen` | the user chose one in the app |
+| `chosen` | the user chose one in the app; the Cockpit's "I drive" switch (`driveMode`, `driveBop`) follows the reference's confirmed mode and BoP, so the choice is not undone by `fitsMode` |
 | `learned` | a lap was learned |
 | `picked` | a saved one fits the track being driven |
 | `learn` | the user asked to learn a new one |

@@ -5,6 +5,27 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 
 ## [Unreleased]
 
+### Fixed
+
+- The crew's radio stayed silent in races (no radio check, no positions, no fuel) while the Cockpit's timeline showed
+  the lines: every sentence was dropped as "no quiet moment". The coach reported no quiet moment whenever it had no
+  position or had not started (the out lap, a reference for another car class), and the runner asked it even while it
+  got no frames. Now a coach that cannot cue leaves every moment quiet, and on the out lap only the corners beyond the
+  line count.
+- A reference chosen in the app was dropped again after 30 s of driving and the app began to learn a new one, when
+  the Cockpit's "I drive" switch did not match what the reference is for (still on "own race" from the race before,
+  the reference a Daily Race). Choosing a reference now sets the switch to the reference's mode and BoP.
+- The turn-in call ("right, sharp") was lost in most corners: a turn-in at or shortly after the braking point would
+  have talked over "now" and was dropped. It now comes right after "now" (and the gear), as long as that is before
+  the apex.
+
+### Changed
+
+- The coach calls the gears where the reference shifts in the corner whenever the corner plan is on: down into the
+  entry gear when that comes later than the braking point (first gear at the apex of a hairpin), further down after
+  the apex, up into the exit gear. Before, these came only with "Gear after now". That setting now only adds the
+  entry gear right after "now".
+
 ## [1.0.0-beta] - 2026-11-01
 
 The first public release: GT Toolz is open source now. The app, the coach and the crew speak German and English. It

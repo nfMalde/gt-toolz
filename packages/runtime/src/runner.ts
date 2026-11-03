@@ -1649,9 +1649,13 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
     return this.telemetry.mode === 'race';
   }
 
-  /** In races the coach is quiet unless the crew calls the corners (then the coach's cues go over the radio); switched off always. */
+  /**
+   * In races the coach is quiet unless the crew calls the corners (then the coach's cues go over the radio); switched off
+   * always; and with a reference for another track or class it gets no frames (onFrame), so it cannot cue: asked for a
+   * quiet moment then, it answered from stale frames and every sentence was dropped (the crew's radio, 2026-11-03).
+   */
   private get coachQuiet(): boolean {
-    return !this.settings.coach || (this.inRace && !this.settings.raceCalls);
+    return !this.settings.coach || this.telemetry.referenceLost || (this.inRace && !this.settings.raceCalls);
   }
 
   // --- Coaching ---

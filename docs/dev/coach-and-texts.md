@@ -38,7 +38,7 @@ For each braking zone, the session fixes a cue plan about 30 s ahead (`PLAN_HORI
 4. corner plan: full (shape, trail braking, gears, curbs), short (shape and gears) or shape only, as sentences or pace notes;
 5. countdown: up to `countdownSeconds` numbers, each followed by `countPause` (or `countPauseShort` when time is tight);
 6. "now" at the braking point;
-7. after "now": the entry gear (optional), gears in the corner, helping cues, the calls through a big problem corner, turn-in.
+7. after "now": the entry gear (optional, `announceGear`), the gears where the reference shifts in the corner (`announceShifts`: the entry gear at its shift point when that is 1 s or more after the braking point, the mid gear, the exit gear), helping cues, the calls through a big problem corner, turn-in. A turn-in that would overlap "now" or the gear after it moves to right after them, if that is still before the apex.
 
 Rules the timing follows:
 
