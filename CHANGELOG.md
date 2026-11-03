@@ -5,6 +5,8 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2026-11-03
+
 ### Fixed
 
 - The crew's radio stayed silent in races (no radio check, no positions, no fuel) while the Cockpit's timeline showed
