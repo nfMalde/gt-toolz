@@ -121,6 +121,8 @@ The **I drive** switch in the Cockpit says what you are driving right now: **Dai
 
 The automatic pick only takes references for what you drive. Your own laps are learned as this mode. References without a mode fit everything.
 
+When you choose a reference yourself (**Use** on the References page, or **Change** in the Cockpit), the switch follows it: a Daily Race reference puts **I drive** on **Daily Race** with **BoP**. So the reference you chose is not dropped for not matching the switch. Flip the switch afterwards if you really drive something else.
+
 ## Pick the reference automatically
 
 With **Telemetry → Settings → Pick the reference automatically** on (default), GT Toolz picks the reference for the track you drive:

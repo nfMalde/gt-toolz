@@ -364,6 +364,7 @@ export class RaceCrew {
     const messages: string[] = [];
     this.state = { ...this.state, lap: completed + 1, laps: frame.lapsInRace };
     const remaining = frame.lapsInRace > 0 ? frame.lapsInRace - completed : 0;
+    const over = frame.lapsInRace > 0 && remaining <= 0;
 
     // Tyres: lap times of this stint, without laps with excursions and without the start (lap 1 from the grid). A lap
     // without an excursion calms the crew down a little.
@@ -388,7 +389,8 @@ export class RaceCrew {
       const pitLap = remaining > 0 && !toFinish ? completed + Math.max(1, Math.floor(lapsLeft)) : undefined;
       fuelStopAhead = pitLap !== undefined;
       this.state = { ...this.state, fuel: { level: frame.fuelLevel, capacity: frame.fuelCapacity, perLap, lapsLeft, pitLap, toFinish } };
-      if (this.options.strategy) messages.push(this.phrases.crewFuel({ lapsLeft, perLap, toFinish, pitLap: lapsLeft < 1.05 ? 'now' : pitLap }));
+      // Not at the flag: no lap left to fuel or box for (the user, 2026-11-03: "Fuel for 0 laps. Box this lap!" with the chequered flag).
+      if (this.options.strategy && !over) messages.push(this.phrases.crewFuel({ lapsLeft, perLap, toFinish, pitLap: lapsLeft < 1.05 ? 'now' : pitLap }));
     }
 
     // Tyres: pace loss compared with the stint's best early laps. The pace now is the best of the last three laps: a
@@ -411,7 +413,7 @@ export class RaceCrew {
 
     if (remaining >= 2 && (this.options.talk !== 'little' || remaining <= LAPS_LEFT_LITTLE)) messages.push(this.phrases.crewLapsLeft(remaining));
     if (remaining === 1) messages.push(this.phrases.crewLastLap);
-    if (frame.lapsInRace > 0 && remaining <= 0) {
+    if (over) {
       messages.push(this.phrases.crewFinish);
       // Chequered flag: the crew is done for this race.
       this.finished = true;

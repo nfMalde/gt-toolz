@@ -5,7 +5,7 @@
 
 import path from 'node:path';
 import { asObject, asString, type ModuleDefinition } from '@gt-toolz/core';
-import { cleanDetails, deleteReference, listReferences, referenceFile, updateReferenceDetails } from '@gt-toolz/runtime';
+import { cleanDetails, deleteReference, listReferences, modeBop, referenceFile, updateReferenceDetails } from '@gt-toolz/runtime';
 import { TELEMETRY, type TelemetryModuleSettings } from '../src/api';
 import { defaultSettings, normalizeSettings } from '../src/settings';
 import type { TelemetrySession } from './session';
@@ -32,10 +32,24 @@ export function telemetryModule(session: TelemetrySession, referencesDir: string
       // --- Calls from the UI ---
       handle('listReferences', () => listReferences(referencesDir));
       handle('activateReference', (id, learn) => {
-        if (id === null) return session.choose(undefined, cleanDetails(asObject(learn)));
+        if (id === null) {
+          session.choose(undefined, cleanDetails(asObject(learn)));
+          return;
+        }
         const file = referenceFile(referencesDir, asString(id));
         if (!file) throw new Error('Unknown reference');
-        session.choose(file);
+        const ref = session.choose(file);
+        // The Cockpit's "I drive" switch follows a reference the user chose (the user, 2026-11-03: the switch still
+        // said "own race" from the race before, so the chosen Daily Race reference counted as not fitting and the
+        // app began to learn a new one after 30 s). Flipping the switch afterwards is the user's call again.
+        if (ref?.mode && ref.modeConfirmed) {
+          const bop = modeBop(ref.mode, ref.bop);
+          const current = host.settings();
+          if (current.driveMode !== ref.mode || current.driveBop !== bop) {
+            host.log(`REFERENCE chosen: you drive ${ref.mode}${bop ? ' with BoP' : ''} now, like the reference`);
+            host.updateSettings({ driveMode: ref.mode, driveBop: bop }).catch((err: Error) => host.log(`ERROR     config.json not saved: ${err.message}`));
+          }
+        }
       });
       handle('updateReference', (id, details) => {
         const clean = cleanDetails(asObject(details));

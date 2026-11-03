@@ -13,11 +13,12 @@
 </p>
 
 <p align="center">
-  <a href="#installing">How to install</a> · <a href="docs/user/README.md">User guide</a>
+  <a href="#installing">How to install</a> · <a href="docs/user/README.md">User guide</a> · <a href="https://discord.gg/GbvU9sns5z">Discord</a>
 </p>
 
 <p align="center">
   <a href="#languages-and-voices"><img alt="Languages: German and English" src="https://img.shields.io/badge/languages-German%20%7C%20English-green?style=flat-square"></a>
+  <a href="https://discord.gg/GbvU9sns5z"><img alt="Discord" src="https://img.shields.io/badge/discord-join-5865F2?style=flat-square&logo=discord&logoColor=white"></a>
   <img alt="Status: beta" src="https://img.shields.io/badge/status-beta-orange?style=flat-square">
   <img alt="Platforms" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square">
   <a href="https://github.com/nfMalde/gt-toolz/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/nfMalde/gt-toolz/total?style=flat-square"></a>
@@ -38,7 +39,7 @@ talk to you while you drive. Everything runs on your own computer: free, no acco
 
 ## What it does
 
-- **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now"*) with the
+- **Braking points in your ear:** a countdown into every braking zone (*"Full braking ahead … two, one, now, brake"*) with the
   corner plan, gears, apex speed, fast corners (flat, lift) and trail braking. GT Toolz recognises the track and the
   car, learns the **reference lap** from your own driving or a GT7 replay, and picks the right one by itself.
 - **Feedback on your driving:** the corners that cost the most and what to try, the cause of a spin, a briefing and a
@@ -88,6 +89,8 @@ Some German voices can be hard to understand at times. If so, try another one or
   ([more](#what-gt-toolz-is-not)).
 - **No servers, and that keeps it free:** no leaderboards, no accounts, no cloud.
 - **Your data stays with you:** no analytics, no tracking, and the logs are anonymous ([Privacy](#privacy)).
+- **Questions?** Ask on our [Discord](https://discord.gg/GbvU9sns5z). New releases are announced there too. Bugs go to
+  the [issues](https://github.com/nfMalde/gt-toolz/issues/new/choose).
 
 ![The Cockpit while driving: live values, the countdown of the next braking zone, the reference and the feedback per corner](docs/images/cockpit.png)
 
@@ -186,8 +189,8 @@ have a personality, and they react to how you drive:
   patience. Or so he says."*
 - **The debrief** may add a bonus mistake: *"Mistake number 4: racing today instead of mowing the lawn. The lawn would
   have been happy."*
-- **Clean laps calm them down again.** You choose how fast they lose their patience (**A lot**, **Normal**, **Little**),
-  or the **Factual** style without remarks. The braking calls themselves always stay factual, so a remark never costs
+- **Clean laps calm them down again.** For the coach and the crew you choose how fast each loses their patience
+  (**A lot**, **Normal**, **Little**), or the **Factual** style without remarks. The braking calls themselves always stay factual, so a remark never costs
   you a braking point.
 
 Every line, cheeky or not, can be reworded on the **Texts** page.
@@ -198,7 +201,7 @@ Coach, crew and stand-in can speak with **your own voice**, or with a friend's w
 
 1. Open **Recordings**, create a voice pack and record the texts one by one: Space starts and stops, the arrow keys
    go to the next text. The app trims the silence and levels each take.
-2. Start with the short corner calls ("now", the countdown, the gears) and your name; the rest is optional. Sentences
+2. Start with the short corner calls ("now", "brake", the countdown, the gears) and your name; the rest is optional. Sentences
    your pack can say completely come from your recordings, the voice you picked says everything else.
 3. Under **Voices**, pick the role and choose your pack in **Own recordings**, and you hear yourself counting down the
    next braking point.
@@ -213,7 +216,7 @@ speakers agreed. Details: [Your own recorded voice](docs/user/voices.md#your-own
 1. In GT7 open **Sport mode → Daily Race**, start the replay of a fast driver from the leaderboard and let one full lap
    play. GT Toolz learns the braking points from it.
 2. Start a time trial on the same track. From the line on you hear: *"Full braking ahead. Hairpin right. In with first
-   gear. Two, one, now."*
+   gear. Two, one, now, brake."*
 3. After the lap the coach tells you the corner that cost the most and what to try. No replay at hand? Just drive three
    laps: GT Toolz takes your fastest as the reference.
 
@@ -393,6 +396,7 @@ belong to their owners.
 GT Toolz is a project by **Maldö**. It stays free; if you like it, you can support it with a donation (no perks, just
 thanks).
 
+- **Community:** [Discord](https://discord.gg/GbvU9sns5z)
 - **Donate:** [PayPal](https://www.paypal.com/donate/?hosted_button_id=SVZHLRTQ6H4VL)
 - **Maldö:** [Twitch](https://www.twitch.tv/maldoe) · [YouTube](https://www.youtube.com/@dermaldoe) ·
   [X](https://x.com/DerMaldoe) · [Instagram](https://www.instagram.com/maldoe_gaming/) ·

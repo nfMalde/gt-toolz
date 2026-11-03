@@ -21,6 +21,15 @@ export interface Corner extends CurbUse {
   brakeEndS: number;
   /** Turn-in point; undefined if the car barely steers (straight-line braking, chicane exit). */
   turnInS?: number;
+  /** Still steering this way from the previous braking zone: the same bend, no turn-in of its own. */
+  sameTurn?: boolean;
+  /** The reference is on the outside curb where it begins to steer into the corner. */
+  curbEntry?: boolean;
+  /**
+   * Where the reference turns in before its braking point (a braking zone that starts in the bend); undefined: it
+   * brakes first. Computed on load.
+   */
+  turnFirstS?: number;
   /** Trail braking (trail.ts): the reference's brake at turn-in (0..1) when it brakes into the corner; computed on load. */
   trailBrake?: number;
   /** Signed steering at the corner's maximum, rad. */
@@ -36,6 +45,8 @@ export interface Corner extends CurbUse {
    * up again before the slowest point (a hairpin taken down to first, second at the apex; stream, 2026-10-23).
    */
   entryGear: number;
+  /** Where the reference shifts down into its entry gear, when it does so after the braking point (undefined: already in it). */
+  entryGearS?: number;
   /** A lower gear the reference shifts down to after the apex, still in the corner (a chicane's second part), and where. */
   midGear?: number;
   midGearS?: number;
@@ -126,6 +137,9 @@ export function prepareReference(reference: ReferenceLap, options = DEFAULT_CORN
 /** Inside curb: from turn-in until shortly after the apex. Outside curb: from the apex until after the exit. */
 const CURB_AFTER_APEX_M = 25;
 const CURB_AFTER_EXIT_M = 40;
+/** The outside curb at turn-in: this far before and after the point where the reference begins to steer. */
+const CURB_BEFORE_TURN_M = 40;
+const CURB_AFTER_TURN_M = 10;
 
 /** Which curbs the reference driver used per corner (inside towards the apex, outside on the exit), and how much. */
 function addCurbUse(reference: ReferenceLap): void {
@@ -139,6 +153,8 @@ function addCurbUse(reference: ReferenceLap): void {
       curbOn(reference.points, corner.turnInS ?? corner.brakeEndS, corner.apexS + CURB_AFTER_APEX_M, right, withWheels),
       curbOn(reference.points, corner.apexS, corner.exitS + CURB_AFTER_EXIT_M, !right, withWheels),
     );
+    const turn = corner.turnFirstS ?? corner.turnInS;
+    if (turn !== undefined) corner.curbEntry = curbOn(reference.points, turn - CURB_BEFORE_TURN_M, turn + CURB_AFTER_TURN_M, !right, withWheels).used;
   }
 }
 
@@ -184,6 +200,29 @@ function toPoints(frames: TelemetryFrame[]): ReferencePoint[] {
   });
 }
 
+/** A turn-in counts as coming before the braking point when it is at least this long before it ... */
+const TURN_FIRST_MIN_MS = 600;
+/** ... and at most this long: still steering further back is a long bend, not a turn-in. */
+const TURN_FIRST_MAX_MS = 4000;
+
+/**
+ * Where the reference begins to steer into the corner before it brakes (the user, 2026-11-03: the countdown runs to the
+ * first action, braking or turning). notBefore: the end of the previous braking zone; still steering there, it is the
+ * same bend and no turn-in of its own.
+ */
+function turnBeforeBraking(points: ReferencePoint[], startIndex: number, notBefore: number, maxSteer: number, threshold: number): number | undefined {
+  const start = points[startIndex]!;
+  const turning = (p: ReferencePoint) => Math.sign(p.steer) === Math.sign(maxSteer) && Math.abs(p.steer) >= threshold;
+  if (Math.abs(maxSteer) < 0.03 || !turning(start)) return undefined;
+  let first = startIndex;
+  while (first > notBefore && turning(points[first - 1]!)) {
+    first--;
+    if (start.t - points[first]!.t > TURN_FIRST_MAX_MS) return undefined;
+  }
+  if (first === notBefore) return undefined;
+  return start.t - points[first]!.t >= TURN_FIRST_MIN_MS ? points[first]!.s : undefined;
+}
+
 export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_OPTIONS): Corner[] {
   const zones = findBrakingZones(points, options);
   return zones.map(([startIndex, endIndex], index) => {
@@ -218,6 +257,10 @@ export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_O
       }
     }
 
+    const previousEnd = zones[index - 1]?.[1];
+    const turnFirstS = turnBeforeBraking(points, startIndex, previousEnd ?? 0, maxSteer, turnInThreshold);
+    const sameTurn = previousEnd !== undefined && Math.abs(maxSteer) >= 0.03 && points.slice(previousEnd, startIndex + 1).every((p) => Math.sign(p.steer) === Math.sign(maxSteer) && Math.abs(p.steer) >= turnInThreshold);
+
     let peakBrake = 0;
     for (let i = startIndex; i <= endIndex; i++) peakBrake = Math.max(peakBrake, points[i]!.brake);
 
@@ -232,6 +275,8 @@ export function findCorners(points: ReferencePoint[], options = DEFAULT_CORNER_O
       peakBrake,
       brakeEndS: end.s,
       turnInS,
+      ...(turnFirstS !== undefined ? { turnFirstS } : {}),
+      ...(sameTurn ? { sameTurn } : {}),
       maxSteer,
       apexS: apex.s,
       apexSpeedKmh: apex.speed * 3.6,
@@ -282,13 +327,16 @@ function shiftPoints(
   startIndex: number,
   apex: ReferencePoint,
   exit: ReferencePoint,
-): Pick<Corner, 'entryGear' | 'midGear' | 'midGearS' | 'exitGear' | 'exitGearS'> {
+): Pick<Corner, 'entryGear' | 'entryGearS' | 'midGear' | 'midGearS' | 'exitGear' | 'exitGearS'> {
   let to = startIndex;
   while (to < points.length - 1 && points[to + 1]!.t <= exit.t + GEARS_AFTER_EXIT_MS) to++;
   const spans = gearSpans(points, startIndex, to).filter((span) => span.s <= exit.s);
   const toApex = spans.filter((span) => span.s <= apex.s);
   const afterApex = spans.filter((span) => span.s > apex.s);
   const entryGear = toApex.length ? Math.min(...toApex.map((span) => span.gear)) : apex.gear;
+  // Where the entry gear goes in (the user, 2026-11-03: a corner taken down to first at the apex gets its call there, not after "jetzt").
+  const entrySpan = toApex.find((span) => span.gear === entryGear);
+  const entryGearS = entrySpan && entrySpan.s > points[startIndex]!.s ? entrySpan.s : undefined;
   const lowAfter = afterApex.length ? Math.min(...afterApex.map((span) => span.gear)) : Infinity;
   const mid = lowAfter < entryGear ? afterApex.find((span) => span.gear === lowAfter) : undefined;
   const last = spans.at(-1);
@@ -299,6 +347,7 @@ function shiftPoints(
   const exitGearS = last && before && exitGear > lowest && before.gear < exitGear ? last.s : undefined;
   return {
     entryGear,
+    ...(entryGearS !== undefined ? { entryGearS } : {}),
     ...(mid ? { midGear: mid.gear, midGearS: mid.s } : {}),
     exitGear,
     ...(exitGearS !== undefined ? { exitGearS } : {}),

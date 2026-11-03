@@ -8,12 +8,13 @@ export function hapticForClip(clip: string, toneOn: boolean): (HapticDetail & { 
   if (clip === 'tone') return { cue: 'attention' };
   // Without the tone, the announcement is the first thing of a braking zone.
   if (clip.startsWith('intro-')) return toneOn ? undefined : { cue: 'attention' };
-  if (clip === 'now') return { cue: 'now' };
+  // "bremsen" (or the pressure) right after "jetzt" is felt once, with the "jetzt"; alone at the braking point it is the moment to brake.
+  if (clip === 'now' || clip === 'brake-point' || clip.startsWith('brake-point-')) return { cue: 'now' };
   const count = /^count-(\d)$/.exec(clip);
   if (count) return { cue: 'count', number: Number(count[1]) };
   const gear = /^gear-(\d)$/.exec(clip);
   if (gear) return { cue: 'gear', number: Number(gear[1]) };
-  const turn = /^turn-(left|right)-/.exec(clip);
+  const turn = /^turn-(left|right)(-|$)/.exec(clip);
   if (turn) return { cue: 'turn', side: turn[1] as 'left' | 'right' };
   if (clip.startsWith('assist-')) return { cue: 'assist' };
   if (clip.startsWith('fb-')) return { cue: 'message' };

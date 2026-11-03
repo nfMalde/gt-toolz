@@ -32,7 +32,7 @@ const QUIT_MAX_AGE_MS = 20_000;
 const ANNOUNCEMENT_MAX_AGE_MS = 25_000;
 
 /** What the crew reads: its own settings (with the talk level applied) and the app's (how it sounds, the personality). */
-export type CrewSessionSettings = CrewModuleSettings & VoiceSettings & Pick<RunnerSettings, 'style' | 'patience' | 'radio'>;
+export type CrewSessionSettings = CrewModuleSettings & VoiceSettings & Pick<RunnerSettings, 'style' | 'crewPatience' | 'radio'>;
 
 export interface CrewSessionOptions {
   telemetry: TelemetryFeed;
@@ -226,7 +226,7 @@ export class CrewSession extends EventEmitter<CrewEvents> {
   private crewOptions(): CrewOptions {
     const s = this.settings;
     // Talk level 'little': no remarks from the crew either.
-    return { pitLossSeconds: s.pitLossSeconds, strategy: s.crewStrategy, cheeky: s.style === 'cheeky' && s.crewTalk !== 'little', patience: s.patience, sectors: s.crewSectors, talk: s.crewTalk };
+    return { pitLossSeconds: s.pitLossSeconds, strategy: s.crewStrategy, cheeky: s.style === 'cheeky' && s.crewTalk !== 'little', patience: s.crewPatience, sectors: s.crewSectors, talk: s.crewTalk };
   }
 
   private startCrew(frame: TelemetryFrame): void {
@@ -268,7 +268,7 @@ export class CrewSession extends EventEmitter<CrewEvents> {
       return;
     }
     if (!(frame.flags & Flags.CarOnTrack) || frame.flags & (Flags.Paused | Flags.Loading)) return;
-    const tyres = (this.practiceTyres ??= { watch: new TyreWatch(this.phrases, false), lapCount: frame.lapCount });
+    const tyres = (this.practiceTyres ??= { watch: new TyreWatch(this.phrases), lapCount: frame.lapCount });
     const messages = tyres.watch.frame(frame, Date.now(), true);
     if (frame.lapCount > tyres.lapCount) {
       const { hot } = tyres.watch.lap(frame.lapCount - 1, true);

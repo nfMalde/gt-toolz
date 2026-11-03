@@ -122,11 +122,29 @@
           </div>
           <div class="setting">
             <div class="text">
+              <div class="title">{{ t('settings.actionAfter') }}</div>
+              <div class="hint">{{ t('coach.settings.actionAfterHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.actionAfterNow" [label]="t('settings.actionAfter')" (checkedChange)="set({ actionAfterNow: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
               <div class="title">{{ t('settings.gearAfter') }}</div>
               <div class="hint">{{ t('coach.settings.gearAfterHint') }}</div>
             </div>
             <div class="control">
               <gtt-toggle [checked]="s.gearAfterNow" [label]="t('settings.gearAfter')" (checkedChange)="set({ gearAfterNow: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">{{ t('coach.settings.lineCalls') }}</div>
+              <div class="hint">{{ t('coach.settings.lineCallsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.lineCalls" [label]="t('coach.settings.lineCalls')" (checkedChange)="set({ lineCalls: $event })" />
             </div>
           </div>
           <div class="setting">

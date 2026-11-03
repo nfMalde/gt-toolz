@@ -1,5 +1,5 @@
 // Tyre temperatures (docs/user/crew.md, in quali 4.18b): the state of all four (cold, up to temperature, hot) when it
-// changes and now and then, fast changes, and a single tyre that ran hot over a lap. The race crew uses it, and
+// changes, cold and hot again now and then, fast changes, and a single tyre that ran hot over a lap. The race crew uses it, and
 // outside races the runner (the user, 2026-10-22: since a GT7 update the temperature matters in quali too).
 
 import type { Phrases } from '@gt-toolz/coach';
@@ -18,7 +18,7 @@ const TYRE_COLD_C = 55;
 const TYRE_WARM_C = 62;
 const TYRE_HOT_ALL_C = 100;
 const TYRE_HOT_BACK_C = 95;
-/** A new tyre state is said once it holds this long; the current one is repeated after this time. */
+/** A new tyre state is said once it holds this long; cold and hot are repeated after this time. */
 const TYRE_STATE_STABLE_MS = 5000;
 const TYRE_STATE_REMINDER_MS = 5 * 60_000;
 /** Mean temperature change within the window that counts as fast (rising or falling). */
@@ -39,11 +39,7 @@ export class TyreWatch {
   private trendSaidAt = 0;
   private lastHotLap = -Infinity;
 
-  /** remindWarm: also repeat "up to temperature" now and then (races); in quali only cold and hot come again. */
-  constructor(
-    private phrases: Phrases,
-    private readonly remindWarm = true,
-  ) {}
+  constructor(private phrases: Phrases) {}
 
   /** Speaks the crew's language, which can change during a session. */
   setPhrases(phrases: Phrases): void {
@@ -73,7 +69,7 @@ export class TyreWatch {
     return { temps, hot: this.phrases.crewTyreHot(hottest, Math.round(temps[hottest])) };
   }
 
-  /** Tyre state when it changes (and now and then), and fast temperature changes. */
+  /** Tyre state when it changes (cold and hot now and then; the user, 2026-11-03: "up to temperature" once is enough), and fast temperature changes. */
   private calls(mean: number, now: number): string[] {
     const last = this.history.at(-1);
     if (!last || now - last.at >= 1000) {
@@ -103,7 +99,7 @@ export class TyreWatch {
     if (state !== this.candidate?.state) this.candidate = { state, since: now };
     const holds = now - this.candidate.since >= TYRE_STATE_STABLE_MS;
     const changed = holds && state !== current;
-    const reminder = holds && state === current && (state !== 'warm' || this.remindWarm) && now - this.stateSaidAt >= TYRE_STATE_REMINDER_MS;
+    const reminder = holds && state === current && state !== 'warm' && now - this.stateSaidAt >= TYRE_STATE_REMINDER_MS;
     if (!changed && !reminder) return [];
     this.state = state;
     this.stateSaidAt = now;

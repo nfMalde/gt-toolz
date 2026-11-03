@@ -22,7 +22,19 @@ export const TEXT_KEYS: Record<string, readonly string[]> = {
   /** The word for the decimal mark ("Komma", "point"), for recorded voices. */
   'spell.decimal': [],
   now: [],
+  /** The action after "now", or alone at the braking point after a turn-in that came first. */
+  brake: [],
+  'brake.percent': ['percent'],
   gear: ['gear', 'gearWord'],
+  'line.after': ['meters', 'side'],
+  'line.afterCurb': ['meters', 'side', 'target'],
+  'line.next': ['target'],
+  'line.nextCurb.left': [],
+  'line.nextCurb.right': [],
+  'call.gear': ['gear', 'gearWord'],
+  'call.force': ['percent', 'gear', 'gearWord'],
+  'call.inOut': ['entry', 'exit', 'entryWord', 'exitWord'],
+  'call.forceInOut': ['percent', 'entry', 'exit', 'entryWord', 'exitWord'],
   'brakeIntro.full': [],
   'brakeIntro.percent': ['percent'],
   'direction.left': [],
@@ -275,6 +287,7 @@ export const TEXT_KEYS: Record<string, readonly string[]> = {
   'crew.placeLost': [],
   'crew.placesLost': ['places'],
   'crew.fuelLaps': ['laps', 'liters'],
+  'crew.fuelOneLap': ['liters'],
   'crew.fuelFinish': [],
   'crew.fuelPit': ['lap'],
   'crew.fuelPitNow': [],
@@ -555,8 +568,23 @@ export function phrasesFromPack(pack: LanguagePack, fallback: LanguagePack): Phr
     numberWords: list('spell.numbers'),
     decimalWord: text('spell.decimal'),
     now: text('now'),
+    brake: text('brake'),
     gear: (gear) => text('gear', { gear, gearWord: word('numbers', gear) }),
     brakeIntro: (force) => (force === 'full' ? text('brakeIntro.full') : text('brakeIntro.percent', { percent: force })),
+    brakeLight: (percent) => text('brake.percent', { percent }),
+    turnShort: (direction) => text(`direction.${direction}`),
+    lineAfter: (meters, side, curb) => {
+      const target = side === 'left' ? 'right' : 'left';
+      return text(curb ? 'line.afterCurb' : 'line.after', { meters, side: text(`direction.${side}`), ...(curb ? { target: text(`direction.${target}`) } : {}) });
+    },
+    lineNext: (side, curb) => (curb ? text(`line.nextCurb.${side}`) : text('line.next', { target: text(`direction.${side}`) })),
+    cornerCall: (force, { entry, exit }) => {
+      const same = entry === exit;
+      const values: Record<string, string | number> = same ? { gear: entry, gearWord: word('ordinals', entry) } : { entry, exit, entryWord: word('numbers', entry), exitWord: word('numbers', exit) };
+      if (force !== 'full') values.percent = force;
+      const key = same ? (force === 'full' ? 'call.gear' : 'call.force') : force === 'full' ? 'call.inOut' : 'call.forceInOut';
+      return `${capitalize(text(key, values))}.`;
+    },
     turn: (direction, strength) => text('turn', { direction: text(`direction.${direction}`), strength: text(`strength.${strength}`) }),
 
     problem,
@@ -718,7 +746,8 @@ export function phrasesFromPack(pack: LanguagePack, fallback: LanguagePack): Phr
       return `${where}, ${moved}.`;
     },
     crewFuel: ({ lapsLeft, perLap, toFinish, pitLap }) => {
-      const laps = text('crew.fuelLaps', { laps: Math.floor(lapsLeft), liters: seconds(perLap) });
+      const whole = Math.floor(lapsLeft);
+      const laps = whole === 1 ? text('crew.fuelOneLap', { liters: seconds(perLap) }) : text('crew.fuelLaps', { laps: whole, liters: seconds(perLap) });
       if (toFinish) return `${laps} ${text('crew.fuelFinish')}`;
       if (pitLap === 'now') return `${laps} ${text('crew.fuelPitNow')}`;
       return pitLap === undefined ? laps : `${laps} ${text('crew.fuelPit', { lap: pitLap })}`;

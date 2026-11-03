@@ -55,6 +55,15 @@ test('a race runs from its grid over laps, a race over a time once it has starte
   assert.equal(timed.update(at({ flags: 0, lapCount: -1, lapsInRace: -1, carsInRace: -1, speed: 0 })), false, 'a menu');
 });
 
+// The user, 2026-11-03: a licence test or a mission, reported as a race of one lap with one car, got the radio check, the
+// tyres and the chequered flag on every try.
+test('a single car over a single lap is no race; with other cars, or alone over more laps, it is', () => {
+  const alone = { lapsInRace: 1, carsInRace: 1, racePosition: 1, lapCount: 1, speed: 40 };
+  assert.equal(new RaceRunning().update(at(alone)), false, 'a licence test');
+  assert.equal(new RaceRunning().update(at({ ...alone, carsInRace: 8 })), true, 'a sprint of one lap against others');
+  assert.equal(new RaceRunning().update(at({ ...alone, lapsInRace: 10 })), true, 'ten laps alone: fuel and tyres count');
+});
+
 test('after the flag the coach makes no race corner calls and keeps nothing GT7 drives', () => {
   const lap = ovalLap(1, 0);
   const reference = buildReference({ lapNumber: 1, frames: lap, lapTimeMs: lap.at(-1)!.time, clean: true, live: true }, 'test');

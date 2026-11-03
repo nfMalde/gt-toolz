@@ -5,6 +5,7 @@ import {
   chainedAfter,
   chainFollowers,
   cornerGears,
+  lightBrake,
   turnDirection,
   turnStrength,
   type Corner,
@@ -31,6 +32,8 @@ const STRENGTHS: SteerStrength[] = ['slight', 'medium', 'sharp'];
 export function coachClips(phrases: Phrases): Record<string, string> {
   const clips: Record<string, string> = {
     now: phrases.now,
+    brake: phrases.brake,
+    'brake-point': phrases.brake,
     'intro-full': phrases.brakeIntro('full'),
     'assist-wait': phrases.assistWait,
     'assist-throttle': phrases.assistThrottle,
@@ -38,10 +41,17 @@ export function coachClips(phrases: Phrases): Record<string, string> {
     'assist-release': phrases.assistRelease,
   };
   for (let percent = 10; percent <= 90; percent += 10) clips[`intro-${percent}`] = phrases.brakeIntro(percent);
+  for (let percent = 10; percent <= 70; percent += 10) {
+    clips[`brake-${percent}`] = phrases.brakeLight(percent);
+    clips[`brake-point-${percent}`] = phrases.brakeLight(percent);
+  }
   for (let n = 1; n <= MAX_COUNTDOWN; n++) clips[`count-${n}`] = phrases.count(n);
   for (let gear = 1; gear <= 8; gear++) clips[`gear-${gear}`] = phrases.gear(gear);
   for (const direction of DIRECTIONS) {
     for (const strength of STRENGTHS) clips[`turn-${direction}-${strength}`] = phrases.turn(direction, strength);
+    clips[`turn-${direction}`] = phrases.turnShort(direction);
+    clips[`line-${direction}`] = phrases.lineNext(direction, false);
+    clips[`line-${direction}-curb`] = phrases.lineNext(direction, true);
   }
   return clips;
 }
@@ -60,7 +70,7 @@ export const noteClip = (fastCornerIndex: number, variant: NoteVariant) => `note
 export const assistTargetClip = (cornerIndex: number) => `assist-target-${cornerIndex}`;
 
 /** What the plan says, from the settings. */
-export type PlanSettings = Pick<RunnerSettings, 'plan' | 'curbs' | 'cornerShape' | 'planStyle' | 'fastCorners' | 'trailCalls' | 'chainCalls'>;
+export type PlanSettings = Pick<RunnerSettings, 'plan' | 'curbs' | 'cornerShape' | 'planStyle' | 'fastCorners' | 'trailCalls' | 'chainCalls' | 'intro'>;
 
 /** A curb the reference used, with how much of the car went on it when the reference knows the wheels. */
 export function curbCall(used: boolean | undefined, level: CurbLevel | undefined): CurbCall | undefined {
@@ -73,6 +83,7 @@ export function curbCall(used: boolean | undefined, level: CurbLevel | undefined
  * one line, always with the direction. chained: corners without braking that follow right on it ("Dann auf 125
  * liften, rechts."), said by the full plan; the shorter ones leave them to their own note. followers: the braking
  * corners of a chain after this one (docs/dev/coach-and-texts.md), named at the end of every variant ("Dann mittlere Linkskurve.").
+ * Variant 'call': only the pressure (with the announcement on, unless full) and the gears in and out: "In 2 aus 3."
  */
 export function cornerPlanText(
   corner: Corner,
@@ -82,6 +93,7 @@ export function cornerPlanText(
   chained: readonly FastCorner[] = [],
   followers: readonly Corner[] = [],
 ): string {
+  if (variant === 'call') return phrases.cornerCall(settings.intro ? brakeForce(corner) : 'full', cornerGears(corner));
   const direction = corner.shapeDirection ?? turnDirection(corner);
   // Curbs come with the gears (the plan), and only in the full plan.
   const curbs = settings.curbs && settings.plan && variant === 'full';
@@ -106,7 +118,7 @@ export function cornerPlanText(
   return parts.join(' ');
 }
 
-/** The plan clips of a corner: full and short; shape only when the plan says shape and gears. None without a plan. */
+/** The plan clips of a corner: full and short; shape only when the plan says shape and gears; call only when it says gears. None without a plan. */
 export function cornerPlanClips(
   corner: Corner,
   phrases: Phrases,
@@ -119,6 +131,7 @@ export function cornerPlanClips(
     full: cornerPlanText(corner, 'full', phrases, settings, chained, followers),
     short: cornerPlanText(corner, 'short', phrases, settings, [], followers),
     ...(settings.plan && settings.cornerShape && corner.shape ? { shape: cornerPlanText(corner, 'shape', phrases, settings, [], followers) } : {}),
+    ...(settings.plan && cornerGears(corner).entry > 0 ? { call: cornerPlanText(corner, 'call', phrases, settings) } : {}),
   };
 }
 
@@ -167,10 +180,17 @@ export function clipFor(cue: Cue): string {
       return `count-${cue.count}`;
     case 'now':
       return 'now';
+    case 'brake':
+    case 'brake-point': {
+      const light = lightBrake(cue.corner);
+      return light === undefined ? cue.kind : `${cue.kind}-${light}`;
+    }
     case 'gear':
       return `gear-${cue.gear}`;
     case 'turn-in':
-      return `turn-${turnDirection(cue.corner)}-${turnStrength(cue.corner)}`;
+      return cue.short ? `turn-${turnDirection(cue.corner)}` : `turn-${turnDirection(cue.corner)}-${turnStrength(cue.corner)}`;
+    case 'line':
+      return `line-${cue.line!.side}${cue.line!.curb ? '-curb' : ''}`;
     case 'assist':
       return cue.assist === 'target' ? assistTargetClip(cue.corner.index) : `assist-${cue.assist}`;
   }

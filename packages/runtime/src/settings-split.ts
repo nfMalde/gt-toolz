@@ -32,6 +32,7 @@ const OWNERS: { [K in keyof RunnerSettings]-?: Owner } = {
   // The personality: coach and crew are cheeky together.
   style: 'app',
   patience: 'app',
+  crewPatience: 'app',
   // How a role sounds is the shell's voices' (the user, 2026-10-29, option A): the language it speaks, its volume, the
   // crew's radio. The coach speaks the race calls with the crew's voice without reading the crew's settings.
   coachLanguage: 'app',
@@ -54,8 +55,10 @@ const OWNERS: { [K in keyof RunnerSettings]-?: Owner } = {
   fastCorners: 'coach',
   chainCalls: 'coach',
   trailCalls: 'coach',
+  actionAfterNow: 'coach',
   gearAfterNow: 'coach',
   turnIn: 'coach',
+  lineCalls: 'coach',
   feedback: 'coach',
   guideCorners: 'coach',
   immediateFeedback: 'coach',

@@ -114,7 +114,7 @@ const frames = all.filter((f) => f.time - t0 >= Number(values['start-at']) * 100
 
 // Two cues talking over each other: with the estimated lengths (the coach's defaults for the cue words).
 const s = DEFAULT_COACH_SETTINGS;
-const cueSeconds: Record<string, number> = { tone: s.toneSeconds, count: s.countSeconds, now: s.nowSeconds, gear: s.gearSeconds, 'turn-in': s.turnInSeconds, intro: s.introSeconds, assist: 1 };
+const cueSeconds: Record<string, number> = { tone: s.toneSeconds, count: s.countSeconds, now: s.nowSeconds, brake: s.brakeSeconds, 'brake-point': s.brakeSeconds, gear: s.gearSeconds, 'turn-in': s.turnInSeconds, line: s.lineSeconds, intro: s.introSeconds, assist: 1 };
 let speaking = { until: 0, what: '' };
 let overlaps = 0;
 const speak = (time: number, seconds: number, what: string, t: string) => {

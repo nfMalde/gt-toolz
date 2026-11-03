@@ -2,10 +2,8 @@
 
 import { Flags, type TelemetryFrame } from '../packages/telemetry/src/packet';
 
-/** An oval: two straights of 500 m, two half circles of 60 m; braking into each half circle. */
-export function ovalLap(lap: number, start: number): TelemetryFrame[] {
-  const L = 500;
-  const R = 60;
+/** An oval: two straights of 500 m, two half circles of 60 m (or as given); braking into each half circle. */
+export function ovalLap(lap: number, start: number, L = 500, R = 60): TelemetryFrame[] {
   const length = 2 * L + 2 * Math.PI * R;
   const at = (s: number) => {
     const u = ((s % length) + length) % length;

@@ -184,7 +184,7 @@ A summary shows what is ready (PlayStation, voice, reference, calibration) and s
 2. Under **I drive**, choose what you drive now (for example **Daily Race**), so the right reference is picked.
 3. Start a time trial on the track of your reference.
 4. The **out lap is quiet**. Coaching starts at the start/finish line.
-5. Before every braking point you hear, for example: a chime, "Full braking ahead.", "Hairpin right. In with first gear, two wheels on the inside curb. Out with second gear.", then "two, one, now".
+5. Before every braking point you hear, for example: a chime, "Full braking ahead.", "Hairpin right. In with first gear, two wheels on the inside curb. Out with second gear.", then "two, one, now, brake".
 6. Corners where you lose time get a number. On the next lap you hear before the corner: "Feedback 1: braked 20 meters early."
 7. After the lap: "1.7 seconds slower" against the target time.
 8. Stopped or paused? Click **Debrief** in the Cockpit to hear your biggest mistakes, or **Briefing** for all braking zones.

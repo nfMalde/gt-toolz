@@ -54,6 +54,8 @@ const STARTED_MS = 2;
  * qualifying laps 1 to 4 of 0, the grid lap 0 of 15). A race over laps runs while it reports them, from its grid on.
  * A race over a time runs once it has started, when the counter goes from 0 to 1 while the car moves (a qualifying
  * starts standing in the pits at lap 1), until the counter is back at 0 (its results, the lobby) or the session ends.
+ * A single car over a single lap is no race: a licence test or a mission, tried again and again (the user, 2026-11-03:
+ * each try got the radio check, the tyres and the chequered flag). A longer run alone stays one, for its fuel and tyres.
  */
 export class RaceRunning {
   private timed = false;
@@ -68,7 +70,8 @@ export class RaceRunning {
     if (frame.lapCount <= 0 || frame.lapsInRace > 0) this.timed = false;
     else if (onTrack && this.lastLap === 0 && frame.lapCount === 1 && frame.speed > STARTED_MS) this.timed = true;
     this.lastLap = frame.lapCount;
-    this.running = onTrack && (frame.lapsInRace > 0 || this.timed);
+    const alone = frame.lapsInRace === 1 && frame.carsInRace <= 1;
+    this.running = onTrack && !alone && (frame.lapsInRace > 0 || this.timed);
     return this.running;
   }
 }

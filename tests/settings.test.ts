@@ -10,6 +10,19 @@ test('a missing or broken file gives the defaults', () => {
   assert.equal(DEFAULT_RUNNER_SETTINGS.detailedLog, false, 'the detailed log is off by default');
 });
 
+test('coach and crew have their own patience; a file from before keeps its one setting for both', () => {
+  assert.equal(normalizeSettings({ patience: 'low' }).crewPatience, 'low');
+  const own = normalizeSettings({ patience: 'low', crewPatience: 'high' });
+  assert.equal(own.patience, 'low');
+  assert.equal(own.crewPatience, 'high');
+  assert.equal(normalizeSettings({ crewPatience: 'nonsense' }).crewPatience, 'normal');
+});
+
+test('the countdown to the first action is on, also for a file from before it', () => {
+  assert.equal(normalizeSettings({ gearAfterNow: true }).actionAfterNow, true);
+  assert.equal(normalizeSettings({ actionAfterNow: false }).actionAfterNow, false);
+});
+
 test('settings from before version 2 get the new defaults once', () => {
   const old = migrateSettings({ feedback: 'all', raceCalls: false }) as Record<string, unknown>;
   assert.equal(old.feedback, 2);

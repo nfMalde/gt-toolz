@@ -10,6 +10,9 @@ export interface RunSample {
   brake: number;
   throttle: number;
   gear: number;
+  /** Where the car is (live runs). */
+  x?: number;
+  z?: number;
 }
 
 export type Problem =
@@ -46,6 +49,15 @@ export interface CornerResult {
   refExitSpeedKmh?: number;
   /** Most important first. */
   problems: Problem[];
+  /** Clearly beside the reference where it begins to steer into the corner. */
+  line?: TurnInLine;
+}
+
+/** The car was this far beside the reference at turn-in, too far to this side; curb: the reference is over the curb on the other side. */
+export interface TurnInLine {
+  meters: number;
+  side: 'left' | 'right';
+  curb: boolean;
 }
 
 /** Samples are collected from here ... */
@@ -77,6 +89,15 @@ const BRAKE_FORCE_TOLERANCE = 0.25;
 const TRAIL_RELEASED = 0.1;
 /** ... and braking at least this much further into the corner than the reference as too long. */
 const TRAIL_LONG_M = 20;
+/**
+ * Beside the reference at least this much at turn-in counts (the user's Nürburgring GP, 2026-11-03: over 71 passes the
+ * median was 1.1 m, while the corner they were lined up wrong for was 2.2 to 4 m off on every pass) ...
+ */
+const LINE_OFF_M = 2;
+/** ... and more than this is no line for the corner any more (a spin, a trip off the track). */
+const LINE_OFF_MAX_M = 8;
+/** The reference's heading at a point: over this many meters each way. */
+const HEADING_M = 3;
 
 export function cornerSegments(reference: ReferenceLap): CornerSegment[] {
   const corners = reference.corners;
@@ -166,7 +187,33 @@ export function analyzeCorner(
     problems: [],
   };
   result.problems = findProblems(result);
+  const line = lineAtTurnIn(reference, corner, samples);
+  if (line) result.line = line;
   return result;
+}
+
+/**
+ * How far beside the reference the car was where the reference begins to steer (the user, 2026-11-03: in the middle of
+ * the track instead of on the right, over the curb). Left and right from the track's plane: with the reference's
+ * heading (hx, hz), hx * dz - hz * dx is positive to the right of its line.
+ */
+function lineAtTurnIn(reference: ReferenceLap, corner: Corner, samples: RunSample[]): TurnInLine | undefined {
+  const at = corner.turnFirstS ?? corner.turnInS;
+  if (at === undefined || corner.sameTurn) return undefined;
+  const sample = samples.find((candidate) => candidate.s >= at);
+  if (sample?.x === undefined || sample.z === undefined) return undefined;
+  const point = (s: number) => reference.points.find((p) => p.s >= s) ?? reference.points.at(-1)!;
+  const from = point(at - HEADING_M);
+  const to = point(at + HEADING_M);
+  const here = point(at);
+  const length = Math.hypot(to.x - from.x, to.z - from.z);
+  if (!length) return undefined;
+  const offset = ((to.x - from.x) * (sample.z - here.z) - (to.z - from.z) * (sample.x - here.x)) / length;
+  if (Math.abs(offset) < LINE_OFF_M || Math.abs(offset) > LINE_OFF_MAX_M) return undefined;
+  const side = offset > 0 ? 'right' : 'left';
+  // Negative steering is a right-hander: its outside curb is on the left.
+  const outside = corner.maxSteer < 0 ? 'left' : 'right';
+  return { meters: Math.round(Math.abs(offset)), side, curb: !!corner.curbEntry && side !== outside };
 }
 
 function findProblems(r: CornerResult): Problem[] {
