@@ -162,6 +162,46 @@ test('practice tyre calls come on the crew\'s radio', async () => {
   assert.deepEqual(coach.heard, []);
 });
 
+// The user, 2026-11-03: "Im Rennen sagt er mehrmals hintereinander dass die Reifen auf Temperatur sind. Einmal reicht."
+// The log: every 5 minutes in a race of ten laps, and on every try of a one-lap licence test.
+const WARM = /Reifen haben Temperatur/;
+
+test('"up to temperature" comes once in a race, however long it runs', async () => {
+  const { crew, drive } = setup();
+  const long = (frames: TelemetryFrame[]) => frames.map((f) => ({ ...f, lapsInRace: 30, carsInRace: 12, racePosition: 3 }));
+  await drive(long(grid(5000)));
+  // Ten laps of 42 s: seven minutes, past the old reminder.
+  await drive(long(laps(1, 10)));
+  assert.equal(crew.heard.filter((text) => WARM.test(text)).length, 1, crew.heard.join(' | '));
+});
+
+test('cold tyres are still repeated, and warm again after a cold spell is said again', async () => {
+  const { crew, drive } = setup();
+  const COLD = /Reifen noch kalt/;
+  const temps = (frames: TelemetryFrame[], t: number) => frames.map((f) => ({ ...f, lapsInRace: 30, carsInRace: 12, racePosition: 3, tyreTemps: [t, t, t, t] as [number, number, number, number] }));
+  await drive(temps(grid(5000), 40));
+  // Ten laps of 42 s, cold: said at the start and again every 5 minutes.
+  await drive(temps(laps(1, 10), 40));
+  assert.equal(crew.heard.filter((text) => COLD.test(text)).length, 2, crew.heard.join(' | '));
+  await drive(temps(laps(11, 1), 80));
+  await drive(temps(laps(12, 1), 40));
+  await drive(temps(laps(13, 1), 80));
+  assert.equal(crew.heard.filter((text) => WARM.test(text)).length, 2, crew.heard.join(' | '));
+});
+
+test('a licence test tried again and again: no crew, no flag, the tyres once', async () => {
+  const { r, crew, lines, drive } = setup({}, { practiceTyres: true });
+  const alone = (frames: TelemetryFrame[]) => frames.map((f) => ({ ...f, lapsInRace: 1, carsInRace: 1, racePosition: 1 }));
+  for (let attempt = 0; attempt < 4; attempt++) {
+    await drive(alone(grid(1000)));
+    await drive(alone(laps(1, 1)).slice(0, 800));
+  }
+  assert.equal(r.crew?.status.active ?? false, false);
+  assert.ok(!lines.some((line) => line.startsWith('CREW      race:')), 'the crew did not start');
+  assert.deepEqual(crew.heard.filter((text) => WARM.test(text)).length, 1, crew.heard.join(' | '));
+  assert.ok(crew.heard.every((text) => /Reifen/.test(text)), crew.heard.join(' | '));
+});
+
 test('the race engineer quits, the team boss takes the radio on his own voice and hands it back after his laps', async () => {
   const s = normalizeSettings({});
   // The boss sounds different from the race engineer: the stand-in's voice of the crew's language.

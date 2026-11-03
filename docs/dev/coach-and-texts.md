@@ -35,12 +35,12 @@ For each braking zone, the session fixes a cue plan about 30 s ahead (`PLAN_HORI
 1. attention tone;
 2. feedback for a problem corner (long, short or tiny, the longest that fits);
 3. announcement ("Full braking ahead", "40 percent ahead");
-4. corner plan: full (shape, trail braking, gears, curbs), short (shape and gears) or shape only, as sentences or pace notes;
+4. corner plan: full (shape, trail braking, gears, curbs) or short (shape and gears), as sentences or pace notes; where neither fits, the short call (variant `call`: pressure and gears, "40 percent in second gear.", "In two out three.") right before the countdown, which gives up numbers for it, with the shape alone before it if that fits. The call says the pressure, so the announcement only stays beside it for full braking;
 5. countdown: up to `countdownSeconds` numbers, each followed by `countPause` (or `countPauseShort` when time is tight);
 6. "now" at the braking point;
-7. after "now": the action it names (`announceAction`: "brake"), the entry gear (optional, `announceGear`), the turn-in, the gears where the reference shifts in the corner (`announceShifts`: the entry gear at its shift point when that is 1 s or more after the braking point, the mid gear, the exit gear), helping cues, the calls through a big problem corner. A turn-in that would overlap "now, brake" or the gear after it moves to right after them, if that is still before the apex. A gear said ahead of its shift waits for what is being said, at the latest until the shift itself.
+7. after "now": the action it names (`announceAction`: "brake"; up to `LIGHT_BRAKE_PERCENT` the pressure in its place, "20 percent"), the turn-in (`announceTurnIn`), the entry gear (with `announceGear`, or where `gearAfterAction` finds that the driver has to change gear and nothing before the countdown can say it), the gears where the reference shifts in the corner (`announceShifts`: the entry gear at its shift point when that is 1 s or more after the braking point, the mid gear, the exit gear), helping cues, the calls through a big problem corner. The turn-in always comes (except `Corner.sameTurn`, a second braking in the bend the reference is already steering in), never before "now": behind "now, brake"; where the phrase does not fit, or leaves the gear no room before the apex, as the direction alone (`short`, the clip `turn-left`); where not even that is half said by the apex, in place of "brake". Helping cues for the turn-in follow it. A gear said ahead of its shift waits for what is being said, at the latest until the shift itself; the entry gear until half of it is said by the apex.
 
-**The first action** (`announceAction`, the setting `actionAfterNow`): where the reference turns in before it brakes (`Corner.turnFirstS`: it steers into the corner from 0.6 to 4 s before its braking point, not still from the previous corner), and "now" and the turn-in phrase fit before the braking point, steps 1 to 6 are built back from the turn-in instead: "two, one, now, right, sharp", then "brake" alone at the braking point (the cue `brake-point`, felt like "now"). Without the turn-in calls, or when the words do not fit, braking goes first.
+**The first action** (`announceAction`, the setting `actionAfterNow`): where the reference turns in before it brakes (`Corner.turnFirstS`: it steers into the corner from 0.6 to 4 s before its braking point, not still from the previous corner), and "now" and the turn-in phrase fit before the braking point, steps 1 to 6 are built back from the turn-in instead: "two, one, now, right, sharp", then "brake" alone at the braking point (the cue `brake-point`, felt like "now"); with too little room for the phrase, "now, right". Without the turn-in calls, or when not even that fits, braking goes first.
 
 Rules the timing follows:
 
@@ -48,7 +48,10 @@ Rules the timing follows:
 - The time to a point is the shorter of the current speed's estimate and the reference's own time over the distance, so sentences out of a slow corner are not promised too much time.
 - A cue that would come too late is dropped, never played late (0.25 s for timed cues, 0.6 s for announcements).
 - After "now" the cues are checked against each other; of two that would overlap, the more important one stays. "Now" and its action are never talked over.
-- A braking zone that follows the previous one within 6 s is part of a chain: the first zone's plan names it, and it gets no announcement, plan or feedback of its own (`chainCalls`).
+- What follows "now" from the same point runs on the clock from it, not on the speed, which falls hard there.
+- The next corner's calls wait until the reference is where the previous corner's last cue has been said (`lastCueS`).
+- A braking zone that follows the previous one within 6 s is part of a chain: the first zone's plan names it, and it gets the short call instead of an announcement and a plan, and no feedback of its own (`chainCalls`).
+- **Beside the reference at turn-in** (`CornerResult.line`, `lineAtTurnIn` in `analysis.ts`): where the reference begins to steer, from 2 to 8 m to one side. It is no `Problem`: it takes no feedback slot and no step of the help. The runner says it after the corner when there is a moment within 8 s (`lineAfter`), the next approach says where to line up right before the numbers, which make way for it (the cue `line`, `lineNext`). `curb`: the side to go to is the outside, and the reference is on the curb there (`Corner.curbEntry`). Not in races; `announceLine`, the setting `lineCalls`.
 - Corners without braking get a pace note ("Flat right", "Then lift to 140, right") when there is room (`fastCorners`).
 
 ### After each corner
@@ -89,7 +92,7 @@ Every spoken text lives in a language pack: a JSON file with texts and `{placeho
 {
   "format": "gt-toolz-language-pack",
   "version": 1,
-  "textsVersion": 12,
+  "textsVersion": 13,
   "id": "de",
   "name": "Deutsch",
   "locale": "de-DE",
@@ -181,7 +184,7 @@ crewLapsLeft: (laps) => text('crew.lapsLeft', { laps, lapsWord: word('numbers', 
 
 `LanguageRegistry` holds the built-in and extra packs; `phrases(id, own)` gives the phrases of a language with the user's own texts over the pack's. `builtInPhrases('de')` is the shortcut the tools and tests use. In the app, `ShellVoices.phrases(language)` is the way in.
 
-The timing-critical words are clips rendered once per voice (`coachClips` in `packages/runtime/src/clips.ts`): `now`, `count-1` … `count-5`, `gear-1` … `gear-8`, `intro-full`, `intro-10` … `intro-90`, `turn-<direction>-<strength>`, the helping cues. Corner plans, pace notes and feedback are clips per reference; everything else is rendered as a sentence when it is said.
+The timing-critical words are clips rendered once per voice (`coachClips` in `packages/runtime/src/clips.ts`): `now`, `count-1` … `count-5`, `gear-1` … `gear-8`, `brake`, `brake-point`, `brake-10` … `brake-70`, `intro-full`, `intro-10` … `intro-90`, `turn-<direction>-<strength>`, `turn-<direction>`, `line-<direction>`, `line-<direction>-curb`, the helping cues. Corner plans, pace notes and feedback are clips per reference; everything else is rendered as a sentence when it is said.
 
 ### Writing for speech
 

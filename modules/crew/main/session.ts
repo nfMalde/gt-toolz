@@ -268,7 +268,7 @@ export class CrewSession extends EventEmitter<CrewEvents> {
       return;
     }
     if (!(frame.flags & Flags.CarOnTrack) || frame.flags & (Flags.Paused | Flags.Loading)) return;
-    const tyres = (this.practiceTyres ??= { watch: new TyreWatch(this.phrases, false), lapCount: frame.lapCount });
+    const tyres = (this.practiceTyres ??= { watch: new TyreWatch(this.phrases), lapCount: frame.lapCount });
     const messages = tyres.watch.frame(frame, Date.now(), true);
     if (frame.lapCount > tyres.lapCount) {
       const { hot } = tyres.watch.lap(frame.lapCount - 1, true);

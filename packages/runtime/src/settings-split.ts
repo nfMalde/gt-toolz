@@ -58,6 +58,7 @@ const OWNERS: { [K in keyof RunnerSettings]-?: Owner } = {
   actionAfterNow: 'coach',
   gearAfterNow: 'coach',
   turnIn: 'coach',
+  lineCalls: 'coach',
   feedback: 'coach',
   guideCorners: 'coach',
   immediateFeedback: 'coach',

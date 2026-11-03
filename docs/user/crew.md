@@ -53,7 +53,7 @@ The coach and the crew never talk at the same time. The crew waits for a quiet m
 | "Tyre temperature rising fast, 95 degrees now." / "Tyres cooling down fast, only 50 degrees." | a change of 10 °C within 20 seconds |
 | "Tyre front left is hot, 108 degrees." | one tyre above 105 °C over a lap |
 
-The state is said when it changes and every 5 minutes as a reminder, only while you drive.
+The state is said when it changes, only while you drive. "Cold" and "hot" are repeated every 5 minutes; "up to temperature" comes once, until the tyres were cold or hot in between.
 
 **Rain:** GT7 sends no weather. In the wet, slower laps can be read as tyre wear, and "you can push" can come in the rain.
 
@@ -82,7 +82,7 @@ A lap without a trip calms the crew down a little. **Patience of the crew** in S
 
 ## Tyre temperature in quali too
 
-With this setting on (default), the crew also watches your tyres outside races: in Daily Race qualifying, time trials and free runs. It says on the radio when the tyres are up to temperature, when they get hot, and when one tyre ran hot over a lap. "Up to temperature" comes once; "cold" and "hot" are repeated every 5 minutes. The calls come between the coach's calls. With the crew module off, nobody says them.
+With this setting on (default), the crew also watches your tyres outside races: in Daily Race qualifying, time trials and free runs. It says on the radio when the tyres are up to temperature, when they get hot, and when one tyre ran hot over a lap. "Up to temperature" comes once; "cold" and "hot" are repeated every 5 minutes. A licence test or a mission (one car, one lap) counts as well: no crew, only the tyres, once over all your tries. The calls come between the coach's calls. With the crew module off, nobody says them.
 
 ## The Race crew card
 

@@ -180,6 +180,8 @@ export interface RunnerSettings {
   /** The entry gear once more, right after "jetzt". */
   gearAfterNow: boolean;
   turnIn: boolean;
+  /** Clearly beside the reference at turn-in: said after the corner and on the next approach. */
+  lineCalls: boolean;
   feedback: FeedbackSetting;
   /**
    * Big problem corners called through the corner (stream feedback 2026-10-23): a feedback corner that cost at
@@ -457,7 +459,7 @@ export interface RecordingCatalog {
 
 export type SessionMode = 'race' | 'practice' | 'replay' | 'menu';
 /** note: the pace note of a corner without braking. */
-export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'brake' | 'brake-point' | 'gear' | 'turn-in' | 'assist' | 'note';
+export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'brake' | 'brake-point' | 'gear' | 'turn-in' | 'line' | 'assist' | 'note';
 /** How much of the car goes on a curb: one wheel, half (one side), the whole car. */
 export type CurbLevelKind = 'touch' | 'half' | 'full';
 
@@ -913,5 +915,5 @@ export function modeBop(mode: ReferenceMode, bop: boolean | undefined): boolean 
 }
 
 /** Web pages the app may open (in the browser, on a click): donations, Maldö's channels, the project. */
-export type LinkId = 'patreon' | 'paypal' | 'twitch' | 'youtube' | 'facebook' | 'x' | 'instagram' | 'issues' | 'releases' | 'source';
+export type LinkId = 'patreon' | 'paypal' | 'discord' | 'twitch' | 'youtube' | 'facebook' | 'x' | 'instagram' | 'issues' | 'releases' | 'source';
 export type FolderId = 'references' | 'logs' | 'voices' | 'recordings';

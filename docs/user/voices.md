@@ -116,7 +116,7 @@ At most 30 seconds per recording. A recording without sound is rejected. The app
 
 | Section | What to record |
 |---|---|
-| **Corner calls** | short and crisp: "now", "brake", the countdown, the announcement, gears, turn-in. The timing depends on them. |
+| **Corner calls** | short and crisp: "now", "brake", the pressure ("20 percent"), the countdown, the announcement, gears, turn-in, where to line up. The timing depends on them. |
 | **Name** | your name, the way the coach says it in front of a sentence. **Add another name** for friends who use the pack. Enter your name under Settings → Personal first. |
 | **Lap times** | "seconds faster", "seconds slower" … together with the numbers. "1.7 seconds faster" is put together from "one", "point", "seven" and "seconds faster". |
 | **Numbers** | 0 to 20 and "point". Say them evenly, without emphasis. |

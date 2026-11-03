@@ -16,24 +16,32 @@ Before every braking zone, in this order:
 | Feedback (only for a problem corner) | "Feedback 1: braked 20 meters early." |
 | Announcement | "Full braking ahead." or "40 percent braking ahead." |
 | Corner plan | "Hairpin right. Ease off the brake into the corner. In with first gear, two wheels on the inside curb. Out with second gear, all four on the outside curb." |
+| Short call, where the plan does not fit | "40 percent in second gear." or "In two out three." |
+| Where to line up (only after a turn-in in the wrong place) | "Start steering from more left." or "Start steering from the left curb." |
 | Countdown | "two, one" |
-| Braking point | "now" |
-| Gear after "now" (off by default) | "gear two" |
-| Turn-in | "right, sharp" |
+| Braking point | "now, brake", in a lightly braked corner "now, 40 percent" |
+| Gear after "now" (where nothing before could say it; always with the setting on) | "gear two" |
+| Turn-in | "right, sharp", when short of time only "right" |
 
-The coach plans every call against the reference's timing. If there is not enough time, it takes a shorter version: first the short plan ("Hairpin right. First in, second out."), then the shape only ("Hairpin right."), then fewer countdown numbers. Anything that would come too late is left out, never played late. "now" is never talked over.
+The coach plans every call against the reference's timing. If there is not enough time, it takes a shorter version: first the short plan ("Hairpin right. First in, second out."), then the short call with the brake pressure and the gears, with the shape before it if that fits. Fewer countdown numbers rather than no gear. Where even the short call does not fit and you have to change gear, the gear comes right after "now, brake". Anything that would come too late is left out, never played late. "now" is never talked over.
+
+**The turn-in always comes:** it tells you when to steer. It comes right after "now, brake"; where the phrase leaves no room, only the direction: "now, brake, right". Where the reference turns in first, the countdown runs to the turn-in. Where the apex follows right behind the braking point, the direction takes the place of "brake": "now, right". The only exception is a second braking inside the same bend: you are already turning.
+
+**Your position at the turn-in:** where the reference starts to steer, the coach compares your position with it. From 2 meters to one side, it says so after the corner, if there is a moment: "At the turn-in 3 meters too far right. The reference is further left, over the curb." On the next approach, right before the countdown: "Start steering from the left curb." With a good line the next time, it stops. Not in races, nor while a focus exercise runs on another corner. Switch it off with **Position at the turn-in**.
 
 **Corner shapes:** hairpin, tight, medium, fast, chicane ("chicane, right left"), always with the direction.
 
 **Curbs:** where the reference used them, inside towards the apex and outside on the exit, and how much of the car: one wheel, two wheels (one side, front and rear), or all four (the whole car).
 
-**Gears:** the gear to shift down to, a further downshift after the apex if the reference does one ("In with third gear. Then down to second. Out with third gear."), and the exit gear.
+**Gears:** the gear to shift down to, a further downshift after the apex if the reference does one ("In with third gear. Then down to second. Out with third gear."), and the exit gear. When short of time: "In three out four."
+
+**Brake pressure:** the announcement or the short call says it before the corner. Up to 70 percent the braking point says it too: "now, 20 percent" instead of "now, brake".
 
 **Trail braking:** where the reference still brakes when it turns in and eases off towards the apex, the plan says "Ease off the brake into the corner."
 
 **Corners without braking:** corners taken flat, with a lift or on part throttle: "Flat right, two wheels on the curb." or "Lift to 125, left." If such a corner comes right after a braking zone, that zone's plan says it too: "… Then lift to 140, right."
 
-**Corner sequences:** when a braking zone comes less than 6 seconds after the previous one, the first plan names it: "… Then medium left." In the sequence the coach only calls the braking points and gears, without explanations.
+**Corner sequences:** when a braking zone comes less than 6 seconds after the previous one, the first plan names it: "… Then medium left." In the sequence the coach calls the braking points with the short call ("20 percent in second gear."), without explanations.
 
 **Corner names:** official corner names where the app knows them ("Braking zone 4, Bruxelles"), otherwise "Turn 6", "Braking zone 3" or "Fast corner 2".
 
@@ -155,7 +163,8 @@ Open **Coach → Settings**. The talk level ([How much the coach says](#how-much
 | **Corners without braking** | on | Flat, lift and part-throttle corners: "Flat right, two wheels on the curb.", "Lift to 125, left." |
 | **Combine corner sequences** | on | Braking zones less than 6 s apart are named together, without explanations in between. |
 | **Countdown to the first action** | on | The countdown runs to the first thing to do and names it: "now, brake". Where the reference turns in before it brakes, it runs to the turn-in: "now, right, sharp", then "brake" at the braking point. If the words do not fit between the two, braking goes first. Off: only "now" at the braking point. |
-| **Gear after "now"** | off | The entry gear right after the braking point, again ("now, brake, gear two."). |
+| **Position at the turn-in** | on | From 2 meters beside the reference where it starts to steer: said after the corner and on the next approach. |
+| **Gear after "now"** | off | The entry gear right after the braking point in every corner, also where the plan said it ("now, brake, gear two."). Off, it only comes there in corners where nothing before could say it. |
 | **Turn-in** | on | Direction and strength before turning in: "right, sharp". Where the car turns in at the braking point, it comes right after "now, brake". |
 | **Silent out lap** | on | Coaching starts at the first start/finish crossing. |
 | **Calls during replays** | off | On: watch a ghost replay with its calls to learn the track. Learning a reference from a replay works either way. |
@@ -204,7 +213,7 @@ The talk level switches calls off on top of the settings above. Your own setting
 |---|---|
 | **Much** | Everything the settings allow. |
 | **Normal** (default) | No sector calls against the ghost and no tip right after the corner. The feedback comes on the next approach. |
-| **Little** | Braking points and one feedback corner only: no corner plan, no corners without braking, no calls through problem corners, no lap difference, no cheeky remarks. |
+| **Little** | Braking points and one feedback corner only: no corner plan, no corners without braking, no calls through problem corners, no position at the turn-in, no lap difference, no cheeky remarks. |
 
 The braking calls (tone, announcement, countdown, "now") always stay.
 

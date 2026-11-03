@@ -5,7 +5,8 @@
 //   node scripts/release/announce.mjs --version=1.0.0-beta.2 --print                     prints the message, sends nothing
 //
 // The release is out by then, so a failed announcement fails nothing: it ends with a warning and exit code 0. The
-// message pings nobody (allowed_mentions), whatever the news say. The webhook's address is never printed.
+// message mentions @everyone and nobody else, whatever the news say (allowed_mentions; only the content can ping, an
+// embed cannot). The webhook's address is never printed.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -50,7 +51,8 @@ export function buildMessage(version, repo, news = readNews) {
   return {
     username: 'GT Toolz',
     avatar_url: `https://raw.githubusercontent.com/${repo}/main/apps/ui/public/maldoe-256.png`,
-    allowed_mentions: { parse: [] },
+    content: '@everyone',
+    allowed_mentions: { parse: ['everyone'] },
     embeds: [{ title: `GT Toolz ${version} is out`, url: release, color: COLOR, description: `${discordText(news(version))}\n\n${links}\n${update}` }],
   };
 }

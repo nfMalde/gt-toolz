@@ -85,6 +85,7 @@ export const DEFAULT_RUNNER_SETTINGS: RunnerSettings = {
   actionAfterNow: true,
   gearAfterNow: false,
   turnIn: true,
+  lineCalls: true,
   // The two worst corners (stream feedback, 2026-10-23: seven feedbacks on seven braking zones were too many).
   feedback: 2,
   guideCorners: DEFAULT_COACH_SETTINGS.guideCorners,
@@ -206,6 +207,7 @@ export function normalizeSettings(value: unknown, base: RunnerSettings = DEFAULT
     actionAfterNow: bool(v.actionAfterNow, d.actionAfterNow),
     gearAfterNow: bool(v.gearAfterNow, d.gearAfterNow),
     turnIn: bool(v.turnIn, d.turnIn),
+    lineCalls: bool(v.lineCalls, d.lineCalls),
     feedback,
     guideCorners: bool(v.guideCorners, d.guideCorners),
     immediateFeedback: bool(v.immediateFeedback, d.immediateFeedback),
@@ -299,8 +301,14 @@ export interface ClipDurations {
   intro: number;
   now: number;
   brake: number;
+  /** The longest pressure said in place of "bremsen". */
+  brakeLight: number;
   gear: number;
   turnIn: number;
+  /** The direction alone ("rechts"). */
+  turnInShort: number;
+  /** The longest "Von weiter links einlenken". */
+  line: number;
   /** The longest countdown number. */
   count: number;
 }
@@ -318,7 +326,7 @@ function talkLevel(value: unknown, fallback: TalkLevel): TalkLevel {
  * settings ("Ansagen begrenzen", the user, 2026-10-25), and the user's own settings stay as they are.
  * Coach 'normal': no sector calls against the ghost, no tip right after the corner (the feedback comes on the next
  * approach anyway). Coach 'little': the braking calls and one feedback corner; no corner plan, no notes for corners
- * without braking, no calls through problem corners, no lap difference, no cheeky remarks.
+ * without braking, no calls through problem corners, no line at turn-in, no lap difference, no cheeky remarks.
  * Crew 'normal': the lap time and position at the line, no sector times. Crew 'little': position, laps to go near the
  * end, fuel and tyres; no lap times, no remarks, no corner calls.
  */
@@ -333,6 +341,7 @@ export function withTalk(settings: RunnerSettings): RunnerSettings {
     s.cornerShape = false;
     s.fastCorners = false;
     s.guideCorners = false;
+    s.lineCalls = false;
     s.lapDelta = false;
     s.style = 'neutral';
     if (s.feedback !== 'off') s.feedback = 1;
@@ -353,8 +362,12 @@ export function coachSettingsFrom(settings: RunnerSettings, durations: ClipDurat
     introSeconds: durations.intro,
     nowSeconds: durations.now,
     brakeSeconds: durations.brake,
+    brakeLightSeconds: durations.brakeLight,
     gearSeconds: durations.gear,
     turnInSeconds: durations.turnIn,
+    turnInShortSeconds: durations.turnInShort,
+    lineSeconds: durations.line,
+    announceLine: settings.lineCalls,
     // The plan cue carries the shape, the gears, or both.
     announcePlan: settings.plan || settings.cornerShape,
     raceCalls: settings.raceCalls ? settings.raceCallsScope : 'off',

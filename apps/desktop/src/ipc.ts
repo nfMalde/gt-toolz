@@ -76,6 +76,7 @@ const LINKS: Partial<Record<LinkId, string>> = {
   issues: `${REPOSITORY}/issues/new/choose`,
   releases: `${REPOSITORY}/releases`,
   paypal: 'https://www.paypal.com/donate/?hosted_button_id=SVZHLRTQ6H4VL',
+  discord: 'https://discord.gg/GbvU9sns5z',
   twitch: 'https://www.twitch.tv/maldoe',
   youtube: 'https://www.youtube.com/@dermaldoe',
   facebook: 'https://www.facebook.com/RealMaldoe',

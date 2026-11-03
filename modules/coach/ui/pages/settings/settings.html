@@ -140,6 +140,15 @@
           </div>
           <div class="setting">
             <div class="text">
+              <div class="title">{{ t('coach.settings.lineCalls') }}</div>
+              <div class="hint">{{ t('coach.settings.lineCallsHint') }}</div>
+            </div>
+            <div class="control">
+              <gtt-toggle [checked]="s.lineCalls" [label]="t('coach.settings.lineCalls')" (checkedChange)="set({ lineCalls: $event })" />
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
               <div class="title">{{ t('settings.turnIn') }}</div>
               <div class="hint">{{ t('coach.settings.turnInHint') }}</div>
             </div>

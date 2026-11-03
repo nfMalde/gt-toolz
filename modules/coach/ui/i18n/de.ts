@@ -107,6 +107,8 @@ export const de: Record<CoachTextKey, string> = {
   'coach.settings.chainCallsHint': 'Kommt eine Bremszone kurz nach der vorigen (unter 6 Sekunden), nennt der Coach sie schon beim Plan der ersten Kurve: „… Dann mittlere Linkskurve.“ In der Folge sagt er nur noch die Bremspunkte und Gänge an, ohne Erklärungen. Gänge, Curbs und Feedback kommen nie mehr, während du durch eine Kurve ohne Bremse fährst.',
   'coach.settings.actionAfterHint': 'Der Countdown läuft bis zur ersten Aktion und nennt sie: „jetzt, bremsen“. Lenkt die Referenz vor dem Bremsen ein, läuft er bis zum Einlenken: „jetzt, rechts, stark“, dann „bremsen“ am Bremspunkt. Aus: nur „jetzt“ am Bremspunkt.',
   'coach.settings.gearAfterHint': 'Den Eingangsgang noch einmal, direkt nach „jetzt“',
+  'coach.settings.lineCalls': 'Position beim Einlenken',
+  'coach.settings.lineCallsHint': 'Ab 2 Metern neben der Referenz, wo sie zu lenken beginnt: gesagt nach der Kurve („3 Meter zu weit rechts“) und bei der nächsten Anfahrt („Von weiter links einlenken“)',
   'coach.settings.turnInHint': 'Richtung und Stärke vor dem Einlenken',
   'coach.settings.wait': 'Stille Aufwärmrunde',
   'coach.settings.waitHint': 'Coaching beginnt beim ersten Überqueren der Ziellinie',

@@ -5,7 +5,7 @@ import { GTT } from './gtt';
 
 /** Donations (pure donations, no perks) and Maldö's channels, in the order they are shown. */
 export const SUPPORT_LINKS: readonly LinkId[] = ['paypal', 'patreon'];
-export const CHANNEL_LINKS: readonly LinkId[] = ['twitch', 'youtube', 'facebook', 'x', 'instagram'];
+export const CHANNEL_LINKS: readonly LinkId[] = ['discord', 'twitch', 'youtube', 'facebook', 'x', 'instagram'];
 /** The project on GitHub: the source code, bug reports and the releases. */
 export const PROJECT_LINKS: readonly LinkId[] = ['source', 'issues', 'releases'];
 
@@ -13,6 +13,7 @@ export const PROJECT_LINKS: readonly LinkId[] = ['source', 'issues', 'releases']
 export const LINK_NAMES: Record<LinkId, string> = {
   patreon: 'Patreon',
   paypal: 'PayPal',
+  discord: 'Discord',
   twitch: 'Twitch',
   youtube: 'YouTube',
   facebook: 'Facebook',
@@ -26,6 +27,7 @@ export const LINK_NAMES: Record<LinkId, string> = {
 export const LINK_ICONS: Record<LinkId, IconName> = {
   patreon: 'heart',
   paypal: 'heart',
+  discord: 'discord',
   twitch: 'twitch',
   youtube: 'youtube',
   facebook: 'facebook',

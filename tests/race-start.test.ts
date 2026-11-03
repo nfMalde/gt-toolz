@@ -50,6 +50,37 @@ test('the crew says nothing while the race loads, then the radio check first', (
   assert.match(calls()[1]!.text, /9/);
 });
 
+// The user's race of 2026-11-03, in the log at the flag: "Fuel for 0 laps, 19.6 liters per lap. Box this lap!"
+test('the fuel call: none at the chequered flag; short of fuel on the last lap it still says to box, one lap in the singular', () => {
+  const crew = new RaceCrew(en, { pitLossSeconds: 25, strategy: true, cheeky: false, patience: 'normal', sectors: 1, talk: 'normal' });
+  // Three laps, 20 liters each, the tank nearly empty at the flag.
+  const fuelInLap = [60, 40, 20, 0.5];
+  let t = 0;
+  const at = (lapCount: number, lastLapMs: number) => frame(t, { lapCount, lastLapMs, lapsInRace: 3, speed: 30, x: t * 0.03, fuelLevel: fuelInLap[lapCount - 1] ?? 60 });
+  crew.start(frame(0, { lapsInRace: 3, fuelLevel: 60 }));
+  const said: string[] = [];
+  let last = -1;
+  for (let lap = 1; lap <= 3; lap++) {
+    const ms = 60_000 + lap * 100;
+    for (const end = t + ms; t < end; t += 100) said.push(...crew.frame(at(lap, last), t));
+    last = ms;
+  }
+  // Over the line, GT7 counting on.
+  for (const end = t + 2000; t < end; t += 100) said.push(...crew.frame(at(4, last), t));
+  const fuel = said.filter((text) => /Fuel|Box/.test(text));
+  assert.equal(fuel.length, 2, said.join(' | '));
+  assert.match(fuel[0]!, /^Fuel for 2 laps, 20\.0 liters per lap\. Box for fuel in lap 3 at the latest\.$/);
+  assert.match(fuel[1]!, /^Fuel for one lap, 20\.0 liters per lap\. Box this lap!$/);
+  assert.equal(said.at(-1), en.crewFinish, 'the flag ends it');
+});
+
+test('one lap of fuel in the singular, in both languages; more laps as before', () => {
+  const de = builtInPhrases('de');
+  assert.equal(en.crewFuel({ lapsLeft: 1.4, perLap: 2.5, toFinish: true }), 'Fuel for one lap, 2.5 liters per lap. Enough to the finish.');
+  assert.equal(de.crewFuel({ lapsLeft: 1.4, perLap: 2.5, toFinish: true }), 'Sprit für eine Runde, 2,5 Liter pro Runde. Reicht bis ins Ziel.');
+  assert.equal(en.crewFuel({ lapsLeft: 2.4, perLap: 2.5, toFinish: true }), 'Fuel for 2 laps, 2.5 liters per lap. Enough to the finish.');
+});
+
 test('the debrief started in the app does not end with "release the handbrake"', () => {
   const reference = { corners: [{ index: 1, name: 'La Source' }] } as unknown as ReferenceLap;
   const history: CoachHistory = { version: 1, corners: { '1': { problems: [{ kind: 'brake-early', meters: 20 }], timeLossS: 0.5, at: '2026-10-28' } } };

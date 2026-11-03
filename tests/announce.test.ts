@@ -1,5 +1,5 @@
-// The release's announcement on Discord (scripts/release/announce.mjs): the English news, nobody pinged, up to three
-// tries against a real local server, and nothing here can fail a release (the user, 2026-11-03).
+// The release's announcement on Discord (scripts/release/announce.mjs): the English news, @everyone mentioned, up to
+// three tries against a real local server, and nothing here can fail a release (the user, 2026-11-03).
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -41,9 +41,11 @@ async function printed(run: () => Promise<unknown>): Promise<string> {
   return lines.join('\n');
 }
 
-test('the message has the news, links the release and pings nobody', () => {
+test('the message has the news, links the release and mentions everyone, and only that', () => {
   const message = buildMessage('1.2.3-beta.2', 'owner/repo', () => '## Fixes\n\n- **The crew** talks.');
-  assert.deepEqual(message.allowed_mentions, { parse: [] });
+  // Only the content pings, and only what allowed_mentions lets through: no user or role a text might name.
+  assert.equal(message.content, '@everyone');
+  assert.deepEqual(message.allowed_mentions, { parse: ['everyone'] });
   assert.equal(message.embeds.length, 1);
   const [embed] = message.embeds;
   assert.equal(embed.title, 'GT Toolz 1.2.3-beta.2 is out');

@@ -153,6 +153,8 @@ const LAP_TIME_WINDOW_MS = 2500;
 const LAP_TIME_TOLERANCE_MS = 2000;
 /** An announcement that found no quiet moment in this time is dropped: it would be stale. */
 const ANNOUNCEMENT_MAX_AGE_MS = 25_000;
+/** The line at turn-in, said after the corner: later than this it no longer belongs to the corner. */
+const LINE_AFTER_MAX_AGE_MS = 8000;
 /**
  * After the coach's voice is ready, the other languages' clips are rendered into the cache, so switching
  * the language is instant (a neural voice needs up to a few seconds per clip).
@@ -242,7 +244,7 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
 
   private voice: ClipVoice | undefined;
   private voiceGeneration = 0;
-  private durations: ClipDurations = { tone: 0.25, intro: 1.2, now: 0.4, brake: 0.5, gear: 0.5, turnIn: 1.1, count: 0.6 };
+  private durations: ClipDurations = { tone: 0.25, intro: 1.2, now: 0.4, brake: 0.5, brakeLight: 0.9, gear: 0.5, turnIn: 1.1, turnInShort: 0.5, line: 1.5, count: 0.6 };
   /** Coach and crew speak one at a time; a sentence waits for a quiet moment (docs/dev/modules.md). */
   private readonly floor = new SpeechFloor({
     // Without the coach talking (no reference, or quiet in a race) every moment is a quiet one.
@@ -491,7 +493,8 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
     const planChanged =
       s.plan !== old.plan || s.curbs !== old.curbs || s.cornerShape !== old.cornerShape || s.planStyle !== old.planStyle || s.fastCorners !== old.fastCorners ||
       s.trailCalls !== old.trailCalls ||
-      s.chainCalls !== old.chainCalls;
+      s.chainCalls !== old.chainCalls ||
+      s.intro !== old.intro;
     // The crew's corner calls are prepared anew (with the new plan or language) on the next frame.
     if (planChanged || crewLanguageChanged || crewTextsChanged || s.raceCalls !== old.raceCalls) this.stopRaceCaller();
     // Recordings leave out a name they lack, or not: voices with a pack put their clips together anew.
@@ -1000,7 +1003,19 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       { id: 'shape', group: 'corner', text: shapeText, play: sayIt(shapeText) },
       { id: 'plan-full', group: 'corner', text: planFull, play: sayIt(planFull) },
       { id: 'plan-short', group: 'corner', text: planShort, play: sayIt(planShort) },
+      { id: 'call', group: 'corner', text: p.cornerCall(40, gears), play: sayIt(p.cornerCall(40, gears)) },
       { id: 'countdown', group: 'corner', text: countdownWords, play: timeline(countdownClips(0)) },
+      {
+        id: 'brake-light',
+        group: 'corner',
+        text: `${p.count(2)}, ${p.count(1)}, ${p.now}, ${p.brakeLight(40)}`,
+        play: timeline([
+          ['count-2', 0],
+          ['count-1', step],
+          ['now', 2 * step],
+          ['brake-40', 2 * step + length('now') + 0.05],
+        ]),
+      },
       {
         id: 'turn-first',
         group: 'corner',
@@ -1015,6 +1030,8 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       },
       { id: 'gear', group: 'corner', text: p.gear(gears.entry), play: timeline([[`gear-${gears.entry}`, 0]]) },
       { id: 'turn', group: 'corner', text: p.turn(direction, 'sharp'), play: timeline([[`turn-${direction}-sharp`, 0]]) },
+      { id: 'turn-short', group: 'corner', text: p.turnShort(direction), play: timeline([[`turn-${direction}`, 0]]) },
+      { id: 'line', group: 'corner', text: `${p.lineAfter(3, direction, true)} · ${p.lineNext(direction === 'left' ? 'right' : 'left', true)}`, play: sayIt(`${p.lineAfter(3, direction, true)} ${p.lineNext(direction === 'left' ? 'right' : 'left', true)}`) },
       { id: 'note-flat', group: 'corner', text: flatNote, play: sayIt(flatNote) },
       { id: 'note-lift', group: 'corner', text: liftNote, play: sayIt(liftNote) },
 
@@ -1404,8 +1421,11 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       intro: longest('intro-'),
       now: duration('now'),
       brake: duration('brake'),
+      brakeLight: longest('brake-'),
       gear: longest('gear-'),
       turnIn: longest('turn-'),
+      turnInShort: Math.max(duration('turn-left'), duration('turn-right')),
+      line: longest('line-'),
       count: longest('count-'),
     };
   }
@@ -1856,8 +1876,11 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
         this.log(
           `CORNER    zone ${String(r.corner.index).padStart(2)} ${this.zoneLabel(r.corner.index)}: ${r.timeLossS >= 0 ? '+' : ''}${r.timeLossS.toFixed(2)} s | ${brake},` +
             ` apex ${r.apexSpeedKmh.toFixed(0)} km/h (ref ${r.corner.apexSpeedKmh.toFixed(0)}), gear ${r.lowGear} (ref ${lowestGear(r.corner)})` +
-            `${r.problems.length ? ` | ${problems}` : ''}`,
+            `${r.problems.length ? ` | ${problems}` : ''}` +
+            `${r.line ? ` | turn-in ${r.line.meters} m too far ${r.line.side}${r.line.curb ? ', reference over the curb' : ''}` : ''}`,
         );
+        // Right after the corner, if there is a moment before the next calls (the user, 2026-11-03). On the next approach the coach says where to line up.
+        if (r.line && this.settings.lineCalls && !this.inRace) void this.announce(this.phrases.lineAfter(r.line.meters, r.line.side, r.line.curb), LINE_AFTER_MAX_AGE_MS);
         this.activity({
           kind: 'corner',
           zone: r.corner.index,
@@ -2007,7 +2030,7 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
   }
 
   /**
-   * Renders the reference's corner plans (full, short, and the shape alone for tight sections) and the pace notes
+   * Renders the reference's corner plans (full, short, the shape alone and the short call for tight sections) and the pace notes
    * of its corners without braking, and reports each one's spoken length as soon as it is ready. Stops when
    * still() says the voice or the session changed meanwhile.
    */
@@ -2025,8 +2048,9 @@ export class CoachRunner extends EventEmitter<RunnerEvents> {
       const fullSeconds = await voice.prepare(planClip(corner.index, 'full'), clips.full);
       const shortSeconds = await voice.prepare(planClip(corner.index, 'short'), clips.short);
       const shapeSeconds = clips.shape !== undefined ? await voice.prepare(planClip(corner.index, 'shape'), clips.shape) : undefined;
+      const callSeconds = clips.call !== undefined ? await voice.prepare(planClip(corner.index, 'call'), clips.call) : undefined;
       if (!still()) return;
-      ready.plan?.(corner.index, { fullSeconds, shortSeconds, shapeSeconds });
+      ready.plan?.(corner.index, { fullSeconds, shortSeconds, shapeSeconds, callSeconds });
     }
     if (!this.settings.fastCorners) return;
     for (const corner of reference.fastCorners ?? []) {

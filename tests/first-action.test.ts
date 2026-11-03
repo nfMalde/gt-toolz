@@ -18,7 +18,10 @@ const turningFrom = (z: number): MakeLap => (lap, start) =>
   ovalLap(lap, start).map((f) => (f.x < 1 && f.z >= z ? { ...f, steeringWheel: -0.6, frontWheelAngle: -0.12 } : f));
 
 const LONG_BEFORE = turningFrom(260);
-const SHORTLY_BEFORE = turningFrom(340);
+/** Room for "now" and the direction, not for the whole phrase. */
+const SHORTLY_BEFORE = turningFrom(335);
+/** A clear turn-in, too close to the braking point even for that. */
+const JUST_BEFORE = turningFrom(352);
 
 function referenceOf(makeLap: MakeLap) {
   const frames = makeLap(1, 0);
@@ -73,11 +76,18 @@ test('turning first: the countdown ends at the turn-in, "brake" comes at the bra
   assert.ok(brakeAt < corner.brakeS && corner.brakeS - brakeAt < 30, `"brake" at the braking point (${brakeAt}, ${corner.brakeS})`);
 });
 
-test('a turn-in too close to the braking point for its words: braking goes first, the turn-in follows', () => {
-  const { corner, kinds, at } = firstCurve(SHORTLY_BEFORE);
+test('a turn-in too close to the braking point for the phrase: "now" and the direction, then the braking word', () => {
+  const { corner, kinds } = firstCurve(SHORTLY_BEFORE);
   assert.ok(corner.turnFirstS !== undefined, 'the reference does turn in first');
   const now = kinds.indexOf('now');
-  assert.equal(kinds[now + 1], 'brake', kinds.join(', '));
+  assert.deepEqual(kinds.slice(now, now + 3), ['now', 'turn-in', 'brake-point'], kinds.join(', '));
+});
+
+test('a turn-in too close even for the direction: braking goes first, the turn-in follows', () => {
+  const { corner, kinds, at } = firstCurve(JUST_BEFORE);
+  assert.ok(corner.turnFirstS !== undefined, 'the reference does turn in first');
+  const now = kinds.indexOf('now');
+  assert.deepEqual(kinds.slice(now, now + 3), ['now', 'brake', 'turn-in'], kinds.join(', '));
   assert.ok(corner.brakeS - at('now')! < 30, `"now" at the braking point (${at('now')})`);
 });
 

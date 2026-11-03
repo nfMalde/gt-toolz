@@ -18,13 +18,38 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 - The turn-in call ("right, sharp") was lost in most corners: a turn-in at or shortly after the braking point would
   have talked over "now" and was dropped. It now comes right after "now, brake" (and the gear), as long as that is
   before the apex.
+- Corners of a chain, and corners where the plan with the gears did not fit, went without any gear and without the
+  brake pressure. They now get a short call before the countdown ("20 percent in second gear.", "In two out three."),
+  which takes the place of countdown numbers if it has to. Where even that does not fit and the driver has to change
+  gear, the gear comes right after "now, brake".
+- A gear at its shift point was lost to the turn-in in a hairpin. It now waits for the turn-in up to the apex.
+- The lap's last corner lost its turn-in when it lay in the first half of the lap's distance.
+- "Tyres are up to temperature" came every 5 minutes in a race. It now comes once; cold and hot tyres are still repeated.
+- A licence test or a mission (one car, one lap) got the radio check, the tyres and the chequered flag on every try. The
+  crew stays out of it now, and the tyres are said once.
+- At the chequered flag the crew could say "Fuel for 0 laps. Box this lap!". There is no fuel call at the flag any more,
+  and one lap of fuel is "Fuel for one lap", not "1 laps".
+- At the reference's pace the next corner's announcement could run into "now, brake", and under hard braking the words
+  after "now" ran into each other, which could cost the turn-in.
+
+### Added
+
+- The coach tells you when you were in the wrong place at the turn-in: from 2 meters beside the reference where it starts
+  to steer, after the corner ("At the turn-in 3 meters too far right. The reference is further left, over the curb.") and
+  on the next approach ("Start steering from the left curb."). Switch it off under Coach → Settings → Position
+  at the turn-in.
+- Discord in the app's links.
 
 ### Changed
 
+- The turn-in always comes, so you know when to steer. Where the phrase does not fit, only the direction: "now, brake,
+  right". Where the apex follows right behind the braking point, the direction takes the place of "brake". Only a second
+  braking inside the same bend has none.
 - The countdown runs to the first action and names it: "two, one, now, brake". Where the reference turns in before it
   brakes, it runs to the turn-in: "two, one, now, right, sharp", then "brake" at the braking point. If the words do not
   fit between the two, braking goes first. Switch it off under Coach → Settings → Countdown to the first action.
-- The turn-in goes before the gears in the corner; a gear waits for it up to its shift.
+- In a lightly braked corner (up to 70 %) the braking point names the pressure: "now, 20 percent" instead of "now, brake".
+- The turn-in goes before the gears; the entry gear waits for it up to the apex, the others up to their shift.
 - Coach and crew each have their own patience under Settings → Personality. A setting saved before applies to both
   until you change one.
 - The coach calls the gears where the reference shifts in the corner whenever the corner plan is on: down into the

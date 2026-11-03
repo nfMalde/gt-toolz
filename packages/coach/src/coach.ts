@@ -44,6 +44,12 @@ export interface CoachSettings {
   gearSeconds: number;
   /** Spoken length of the turn-in phrase ("rechts, stark"). */
   turnInSeconds: number;
+  /** Spoken length of the direction alone ("rechts"), the turn-in where the phrase does not fit. */
+  turnInShortSeconds: number;
+  /** Clearly beside the reference at turn-in: on the next approach, where to line up ("Von weiter links einlenken."). */
+  announceLine: boolean;
+  /** Spoken length of that, the longest of them. */
+  lineSeconds: number;
   /**
    * The countdown runs to the first action and names it (the user, 2026-11-03): "jetzt, bremsen", and where the
    * reference turns in before it brakes, "jetzt, rechts, stark" and then "bremsen" at the braking point. Off: "jetzt" at
@@ -52,7 +58,9 @@ export interface CoachSettings {
   announceAction: boolean;
   /** Spoken length of the word "bremsen". */
   brakeSeconds: number;
-  /** Target gear right after "jetzt" (the plan said it earlier). */
+  /** Spoken length of the pressure said in its place in a lightly braked corner ("20 Prozent"), the longest of them. */
+  brakeLightSeconds: number;
+  /** Target gear right after "jetzt" also where the plan said it earlier; where nothing could say it, it comes anyway (with announceShifts). */
   announceGear: boolean;
   /**
    * The gears where the reference shifts in the corner (the user, 2026-11-03: the app shows them, the coach kept
@@ -103,7 +111,7 @@ export interface CoachSettings {
   focusLaps: number;
   /** Pace notes for the corners without braking ("Rechts voll.", "Auf 125 liften, links."), docs/dev/coach-and-texts.md. */
   fastCorners: boolean;
-  /** Corner chains (docs/dev/coach-and-texts.md): followers explain nothing, explanations wait until the corners without braking are past. */
+  /** Corner chains (docs/dev/coach-and-texts.md): followers only get the short call, explanations wait until the corners without braking are past. */
   chainCalls: boolean;
   /** Seconds between the end of such a note and the lift or the turn. */
   noteLeadSeconds: number;
@@ -126,8 +134,12 @@ export const DEFAULT_COACH_SETTINGS: CoachSettings = {
   nowSeconds: 0.4,
   gearSeconds: 0.5,
   turnInSeconds: 1.1,
+  turnInShortSeconds: 0.5,
+  announceLine: true,
+  lineSeconds: 1.5,
   announceAction: true,
   brakeSeconds: 0.5,
+  brakeLightSeconds: 0.9,
   announceGear: false,
   announceShifts: true,
   announceTurnIn: true,
@@ -157,13 +169,14 @@ export const DEFAULT_COACH_SETTINGS: CoachSettings = {
  * count:    "drei", "zwei", "eins"
  * now:      "jetzt" at the braking point
  * gear:     "Gang 2"
- * turn-in:  "rechts, stark"
+ * turn-in:  "rechts, stark", when that does not fit "rechts"
+ * line:     "Von weiter links einlenken.", clearly beside the reference at turn-in last time
  * assist:   a helping cue for a corner whose mistake keeps coming ("warten", "Gas!", "Scheitel 120")
  */
 export type FeedbackVariant = 'long' | 'short' | 'tiny';
 
 /** brake: the word right after "jetzt"; brake-point: the word alone at the braking point, after a turn-in that came first. */
-export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'brake' | 'brake-point' | 'gear' | 'turn-in' | 'assist';
+export type CueKind = 'tone' | 'feedback' | 'intro' | 'plan' | 'count' | 'now' | 'brake' | 'brake-point' | 'gear' | 'turn-in' | 'line' | 'assist';
 
 /**
  * How far the help for a mistake that keeps coming in a corner has gone: the feedback, a tip how to fix it,
@@ -185,9 +198,11 @@ export interface CornerHelp {
   improved: boolean;
 }
 
-/** full: gears and curbs; short: gears only (when there is little time before the countdown). */
-/** shape: only the corner's shape, the shortest plan (docs/dev/coach-and-texts.md). */
-export type PlanVariant = 'full' | 'short' | 'shape';
+/**
+ * full: gears and curbs; short: gears only (when there is little time before the countdown); shape: only the corner's
+ * shape; call: only the pressure and the gears in and out, where the plan with the gears does not fit (docs/dev/coach-and-texts.md).
+ */
+export type PlanVariant = 'full' | 'short' | 'shape' | 'call';
 
 /** A pace note of a corner without braking: full with the curbs, short without (for tight sections). */
 export type NoteVariant = 'full' | 'short';
@@ -204,6 +219,8 @@ export interface PlanAudio {
   shortSeconds: number;
   /** Only the shape; set when the plan says shape and gears. */
   shapeSeconds?: number;
+  /** Only the pressure and the gears in and out ("In 2 aus 3"); set when the plan says gears. */
+  callSeconds?: number;
 }
 
 export interface FeedbackItem {
@@ -230,11 +247,20 @@ export interface FeedbackAudio {
   afterSeconds?: number;
 }
 
+/** Where to line up for a corner: further to this side, over the curb there. */
+export interface LineCall {
+  side: Direction;
+  curb: boolean;
+}
+
 export interface Cue {
   kind: CueKind;
   corner: Corner;
   count?: number;
   gear?: number;
+  /** A turn-in as the direction alone. */
+  short?: boolean;
+  line?: LineCall;
   /** For feedback and feedback intros. */
   feedback?: FeedbackItem;
   variant?: FeedbackVariant;
@@ -279,6 +305,8 @@ const MIN_SPEED = 5;
 const MAX_LATE_TIMED = 0.25;
 /** Tone, feedback and intro may come a little later. */
 const MAX_LATE_ANNOUNCEMENT = 0.6;
+/** The turn-in is timed, but better a moment late than not at all (the user, 2026-11-03: it should always come). */
+const MAX_LATE_TURN_IN = 1;
 /** Consecutive positions further apart than this are a teleport (restart, replay jump). */
 const TELEPORT_M = 50;
 /** Less movement than this between two frames at speed: a repeated packet (results screen), not driving. */
@@ -326,6 +354,14 @@ const AFTER_NOW_GAP_S = 0.05;
 const TURN_IN_AFTER_GAP_S = 0.1;
 /** ... and has to end this long before the next corner's braking point (its tone and "jetzt" need the room). */
 const NEXT_CORNER_LEAD_S = 1.0;
+/** The direction alone only has to end before "jetzt" of the next corner. */
+const NEXT_CORNER_LEAD_SHORT_S = 0;
+/** A turn-in before the braking point may end this long after it: "bremsen" then waits for it. */
+const TURN_FIRST_SLACK_S = 0.1;
+/** The short call says the gear: it may start this soon after the previous corner's last cue, sooner than the other announcements. */
+const CALL_AFTER_PREVIOUS_S = 0.5;
+/** A gear nothing else could say may still come this long after the corner's exit. */
+const GEAR_AFTER_EXIT_S = 1;
 /** A pace note that would end less than this before its lift or turn is left out. */
 const NOTE_MIN_LEAD_S = 0.6;
 /** Pause between a pace note and the next cue. */
@@ -392,6 +428,8 @@ interface Step {
   offset: number;
   count?: number;
   gear?: number;
+  short?: boolean;
+  line?: LineCall;
   feedback?: FeedbackItem;
   variant?: FeedbackVariant;
   plan?: PlanVariant;
@@ -401,6 +439,8 @@ interface Step {
 interface Plan {
   steps: Step[];
   next: number;
+  /** "jetzt", once said: its step and when (frame time). */
+  said?: { s: number; offset: number; at: number };
 }
 
 /** Turns live telemetry into countdowns to every braking point, and feedback on problem corners. */
@@ -587,6 +627,12 @@ export class CoachSession {
       const plan = this.plans.get(`${lap}:${corners[c]!.index}`);
       const steps = plan ? plan.steps.slice(plan.next) : toBrake >= 0 ? this.buildSteps(c) : [];
       for (const step of steps) {
+        // After "jetzt" from the same point: on the clock, not by the speed (playCorner).
+        const said = plan?.said;
+        if (said && step.s === said.s && step.offset < said.offset) {
+          quiet = Math.min(quiet, Math.max(0, (said.at - frame.time) / 1000 + said.offset - step.offset));
+          continue;
+        }
         const { distance } = this.ahead(step.s, s);
         // At the current speed, or as the reference drove it, whichever is shorter: out of a corner the car is
         // slow but accelerates, so the current speed alone promised far too much time (sentences were cut off).
@@ -724,7 +770,7 @@ export class CoachSession {
       const samples = this.runs.get(c);
       if (s >= segment.sampleStartS && s <= segment.endS) {
         if (this.dropped.has(c)) continue;
-        const sample = { s, t: frame.time, speed: frame.speed, brake: frame.brake, throttle: frame.throttle, gear: frame.gear };
+        const sample = { s, t: frame.time, speed: frame.speed, brake: frame.brake, throttle: frame.throttle, gear: frame.gear, x: frame.x, z: frame.z };
         if (samples) samples.push(sample);
         else this.runs.set(c, [sample]);
       } else {
@@ -940,18 +986,23 @@ export class CoachSession {
       // The announcements before the countdown (tone, feedback, intro, plan) start by the shorter of the current
       // speed and the reference's time: out of a corner the car accelerates, and at the current speed they started
       // too late and the countdown cut them off. Countdown, "jetzt", gear and turn-in stay on the current speed.
-      const early = step.kind === 'tone' || step.kind === 'feedback' || step.kind === 'intro' || step.kind === 'plan';
+      const early = step.kind === 'tone' || step.kind === 'feedback' || step.kind === 'intro' || step.kind === 'plan' || step.kind === 'line';
       const seconds = early && distance > 0 ? Math.min(distance / speed, this.referenceSecondsAhead(s, distance)) : distance / speed;
       const trigger = step.offset + this.settings.outputLatencySeconds;
-      if (seconds > trigger) break;
+      // What follows "jetzt" from the same point runs on the clock from it: by the speed, which falls hard there, the words
+      // came too early and ran into each other (a turn-in behind a gear was dropped for it).
+      const said = plan.said;
+      const onClock = !!said && step.s === said.s && step.offset < said.offset;
+      if (onClock ? frame.time - said.at < (said.offset - step.offset) * 1000 : seconds > trigger) break;
+      // Would cut off a gear word being said: it waits for it, it is not dropped.
+      if (step.kind === 'turn-in' && frame.time < this.gearSpokenUntil) break;
       plan.next++;
-      const maxLate = step.kind === 'tone' || step.kind === 'feedback' || step.kind === 'intro' || step.kind === 'plan' ? MAX_LATE_ANNOUNCEMENT : MAX_LATE_TIMED;
+      const maxLate = early ? MAX_LATE_ANNOUNCEMENT : step.kind === 'turn-in' ? MAX_LATE_TURN_IN : MAX_LATE_TIMED;
       if (step.kind === 'assist') this.gearSpokenUntil = Math.max(this.gearSpokenUntil, frame.time + this.settings.gearSeconds * 1000);
       // Never play a cue late: a countdown that starts mid-way skips the numbers already past.
-      if (seconds < trigger - maxLate) continue;
-      // Turn-in would cut off the gear word; the gear is more important.
-      if (step.kind === 'turn-in' && frame.time < this.gearSpokenUntil) continue;
+      if (!onClock && seconds < trigger - maxLate) continue;
       if (step.kind === 'gear') this.gearSpokenUntil = frame.time + this.settings.gearSeconds * 1000;
+      if (step.kind === 'now') plan.said = { s: step.s, offset: step.offset, at: frame.time };
       this.busyUntil = Math.max(this.busyUntil, frame.time + this.stepSeconds(step, corner) * 1000);
       // The full plan announces the corners without braking that follow right on it: their notes are said.
       if (step.kind === 'plan' && step.plan === 'full' && this.settings.fastCorners) {
@@ -959,7 +1010,7 @@ export class CoachSession {
       }
       events.push({
         type: 'cue',
-        cue: { kind: step.kind, corner, count: step.count, gear: step.gear, feedback: step.feedback, variant: step.variant, plan: step.plan, assist: step.assist, secondsToPoint: seconds },
+        cue: { kind: step.kind, corner, count: step.count, gear: step.gear, short: step.short, line: step.line, feedback: step.feedback, variant: step.variant, plan: step.plan, assist: step.assist, secondsToPoint: seconds },
       });
     }
   }
@@ -974,7 +1025,7 @@ export class CoachSession {
         return (step.feedback && this.feedbackAudio.get(corner.index)?.introSeconds) || settings.introSeconds;
       case 'plan': {
         const audio = this.planAudio.get(corner.index);
-        return (step.plan === 'short' ? audio?.shortSeconds : step.plan === 'shape' ? audio?.shapeSeconds : audio?.fullSeconds) ?? 0;
+        return (step.plan === 'short' ? audio?.shortSeconds : step.plan === 'shape' ? audio?.shapeSeconds : step.plan === 'call' ? audio?.callSeconds : audio?.fullSeconds) ?? 0;
       }
       case 'feedback': {
         const audio = this.feedbackAudio.get(corner.index);
@@ -986,11 +1037,13 @@ export class CoachSession {
         return settings.nowSeconds;
       case 'brake':
       case 'brake-point':
-        return settings.brakeSeconds;
+        return lightBrake(corner) === undefined ? settings.brakeSeconds : settings.brakeLightSeconds;
       case 'gear':
         return settings.gearSeconds;
       case 'turn-in':
-        return settings.turnInSeconds;
+        return step.short ? settings.turnInShortSeconds : settings.turnInSeconds;
+      case 'line':
+        return settings.lineSeconds;
       case 'assist':
         // "warten", "Gas!", "Langsam lösen", "Bremse los" or the target speed ("Scheitel 120").
         return Math.max(settings.gearSeconds, 1);
@@ -1084,29 +1137,50 @@ export class CoachSession {
     // (stream feedback 2026-10-25: "zusammenhängende Kurven werden oft vermischt oder übersprungen"); too close even
     // for the braking announcement, then the tone and "jetzt" only (a feedback finds its own length below).
     const available = this.availableSeconds(c) - head;
-    let countdown = wanted;
-    while (countdown > 0 && available < introLead + toneLead + countdown * shortStep) countdown--;
-    const intro = !follower && (!!withFeedback || (announceIntro && available >= introLead + toneLead));
-    const before = (intro ? introLead : 0) + toneLead;
+    // Where to line up, right before the numbers, which make way for it.
+    const line = this.lineFor(corner);
+    const lineLead = line && available >= settings.lineSeconds + PLAN_GAP + toneLead ? settings.lineSeconds + PLAN_GAP : 0;
+    const numbers = (announced: number, room = available) => {
+      let n = wanted;
+      while (n > 0 && room < announced + lineLead + toneLead + n * shortStep) n--;
+      return n;
+    };
+    let countdown = numbers(introLead);
+    let intro = !follower && (!!withFeedback || (announceIntro && available >= introLead + toneLead));
+    let before = (intro ? introLead : 0) + toneLead;
     // The long pause between the numbers when everything fits with the full plan, else the short one.
     const full = plan?.fullSeconds !== undefined ? plan.fullSeconds + PLAN_GAP : 0;
-    const step = available >= before + full + countdown * longStep ? longStep : shortStep;
-    let lead = countdown * step;
-    if (plan && !follower) {
-      // The full plan if it fits since the previous corner, else only the gears, else only the shape; the shape alone
-      // may come while the driver is still in a corner without braking, the gears and curbs not.
-      const options: [PlanVariant, number | undefined, number][] = [
-        ['full', plan.fullSeconds, explain],
-        ['short', plan.shortSeconds, explain],
-        ['shape', plan.shapeSeconds, available],
-      ];
-      const fitting = options.find(([, seconds, window]) => seconds !== undefined && window - lead - before >= seconds + PLAN_GAP);
-      const variant = fitting?.[0];
-      if (variant) {
-        lead += fitting[1]! + PLAN_GAP;
-        steps.push({ kind: 'plan', s: first, offset: lead, plan: variant });
+    let step = available >= before + lineLead + full + countdown * longStep ? longStep : shortStep;
+    let lead = countdown * step + lineLead;
+    // The full plan if it fits since the previous corner, else only the gears: not while the driver is still in a corner without braking.
+    const planned = plan && !follower ? ([['full', plan.fullSeconds], ['short', plan.shortSeconds]] as const).find(([, seconds]) => explain - lead - before >= seconds + PLAN_GAP) : undefined;
+    if (planned) {
+      lead += planned[1] + PLAN_GAP;
+      steps.push({ kind: 'plan', s: first, offset: lead, plan: planned[0] });
+    } else {
+      // No room for that, or a corner of a chain (the user, 2026-11-03: the gear is hugely important, and "only 10 %" was
+      // never said): the short call with the pressure and the gear, right before the countdown. It goes before the numbers.
+      const call = plan?.callSeconds !== undefined && this.gearAnnounced(c) ? plan.callSeconds + PLAN_GAP : 0;
+      if (call) {
+        const feedbackIntro = withFeedback ? introLead : 0;
+        countdown = numbers(call + feedbackIntro, available + PREVIOUS_CUE_MARGIN - CALL_AFTER_PREVIOUS_S);
+        before = feedbackIntro + toneLead;
+        step = available >= before + lineLead + call + countdown * longStep ? longStep : shortStep;
+        lead = countdown * step + lineLead + call;
+        steps.push({ kind: 'plan', s: first, offset: lead, plan: 'call' });
+        intro = !!withFeedback;
       }
+      // The shape alone may come while the driver is still in a corner without braking; a chain's first plan named it for the others.
+      const shape = follower ? undefined : plan?.shapeSeconds;
+      if (shape !== undefined && available - lead - before >= shape + PLAN_GAP) {
+        lead += shape + PLAN_GAP;
+        steps.push({ kind: 'plan', s: first, offset: lead, plan: 'shape' });
+      }
+      // The announcement beside the call only if it says something the call does not, and there is room for it.
+      const saidByCall = settings.announceIntro && brakeForce(corner) !== 'full';
+      if (call && !withFeedback && !follower && announceIntro && !saidByCall && available >= lead + introLead + toneLead) intro = true;
     }
+    if (lineLead) steps.push({ kind: 'line', s: first, offset: countdown * step + lineLead, line });
     if (intro) {
       lead += introLead;
       steps.push({ kind: 'intro', s: first, offset: lead, feedback: withFeedback?.feedback });
@@ -1124,7 +1198,8 @@ export class CoachSession {
         steps.push({ kind: 'feedback', s: first, offset: lead, feedback: withFeedback.feedback, variant });
       }
     }
-    if (settings.announceTone) {
+    // Right behind the previous corner's calls there is no moment for it.
+    if (settings.announceTone && available + PREVIOUS_CUE_MARGIN >= toneLead) {
       lead += settings.toneSeconds + TONE_GAP;
       steps.push({ kind: 'tone', s: first, offset: lead });
     }
@@ -1141,14 +1216,14 @@ export class CoachSession {
   }
 
   /**
-   * The turn-in, when the countdown runs to it: the reference turns in before it brakes, and "jetzt" and the turn-in
-   * phrase are said before "bremsen" has to come. Else the driver hears "jetzt, bremsen" at the braking point.
+   * The turn-in, when the countdown runs to it: the reference turns in before it brakes, and "jetzt" and at least the
+   * direction are said before "bremsen" has to come. Else the driver hears "jetzt, bremsen" at the braking point.
    */
   private turnFirst(corner: Corner): number | undefined {
     const settings = this.settings;
     if (!settings.announceAction || !settings.announceTurnIn || corner.turnFirstS === undefined) return undefined;
     const room = this.cornerTime(corner, corner.brakeS) - this.cornerTime(corner, corner.turnFirstS);
-    return room >= settings.nowSeconds + AFTER_NOW_GAP_S + settings.turnInSeconds + TURN_IN_AFTER_GAP_S ? corner.turnFirstS : undefined;
+    return room >= settings.nowSeconds + AFTER_NOW_GAP_S + settings.turnInShortSeconds - TURN_FIRST_SLACK_S ? corner.turnFirstS : undefined;
   }
 
   /** "jetzt" and the action it names (the user, 2026-11-03); nothing talks over them. early: the braking word that much earlier. */
@@ -1157,29 +1232,88 @@ export class CoachSession {
     const afterNow = -(settings.nowSeconds + AFTER_NOW_GAP_S);
     const turnFirst = this.turnFirst(corner);
     if (turnFirst !== undefined) {
+      const room = this.cornerTime(corner, corner.brakeS) - this.cornerTime(corner, turnFirst) + afterNow;
+      const short = room < settings.turnInSeconds + TURN_IN_AFTER_GAP_S;
+      // The word waits for the direction if that ends a moment after the braking point.
+      const wait = Math.min(0, room - (short ? settings.turnInShortSeconds : settings.turnInSeconds) - AFTER_NOW_GAP_S);
       return [
         { kind: 'now', s: turnFirst, offset: 0 },
-        { kind: 'turn-in', s: turnFirst, offset: afterNow },
-        { kind: 'brake-point', s: corner.brakeS, offset: early },
+        { kind: 'turn-in', s: turnFirst, offset: afterNow, short },
+        { kind: 'brake-point', s: corner.brakeS, offset: early + wait },
       ];
     }
     const now: Step = { kind: 'now', s: corner.brakeS, offset: early };
-    return settings.announceAction ? [now, { kind: 'brake', s: corner.brakeS, offset: early + afterNow }] : [now];
+    if (!settings.announceAction) return [now];
+    // The apex so close that the direction would come too late behind the word: the direction is the word. The countdown and
+    // the announcement already say it is braking (the user, 2026-11-03: the turn-in should always come).
+    const word: Step = { kind: 'brake', s: corner.brakeS, offset: early + afterNow };
+    const behindWord = settings.nowSeconds + AFTER_NOW_GAP_S + this.stepSeconds(word, corner) + TURN_IN_AFTER_GAP_S + settings.turnInShortSeconds / 2;
+    const apex = this.cornerTime(corner, corner.apexS) - this.cornerTime(corner, corner.brakeS);
+    if (settings.announceTurnIn && corner.turnInS !== undefined && !corner.sameTurn && behindWord > apex) return [now, { kind: 'turn-in', s: corner.brakeS, offset: early + afterNow, short: true }];
+    return [now, word];
+  }
+
+  /**
+   * Whether the plan or the short call can say the gear before the countdown, also with the previous corner's own gear
+   * after its "jetzt" and a feedback's announcement here. Reckoned on that worst case, so it does not depend on what the
+   * previous corner decides, and that one's on the corner before it, around the lap.
+   */
+  private gearAnnounced(c: number): boolean {
+    const settings = this.settings;
+    const corner = this.reference.corners[c]!;
+    const call = settings.announcePlan ? this.planAudio.get(corner.index)?.callSeconds : undefined;
+    if (call === undefined) return false;
+    const head = this.cornerTime(corner, corner.brakeS) - this.cornerTime(corner, this.turnFirst(corner) ?? corner.brakeS);
+    const tone = settings.announceTone ? settings.toneSeconds + TONE_GAP : 0;
+    const feedback = this.feedbackByCorner.has(corner.index) ? this.feedbackAudio.get(corner.index) : undefined;
+    const line = this.lineFor(corner) ? settings.lineSeconds + PLAN_GAP : 0;
+    const room = this.availableSeconds(c, true) + PREVIOUS_CUE_MARGIN - CALL_AFTER_PREVIOUS_S - head;
+    return room >= call + PLAN_GAP + tone + line + (feedback ? feedback.introSeconds + INTRO_GAP : 0);
+  }
+
+  /**
+   * Clearly beside the reference at turn-in on the last run: where to line up this time (the user, 2026-11-03). Not in
+   * races, nor while a focus exercise runs elsewhere.
+   */
+  private lineFor(corner: Corner): LineCall | undefined {
+    if (!this.settings.announceLine || this.mode === 'race') return undefined;
+    if (this.focus && this.focus.cornerIndex !== corner.index) return undefined;
+    const line = this.latestResults.get(corner.index)?.line;
+    return line && { side: line.side === 'left' ? 'right' : 'left', curb: line.curb };
+  }
+
+  /**
+   * The entry gear comes right after the action where nothing before the countdown can say it and the driver has to
+   * change gear (the user, 2026-11-03: chicanes went without any gear); still in it from the previous corner, nothing.
+   */
+  private gearAfterAction(corner: Corner): boolean {
+    const corners = this.reference.corners;
+    if (!this.settings.announceShifts || corners.length < 2) return false;
+    const c = corners.indexOf(corner);
+    const previous = corners[(c - 1 + corners.length) % corners.length]!;
+    return cornerGears(corner).entry !== cornerGears(previous).exit && !this.gearAnnounced(c);
   }
 
   /**
    * The cues after "jetzt": the gears where the reference shifts (target gear right after "jetzt", further down
    * after the apex, up into the exit gear), the turn-in, the helping cue (docs/dev/coach-and-texts.md), and for a big problem
    * corner the calls through the corner (guideFor). Two that would overlap by the reference's timing keep the
-   * more important one: the gear after "jetzt" first (as before: it beat the turn-in), then the helping cue, the
-   * turn-in, and the gears in the corner.
+   * more important one, or the later one waits: the turn-in first (the user, 2026-11-03: it should always come), then the gear
+   * after "jetzt", the helping cue, and the gears in the corner. Where the phrase leaves no room for the turn-in or the gear
+   * the driver has to hear, the direction alone. gearAfter: the entry gear after the action (see gearAfterAction).
    */
-  private cornerCues(corner: Corner): Step[] {
+  private cornerCues(corner: Corner, gearAfter = this.gearAfterAction(corner)): Step[] {
+    const phrase = this.placeCues(corner, gearAfter, false);
+    return phrase.complete ? phrase.steps : this.placeCues(corner, gearAfter, true).steps;
+  }
+
+  private placeCues(corner: Corner, gearAfter: boolean, shortTurn: boolean): { steps: Step[]; complete: boolean } {
     const settings = this.settings;
     const assist = this.assistFor(corner);
     const guide = this.guideFor(corner);
     const calls = new Set<AssistKind>([...(assist ? [assist] : []), ...(guide ?? [])]);
-    const candidates: { step: Step; priority: number }[] = [];
+    // latest: until when (the reference's time) a gear may wait for what is being said, if not its shift.
+    const candidates: { step: Step; priority: number; latest?: number }[] = [];
     // The helping cue being trained beats the other calls through the corner.
     const importance = (kind: AssistKind, otherwise: number) => (kind === assist ? 80 : otherwise);
 
@@ -1196,9 +1330,16 @@ export class CoachSession {
       // The entry gear: where the reference shifts into it when that is well after the braking point (down to first at
       // the apex of a hairpin), else right after "jetzt" (only when asked for).
       const late = corner.entryGearS !== undefined && this.cornerTime(corner, corner.entryGearS) - nowAt >= ENTRY_SHIFT_LATE_S;
-      if (late && shifts) candidates.push({ step: { kind: 'gear', gear: gears.entry, s: corner.entryGearS!, offset: GEAR_LEAD_S }, priority: 72 });
-      else if (settings.announceGear || calls.has('gear')) {
-        candidates.push({ step: { kind: 'gear', gear: gears.entry, s: corner.brakeS, offset: -afterAction }, priority: 90 });
+      if (late && shifts) {
+        // It may wait until half of it is said by the apex: a little late still helps (the user, 2026-11-03: the hairpin's first gear was lost to the turn-in).
+        const latest = this.cornerTime(corner, corner.apexS) - settings.gearSeconds / 2;
+        candidates.push({ step: { kind: 'gear', gear: gears.entry, s: corner.entryGearS!, offset: GEAR_LEAD_S }, priority: gearAfter ? 78 : 72, latest });
+      } else if (settings.announceGear || calls.has('gear') || gearAfter) {
+        // It may wait for the turn-in as well: until half of it is said by the apex, where nothing else says it a little longer.
+        const beforeNext = this.nextCornerAt(corner) - NEXT_CORNER_LEAD_SHORT_S - settings.gearSeconds;
+        const byApex = this.cornerTime(corner, corner.apexS) - settings.gearSeconds / 2;
+        const latest = gearAfter ? Math.min(Math.max(byApex, this.cornerTime(corner, corner.exitS) + GEAR_AFTER_EXIT_S), beforeNext) : byApex;
+        candidates.push({ step: { kind: 'gear', gear: gears.entry, s: corner.brakeS, offset: -afterAction }, priority: 90, latest });
       }
     }
     if (shifts && gears.entry > 0) {
@@ -1226,11 +1367,9 @@ export class CoachSession {
     if (calls.has('throttle')) {
       candidates.push({ step: { kind: 'assist', assist: 'throttle', s: corner.exitS, offset: THROTTLE_LEAD_S }, priority: importance('throttle', 70) });
     }
-    const turnInTaken = (calls.has('target') || (calls.has('trail') && corner.turnInS !== undefined));
-    if (settings.announceTurnIn && corner.turnInS !== undefined && !turnInTaken && this.turnFirst(corner) === undefined) {
-      // The second action (the user, 2026-11-03): before the gears, which can wait for it up to their shift.
-      candidates.push({ step: { kind: 'turn-in', s: corner.turnInS, offset: settings.turnInLeadSeconds }, priority: 75 });
-    }
+    // Always (the user, 2026-11-03: to know when to turn), also beside the helping cues; none where the reference simply stays in its bend.
+    const turn = settings.announceTurnIn && corner.turnInS !== undefined && !corner.sameTurn && !fixed.some((cue) => cue.step.kind === 'turn-in');
+    if (turn) candidates.push({ step: { kind: 'turn-in', s: corner.turnInS!, offset: settings.turnInLeadSeconds, short: shortTurn }, priority: 95 });
 
     const kept: { step: Step; at: number; until: number }[] = [...fixed];
     for (const candidate of candidates.sort((a, b) => b.priority - a.priority)) {
@@ -1239,6 +1378,12 @@ export class CoachSession {
       const seconds = this.stepSeconds(step, corner);
       const overlapping = () => kept.find((other) => at < other.until && other.at < at + seconds);
       if (step.kind === 'turn-in' || step.assist === 'trail' || step.assist === 'target') {
+        // Never between the countdown and "jetzt": behind what names the first action, even where the word would fit before it.
+        const action = fixed.at(-1)!;
+        if (at < action.until) {
+          at = action.until + TURN_IN_AFTER_GAP_S;
+          step = { ...step, s: action.step.s, offset: action.step.offset - (action.until - action.at) - TURN_IN_AFTER_GAP_S };
+        }
         // A call for the turn-in at or right after the braking point would talk over "jetzt, bremsen" (or the gear after
         // it): it comes right after them instead (the user, 2026-11-03: most corners lost it), anchored to what it follows
         // so the order holds at the car's own pace; as long as it ends before the apex and well before the next corner's calls.
@@ -1246,21 +1391,36 @@ export class CoachSession {
           at = other.until + TURN_IN_AFTER_GAP_S;
           step = { ...step, s: other.step.s, offset: other.step.offset - (other.until - other.at) - TURN_IN_AFTER_GAP_S };
         }
-        const corners = this.reference.corners;
-        const next = corners[(corners.indexOf(corner) + 1) % corners.length]!;
-        const room = corners.length > 1 ? this.cornerTime(corner, next.brakeS) - NEXT_CORNER_LEAD_S : Infinity;
+        const room = this.nextCornerAt(corner) - (step.short ? NEXT_CORNER_LEAD_SHORT_S : NEXT_CORNER_LEAD_S);
         // Half of it said by the apex: later it no longer helps (a short corner at the braking point gets none).
         if (at + seconds / 2 > this.cornerTime(corner, corner.apexS) || at + seconds > room) continue;
-      } else if (step.kind === 'gear' && step.offset > 0) {
+      } else if (step.kind === 'gear' && (step.offset > 0 || candidate.latest !== undefined)) {
         // A gear said ahead of its shift waits for what is being said, at the latest until the shift itself.
         const shift = at + step.offset;
-        for (let other = overlapping(); other; other = overlapping()) at = other.until + AFTER_NOW_GAP_S;
-        if (at > shift) continue;
-        step = { ...step, offset: shift - at };
+        let last: (typeof kept)[number] | undefined;
+        for (let other = overlapping(); other; other = overlapping()) {
+          at = other.until + AFTER_NOW_GAP_S;
+          last = other;
+        }
+        if (at > (candidate.latest ?? shift)) continue;
+        // Anchored to what it follows, as the turn-in: the order holds at the car's own pace.
+        if (last) step = { ...step, s: last.step.s, offset: last.step.offset - (last.until - last.at) - AFTER_NOW_GAP_S };
       } else if (overlapping()) continue;
       kept.push({ step, at, until: at + seconds });
     }
-    return kept.slice(fixed.length).map((cue) => cue.step);
+    const said = kept.slice(fixed.length);
+    // The gear the driver has to hear should be said by the apex: the direction alone leaves it the room.
+    const gear = said.find((cue) => cue.step.kind === 'gear' && cue.step.gear === gears.entry);
+    const complete = (!turn || said.some((cue) => cue.step.kind === 'turn-in')) && (!gearAfter || (!!gear && gear.at <= this.cornerTime(corner, corner.apexS) - settings.gearSeconds / 2));
+    return { steps: said.map((cue) => cue.step), complete };
+  }
+
+  /** When the reference reaches the next corner's braking point, on from this corner's (across the line for the lap's last corner). */
+  private nextCornerAt(corner: Corner): number {
+    const corners = this.reference.corners;
+    if (corners.length < 2) return Infinity;
+    const at = this.referenceTime(corners[(corners.indexOf(corner) + 1) % corners.length]!.brakeS);
+    return at < this.referenceTime(corner.brakeS) ? at + this.reference.lapTimeMs / 1000 : at;
   }
 
   /** The reference's time at s (seconds), counted on from the corner's braking point across the start/finish line. */
@@ -1269,17 +1429,27 @@ export class CoachSession {
     return s < corner.brakeS - this.reference.lengthMeters / 2 ? t + this.reference.lapTimeMs / 1000 : t;
   }
 
-  /** Last track position this corner has a cue for. */
+  /**
+   * Where the reference is when this corner's last cue has been said. A cue moved behind another keeps that one's point,
+   * so the points alone ended at the braking point: at the reference's pace the next corner's calls ran into "jetzt, bremsen".
+   */
   private lastCueS(corner: Corner): number {
-    let s = corner.brakeS;
-    for (const step of this.cornerCues(corner)) if (this.cornerTime(corner, step.s) > this.cornerTime(corner, s)) s = step.s;
-    return s;
+    const points = this.reference.points;
+    const ms = (this.lastCueEnd(corner) * 1000) % this.reference.lapTimeMs;
+    let lo = 0;
+    let hi = points.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (points[mid]!.t < ms) lo = mid + 1;
+      else hi = mid;
+    }
+    return points[lo]!.s;
   }
 
   /** When this corner's last cue has been said (reference time from the lap start, see cornerTime): "jetzt" and its action at the least. */
-  private lastCueEnd(corner: Corner): number {
+  private lastCueEnd(corner: Corner, gearAfter?: boolean): number {
     let end = 0;
-    for (const step of [...this.actionSteps(corner), ...this.cornerCues(corner)]) {
+    for (const step of [...this.actionSteps(corner), ...this.cornerCues(corner, gearAfter)]) {
       end = Math.max(end, this.cornerTime(corner, step.s) - step.offset + this.stepSeconds(step, corner));
     }
     return end;
@@ -1378,16 +1548,15 @@ export class CoachSession {
     return Math.min(available, since - PREVIOUS_CUE_MARGIN);
   }
 
-  private availableSeconds(c: number): number {
+  private availableSeconds(c: number, previousGearAfter?: boolean): number {
     const corners = this.reference.corners;
     if (corners.length < 2) return this.reference.lapTimeMs / 1000;
     const corner = corners[c]!;
     const previous = corners[(c - 1 + corners.length) % corners.length]!;
-    // From the end of the previous corner's last cue (a turn-in or a gear said after its braking point counts in full).
-    const lap = this.reference.lapTimeMs / 1000;
-    let seconds = this.referenceTime(corner.brakeS) - (this.lastCueEnd(previous) % lap) - PREVIOUS_CUE_MARGIN;
-    if (seconds < -PREVIOUS_CUE_MARGIN) seconds += lap;
-    return seconds;
+    // From the end of the previous corner's last cue (a turn-in or a gear said after its braking point counts in full),
+    // across the line for the lap's first corner. Negative when that cue ends after this braking point.
+    const lap = c === 0 ? this.reference.lapTimeMs / 1000 : 0;
+    return this.referenceTime(corner.brakeS) + lap - this.lastCueEnd(previous, previousGearAfter) - PREVIOUS_CUE_MARGIN;
   }
 
   /** Seconds since lap start at which the reference driver passed s. */
@@ -1489,6 +1658,15 @@ function feedbackTextsWithoutGuide(
 /** How much faster (positive) or slower the car came out of the corner than the reference, km/h. */
 function exitDelta(result: CornerResult): number | undefined {
   return result.exitSpeedKmh !== undefined && result.refExitSpeedKmh !== undefined ? result.exitSpeedKmh - result.refExitSpeedKmh : undefined;
+}
+
+/** The pressure said in place of "bremsen" where the reference brakes this lightly or less: more than that is simply braking. */
+const LIGHT_BRAKE_PERCENT = 70;
+
+/** The pressure a lightly braked corner names after "jetzt" (the user, 2026-11-03: "only 10 %" was never said), else undefined. */
+export function lightBrake(corner: Corner): number | undefined {
+  const force = brakeForce(corner);
+  return force !== 'full' && force <= LIGHT_BRAKE_PERCENT ? force : undefined;
 }
 
 /** "full" or the reference brake pressure rounded to 10 % (at least 10). */

@@ -64,6 +64,16 @@ export interface Phrases {
   brake: string;
   gear(gear: number): string;
   brakeIntro(force: BrakeForce): string;
+  /** The turn-in as the direction alone, where the phrase does not fit. */
+  turnShort(direction: Direction): string;
+  /** Right after the corner: beside the reference at turn-in; side: too far this way; curb: the reference is over the curb on the other side. */
+  lineAfter(meters: number, side: Direction, curb: boolean): string;
+  /** On the next approach: where to line up. */
+  lineNext(side: Direction, curb: boolean): string;
+  /** The pressure said after "jetzt" in place of "bremsen", in a lightly braked corner. */
+  brakeLight(percent: number): string;
+  /** The short call where the corner plan does not fit: the pressure (unless full) and the gears in and out, as short as it gets. */
+  cornerCall(force: BrakeForce, gears: CornerGears): string;
   turn(direction: Direction, strength: SteerStrength): string;
 
   problem(problem: Problem): string;
