@@ -48,6 +48,7 @@ The full walkthrough is in [Getting started](getting-started.md).
 | [Updates and news](updates.md) | How GT Toolz looks for new versions and installs them |
 | [Troubleshooting](troubleshooting.md) | Common problems, the logs, and how to report a bug |
 | [Privacy](privacy.md) | What GT Toolz connects to, and what stays on your computer |
+| [Fair play and your account](fair-play.md) | What GT Toolz does and does not do, leagues and events, your PlayStation account |
 
 ## Where things are in the app
 

@@ -1,6 +1,6 @@
 # GT Toolz alpha for the Mac
 
-Thanks for testing the GT Toolz alpha! GT Toolz is a toolkit for Gran Turismo 7: it reads your PS5's official telemetry on your home network. A coach and a pit crew call out braking points, corners and lap times, and overlays show your values in your stream.
+Thanks for testing the GT Toolz alpha! GT Toolz is a toolkit for Gran Turismo 7: it reads the telemetry your PS5 sends on your home network. A coach and a pit crew call out braking points, corners and lap times, and overlays show your values in your stream.
 
 This Mac alpha comes without an installer: the folder holds the built app, and Electron runs it. The start script downloads Electron once, on the first start, and checks it. You install nothing. (Deutsch: `README.de.md`.)
 

@@ -51,7 +51,7 @@ export default async function build() {
         name: 'gt-toolz',
         productName: PRODUCT_NAME,
         version: VERSION,
-        description: 'GT Toolz: toolkit for Gran Turismo 7 (coach and pit crew in your ear, OBS overlays), based on the official telemetry',
+        description: 'GT Toolz: toolkit for Gran Turismo 7 (coach and pit crew in your ear, OBS overlays), based on the telemetry GT7 sends on your home network',
         author: { name: 'Maldö', email: 'nfMalde@users.noreply.github.com' },
         homepage: 'https://github.com/nfMalde/gt-toolz',
         license: desktop.license,

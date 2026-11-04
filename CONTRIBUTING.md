@@ -56,6 +56,25 @@ Logs end up in public GitHub issues. Every line goes through the anonymizer of t
 - `tests/session-log.test.ts` checks the anonymizer; a change to it needs a test. A pull request that writes personal
   data into a log is not merged.
 
+## Hands off the console and the game
+
+GT Toolz reads the telemetry GT7 sends, and goes no further. A pull request that crosses one of these lines is not
+merged, also not as an optional setting or module:
+
+- **No access to the console or the game:** nothing that reads or writes the PS5's memory, GT7's files or save data, no
+  jailbreak, and no decrypting or reverse engineering of the game or the system. The telemetry is the only thing the
+  app decrypts.
+- **Nothing changed on the console:** nothing sent to the PS5 beyond the console search and the telemetry heartbeat, and
+  no interfering with the data flow there. `tests/network.test.ts` fails on new network code.
+- **No input to the game:** no script, bot, adapter or Remote Play automation that steers, brakes, shifts or presses
+  anything. GT Toolz talks; the driver drives.
+- **No cheats:** nothing that gets credits, cars or unlocks, fakes lap times or results, or works around penalties.
+- **No game data in the repository:** no files or assets taken from the game. Track data comes from recorded telemetry.
+
+Words matter too. In docs, texts and posts, do not call the telemetry "official" or "public", and do not say that using
+GT Toolz is allowed: nobody has approved it. Say what it does and what it does not do, as
+[Fair play and your account](docs/user/fair-play.md) does. Do not name or judge other tools.
+
 ## Pull requests
 
 - One topic per pull request, to `main`. Describe what changes and why, and how you tested it (with a PS5, a

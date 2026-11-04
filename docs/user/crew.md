@@ -66,7 +66,7 @@ In races the coach is quiet. With **Corner calls in races** on, the crew calls t
 - The braking points come from the **reference of the track**. On a track without a fitting reference, nothing is called.
 - The **coach module** makes these calls. With the coach off, this setting is greyed out.
 
-> **Fair play:** leagues and tournaments may forbid real-time aids such as braking calls, also when practising in their lobbies. Check the rules before you join.
+> **Fair play:** leagues and tournaments may forbid real-time aids such as braking calls, also when practising in their lobbies. Check the rules before you join. More in [Fair play and your account](fair-play.md).
 
 ## Trips off the track and the team boss
 
