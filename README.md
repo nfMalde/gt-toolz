@@ -297,11 +297,13 @@ folder** opens it. More help: [Troubleshooting](docs/user/troubleshooting.md).
 Security issues please [privately](https://github.com/nfMalde/gt-toolz/security/advisories/new), see
 [SECURITY.md](SECURITY.md).
 
-## Privacy
+## Privacy & Monetization
 
 GT Toolz talks to your PS5 in the home network. The OBS overlay server listens on `127.0.0.1` only, and only while it
 is on. The app goes online only for what you agreed to: voice downloads you start yourself, and the update check (asked
 once). No analytics, no tracking, no account. Logs are anonymous (see [Reporting a bug](#reporting-a-bug)). Details: [Privacy](docs/user/privacy.md).
+
+GT Toolz acts as a companion app and is 100% free. Donations are optional and not required.
 
 ## Contributing
 
