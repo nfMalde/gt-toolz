@@ -153,7 +153,8 @@ Two small state machines in `packages/telemetry/src/mode.ts`; every frame goes t
 **`RaceRunning`**: whether a race actually runs, not just its lobby or qualifying.
 
 - A race over laps runs while it reports its laps, from its grid on (lap 0 of N).
-- A race over a time runs once the lap counter goes from 0 to 1 while the car moves faster than 2 m/s. A qualifying is loaded standing in the pits at lap 1, so it never starts one.
+- A race over a time runs once the lap counter goes from 0 to 1 while the car moves faster than 2 m/s.
+- A qualifying never starts one. Some are loaded standing in the pits at lap 1. Others start at lap 0 in the pit box and reach lap 1 a few seconds after the pit exit, which looks like a race start (issue #15). There the car waits with the handbrake held and moves off within 3 s of letting it go (`PIT_BOX_MS`), so moving off like that is no start. On a race's grid the handbrake is off long before the start, and a rolling start never has it.
 - It stops when the counter is back at 0 (results, the lobby) or the car is off the track. Pause and loading change nothing.
 - The crew uses it: nothing is said until a race runs, and every race starts from scratch (`modules/crew/main/session.ts`).
 - Not covered: a race over a time joined after its start.

@@ -57,6 +57,35 @@ test('a race runs from its grid over laps, a race over a time once it has starte
 
 // The user, 2026-11-03: a licence test or a mission, reported as a race of one lap with one car, got the radio check, the
 // tyres and the chequered flag on every try.
+// Issue #15, the cups of 7, 14 and 21 November: the qualifying started at lap 0 in the pits and went to lap 1 a few seconds
+// after the pit exit, like the start of a race over a time. The race over a time of 22 November had a rolling start.
+test('a qualifying from the pit box is no race over a time; a race over a time starts from the grid or rolling', () => {
+  const quali = { lapsInRace: 0, carsInRace: 16, racePosition: 16 };
+  const running = new RaceRunning();
+  const step = (time: number, values: Partial<TelemetryFrame>) => running.update(at({ ...quali, time, ...values }));
+  // Waiting in the pit box with the handbrake held, moving off the moment it is let go.
+  for (let t = 0; t < 2000; t += 100) assert.equal(step(t, { lapCount: 0, speed: 0, flags: Flags.CarOnTrack | Flags.Handbrake }), false, 'the pit box');
+  assert.equal(step(2000, { lapCount: 0, speed: 0 }), false, 'the handbrake let go');
+  assert.equal(step(2100, { lapCount: 0, speed: 8 }), false, 'out of the pit box');
+  assert.equal(step(5500, { lapCount: 1, speed: 22 }), false, 'over the line after the pit exit: still the qualifying');
+  assert.equal(step(90_000, { lapCount: 2, speed: 50 }), false, 'its laps');
+  assert.equal(step(300_000, { lapCount: 0, speed: 0 }), false, 'its results');
+  assert.equal(step(400_000, { lapCount: 0, lapsInRace: 15, speed: 0 }), true, 'the race over laps after it');
+
+  // A race over a time, rolling start: on track already moving, over the line.
+  const rolling = new RaceRunning();
+  const timed = { lapsInRace: 0, carsInRace: 20, racePosition: 10 };
+  assert.equal(rolling.update(at({ ...timed, time: 0, lapCount: 0, speed: 22 })), false, 'the rolling start');
+  assert.equal(rolling.update(at({ ...timed, time: 6000, lapCount: 1, speed: 28 })), true, 'over the line');
+
+  // A race over a time from the grid: the handbrake was held in the lobby, but long before the start.
+  const grid = new RaceRunning();
+  grid.update(at({ ...timed, time: 0, lapCount: 0, speed: 0, flags: Flags.CarOnTrack | Flags.Handbrake }));
+  for (let t = 1000; t <= 70_000; t += 1000) grid.update(at({ ...timed, time: t, lapCount: 0, speed: 0 }));
+  assert.equal(grid.update(at({ ...timed, time: 71_000, lapCount: 0, speed: 5 })), false, 'the start');
+  assert.equal(grid.update(at({ ...timed, time: 73_000, lapCount: 1, speed: 20 })), true, 'over the line');
+});
+
 test('a single car over a single lap is no race; with other cars, or alone over more laps, it is', () => {
   const alone = { lapsInRace: 1, carsInRace: 1, racePosition: 1, lapCount: 1, speed: 40 };
   assert.equal(new RaceRunning().update(at(alone)), false, 'a licence test');
