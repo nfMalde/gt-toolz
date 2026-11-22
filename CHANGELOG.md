@@ -11,6 +11,9 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
   the qualifying through its results, the loading of the race and the intro on the grid, until the race started. In a
   race session it now waits for the car to drive, and hides again when the next part of the event
   begins ([#14](https://github.com/nfMalde/gt-toolz/issues/14)).
+- In a cup whose qualifying starts at lap 0 in the pits, the race crew took the qualifying for a race over a time and
+  gave the radio check and position calls. A car that moves off from its pit box with the handbrake just let go no
+  longer starts a race; races over a time still start from the grid or rolling ([#15](https://github.com/nfMalde/gt-toolz/issues/15)).
 
 ## [1.0.0-beta.2] - 2026-11-03
 

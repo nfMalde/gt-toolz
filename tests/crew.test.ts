@@ -155,6 +155,21 @@ test('no crew in a lobby or its qualifying, only the tyre calls; it starts afres
   assert.equal(crew.heard.filter((text) => /Funkcheck/.test(text)).length, 2, 'a radio check for each');
 });
 
+// Issue #15: in the cups of 7, 14 and 21 November the qualifying started at lap 0 in the pit box, with the handbrake held,
+// and went to lap 1 a few seconds after the pit exit. The crew took it for a race over a time and called positions.
+test('no crew in a qualifying that starts in the pit box at lap 0', async () => {
+  const { r, crew, lines, drive } = setup();
+  const quali = (frames: TelemetryFrame[]) => frames.map((f) => ({ ...f, lapsInRace: 0, carsInRace: 16, racePosition: 16 }));
+  const box = { ...ovalLap(0, 0)[0]!, speed: 0, lapCount: 0 };
+  await drive(quali(Array.from({ length: 180 }, () => ({ ...box, flags: Flags.CarOnTrack | Flags.Handbrake }))));
+  await drive(quali([{ ...box, flags: Flags.CarOnTrack }]));
+  // Out of the pit box at lap 0, over the line, two laps.
+  await drive(quali([...ovalLap(0, 0).slice(0, 300), ...laps(1, 2)]));
+  assert.equal(r.crew?.status.active ?? false, false);
+  assert.ok(!lines.some((line) => line.startsWith('CREW      race:')), 'the crew did not start');
+  assert.deepEqual(crew.heard, []);
+});
+
 test('practice tyre calls come on the crew\'s radio', async () => {
   const { coach, crew, drive } = setup({}, { practiceTyres: true });
   await drive(laps(1, 1));
