@@ -5,6 +5,8 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] - 2026-11-22
+
 ### Fixed
 
 - With **Hide automatically** on, the OBS overlay showed in a lobby event before the car drove: in the lobby, and after
