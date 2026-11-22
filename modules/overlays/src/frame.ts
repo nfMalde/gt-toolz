@@ -27,14 +27,51 @@ export class AfterFlag {
   }
 }
 
-/** mode: the session as the telemetry has settled it; lastLap: the last lap against the target; raceOver: after the flag (RaceEnd). */
-export function overlayFrame(frame: TelemetryFrame, mode: SessionMode, lastLap: LapTime | undefined, raceOver = false): OverlayFrame {
+/**
+ * In a race session the overlay waits for the car to drive (issue #14: it showed in the lobby, and after the qualifying
+ * through its results, the loading of the race and the intro on the grid). GT7 reports all of these as a race, with the
+ * car standing. After driving, the next of them begins with the lap counter going back (the qualifying's results) or a
+ * new number of laps (the race after the qualifying, a restart). A loading screen alone is no such start: GT7 shows one
+ * in a pit stop too (the recordings of 7 and 21 November). Once the car drives, the overlay stays, also through a pit
+ * stop or a spin, until one of these comes again; the flag hides it on its own (AfterFlag). Time trials and free runs
+ * do not wait.
+ */
+export class WaitForDriving {
+  private driven = false;
+  private lap: number | undefined;
+  private laps: number | undefined;
+
+  /** Every frame the overlay gets; mode: the session's mode now. True while the overlay waits. */
+  update(frame: TelemetryFrame, mode: SessionMode): boolean {
+    if (mode !== 'race') {
+      this.driven = false;
+      this.lap = this.laps = undefined;
+      return false;
+    }
+    // A pause changes nothing.
+    if (frame.flags & Flags.Paused) return !this.driven;
+    const back = this.lap !== undefined && frame.lapCount < this.lap;
+    const otherRace = this.laps !== undefined && frame.lapsInRace !== this.laps;
+    if (back || otherRace) this.driven = false;
+    else if (frame.flags & Flags.CarOnTrack && frame.speed > DRIVING_MS) this.driven = true;
+    this.lap = frame.lapCount;
+    this.laps = frame.lapsInRace;
+    return !this.driven;
+  }
+}
+
+/**
+ * mode: the session as the telemetry has settled it; lastLap: the last lap against the target; raceOver: after the flag
+ * (AfterFlag); waiting: a race session before the car drives (WaitForDriving).
+ */
+export function overlayFrame(frame: TelemetryFrame, mode: SessionMode, lastLap: LapTime | undefined, raceOver = false, waiting = false): OverlayFrame {
   // A time trial's ghosts count as cars ("1 of 3"): a position only in a race.
   const racing = frame.racePosition > 0 && detectMode(frame) === 'race';
   return {
     at: frame.time,
     mode,
     raceOver,
+    waiting,
     speedKmh: frame.speed * 3.6,
     gear: frame.gear,
     throttle: frame.throttle,

@@ -5,7 +5,7 @@
 import type { ModuleDefinition } from '@gt-toolz/core';
 import type { TelemetryFrame } from '@gt-toolz/telemetry';
 import { OVERLAYS, type OverlayFrame, type OverlaysSettings } from '../src/api';
-import { AfterFlag, overlayFrame } from '../src/frame';
+import { AfterFlag, overlayFrame, WaitForDriving } from '../src/frame';
 import { defaultSettings, normalizeSettings } from '../src/settings';
 import { OverlayServer } from './server';
 
@@ -25,9 +25,10 @@ export function overlaysModule(clientFile: string): ModuleDefinition<OverlaysSet
       const { telemetry } = host;
       const settings = () => host.settings();
       const afterFlag = new AfterFlag();
+      const waitForDriving = new WaitForDriving();
       const toOverlay = (frame: TelemetryFrame): OverlayFrame => {
         const mode = telemetry.mode();
-        return overlayFrame(frame, mode, telemetry.lastLap(), afterFlag.update(frame, mode));
+        return overlayFrame(frame, mode, telemetry.lastLap(), afterFlag.update(frame, mode), waitForDriving.update(frame, mode));
       };
       const language = () => {
         const value = host.app().language;

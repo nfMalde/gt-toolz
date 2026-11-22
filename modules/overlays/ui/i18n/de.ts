@@ -12,7 +12,7 @@ export const de: Record<OverlaysTextKey, string> = {
   'overlays.server': 'Auf diesem PC',
   'overlays.enableHint': 'Gas, Bremse, Lenkwinkel, Reifentemperaturen, Tempo und Runden als Browser-Quelle in OBS. Nur auf diesem PC erreichbar, kein Internet.',
   'overlays.autoHide': 'Automatisch ausblenden',
-  'overlays.autoHideHint': 'Das Overlay erscheint nur im Rennen, im Zeitrennen und in der Quali. Nach der Zielflagge, in Menüs, Ladebildschirmen und Wiederholungen bleibt es unsichtbar.',
+  'overlays.autoHideHint': 'Das Overlay erscheint nur im Rennen, im Zeitrennen und in der Quali, im Rennen erst, wenn dein Auto fährt (nicht in der Lobby, in der Startaufstellung oder im Intro). Nach der Zielflagge, in Menüs, Ladebildschirmen und Wiederholungen bleibt es unsichtbar.',
   'overlays.port': 'Port',
   'overlays.portHint': 'Ändern, wenn ein anderes Programm ihn schon nutzt',
   'overlays.portInvalid': 'Bitte eine Zahl von 1024 bis 65535',

@@ -26,7 +26,7 @@ If the browser source has another shape than the canvas you chose in GT Toolz, t
 
 | Setting | Default | What it does |
 |---|---|---|
-| **Hide automatically** | on | The overlay shows only in races, time trials and qualifying. After the chequered flag, in menus, loading screens and replays it stays invisible. |
+| **Hide automatically** | on | The overlay shows only in races, time trials and qualifying. In a race session it waits for your car to drive: it stays invisible in the lobby, after the qualifying, on the grid and during the race's intro. After the chequered flag, in menus, loading screens and replays it stays invisible too. |
 | **Port** | 4790 | The port of the overlay address. Change it only if another program already uses it. 1024 to 65535. Click **Save**. Then copy the new address into OBS. |
 
 Below it you see the state: **Running on this PC, port 4790.**, or **Port … is already in use. Pick another one.**
@@ -82,6 +82,6 @@ Elements always stay fully on the canvas.
 ## Tips
 
 - **The overlay shows only a corner, too big, or cut off?** The browser source's width and height do not match the canvas. Set them to your OBS canvas size.
-- **The overlay is invisible?** With **Hide automatically** on, it shows only on track in races, time trials and qualifying. Check that GT Toolz is running and the module is on.
+- **The overlay is invisible?** With **Hide automatically** on, it shows only on track in races, time trials and qualifying, and in a race session only once your car drives. Check that GT Toolz is running and the module is on.
 - **The overlay looks like an older version after an update?** In OBS, open the browser source's properties and click **Refresh cache of current page**, or restart OBS.
 - The overlay shows no IP addresses, names or paths, so it is safe on stream also without streamer mode.

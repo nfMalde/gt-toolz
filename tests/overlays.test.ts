@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import type { ModuleHost, SessionMode } from '../packages/core/src/index';
 import { Flags, type TelemetryFrame } from '../packages/telemetry/src/index';
 import { DEFAULT_OVERLAY_LAYOUT, type OverlayFrame, type OverlaysSettings, type OverlayStatus } from '../modules/overlays/src/api';
-import { AfterFlag, overlayFrame } from '../modules/overlays/src/frame';
+import { AfterFlag, overlayFrame, WaitForDriving } from '../modules/overlays/src/frame';
 import { defaultSettings, normalizeSettings } from '../modules/overlays/src/settings';
 import { overlaysModule } from '../modules/overlays/main/module';
 
@@ -82,6 +82,33 @@ function frame(change: Partial<TelemetryFrame> = {}): TelemetryFrame {
   } as TelemetryFrame;
 }
 
+// Issue #14, the lobby event of 7 November (the same on 14 and 21 November): the overlay showed in the lobby, and after
+// the qualifying through its results, the loading of the race and the intro on the grid. The frames follow the recording.
+test('in a race session the overlay waits for the car to drive: not in the lobby, after the qualifying or in the intro', () => {
+  const wait = new WaitForDriving();
+  const at = (change: Partial<TelemetryFrame>) => wait.update(frame(change), 'race');
+  const loading = Flags.CarOnTrack | Flags.Loading;
+  const lobby = { lapCount: -1, lapsInRace: 0, carsInRace: 14, speed: 0 };
+  assert.equal(at(lobby), true, 'the lobby, standing');
+  assert.equal(at({ ...lobby, lapCount: 0, flags: loading }), true, 'loading the qualifying');
+  assert.equal(at({ ...lobby, lapCount: 0 }), true, 'in the pits');
+  assert.equal(at({ ...lobby, lapCount: 0, speed: 20 }), false, 'out of the pits');
+  assert.equal(at({ ...lobby, lapCount: 3, speed: 50 }), false, 'the qualifying laps');
+  assert.equal(at({ ...lobby, lapCount: 3, speed: 0, flags: Flags.CarOnTrack | Flags.Paused }), false, 'a pause');
+  assert.equal(at({ ...lobby, lapCount: 0, flags: loading }), true, 'its results: the lap counter goes back');
+  const grid = { lapCount: 0, lapsInRace: 15, carsInRace: 16, speed: 0 };
+  assert.equal(at(grid), true, 'the race is loaded');
+  assert.equal(at({ ...grid, flags: loading }), true, 'loading the grid');
+  assert.equal(at(grid), true, 'the intro on the grid');
+  assert.equal(at({ ...grid, speed: 15 }), false, 'the start');
+  assert.equal(at({ ...grid, lapCount: 2, speed: 0 }), false, 'standing in a pit stop');
+  assert.equal(at({ ...grid, lapCount: 2, speed: 10, flags: loading }), false, 'the loading screen of a pit stop');
+  assert.equal(at({ ...grid, lapCount: 0 }), true, 'a restart: on the grid again');
+  // A time trial or a free run does not wait; leaving the race session starts afresh.
+  assert.equal(wait.update(frame({ speed: 0 }), 'practice'), false);
+  assert.equal(wait.update(frame({ speed: 0, lapCount: 5 }), 'race'), true, 'a new race session, standing');
+});
+
 test('what the overlay shows of a frame: a position only in races, the last lap against the target', () => {
   const practice = overlayFrame(frame(), 'practice', { lap: 1, timeMs: 92_000, deltaMs: 350 });
   assert.equal(practice.speedKmh, 180);
@@ -95,6 +122,8 @@ test('what the overlay shows of a frame: a position only in races, the last lap 
   assert.equal(race.cars, 12);
   assert.equal(race.laps, 5);
   assert.equal(race.raceOver, false);
+  assert.equal(race.waiting, false);
+  assert.equal(overlayFrame(frame({ speed: 0 }), 'race', undefined, false, true).waiting, true);
   assert.equal(overlayFrame(frame({ lapsInRace: 5, lapCount: 6 }), 'race', undefined, true).raceOver, true);
 });
 
@@ -213,6 +242,11 @@ test('on a host: listens while on, moves with its port, sends the preview, and s
       for (const listener of fake.frameListeners) listener(frame(change));
     };
     fake.setMode('race');
+    // A race session: the preview says to wait until the car drives.
+    send({ time: 5500, lapsInRace: 5, lapCount: 0, carsInRace: 8, speed: 0 });
+    assert.equal(lastPreview().waiting, true, 'on the grid');
+    send({ time: 5600, lapsInRace: 5, lapCount: 0, carsInRace: 8, speed: 20 });
+    assert.equal(lastPreview().waiting, false, 'the start');
     send({ time: 6000, lapsInRace: 5, lapCount: 6, carsInRace: 8 });
     assert.equal(lastPreview().raceOver, true, 'after the flag');
     send({ time: 7000, lapsInRace: 0, lapCount: 0, carsInRace: 8, speed: 0 });
