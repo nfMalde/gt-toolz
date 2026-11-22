@@ -36,6 +36,8 @@ export interface OverlayFrame {
   mode?: 'race' | 'practice' | 'replay' | 'menu';
   /** After the chequered flag: GT7 drives the car round itself, then shows its results; for hiding the overlay. */
   raceOver?: boolean;
+  /** A race session before the car drives: the lobby, a qualifying's or race's loading and results, the intro on the grid; for hiding the overlay. */
+  waiting?: boolean;
   speedKmh: number;
   gear: number;
   /** 0..1 */

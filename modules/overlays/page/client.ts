@@ -25,7 +25,7 @@ if (stage) {
   /** The newest frame not drawn yet: drawn once per screen refresh, older ones are skipped (no backlog in OBS). */
   let pending: string | undefined;
   let drawing = false;
-  /** Hidden outside races, time trials and qualifying (menus, loading screens, replays), if the editor says so. */
+  /** Hidden outside races, time trials and qualifying (menus, loading screens, replays), and in a race session until the car drives, if the editor says so. */
   const show = (visible: boolean) => stage.classList.toggle('hidden', !visible);
 
   /**
@@ -72,7 +72,7 @@ if (stage) {
     const frame = JSON.parse(pending) as OverlayFrame;
     pending = undefined;
     view.update(frame, performance.now());
-    if (autoHide) show((frame.mode === 'race' || frame.mode === 'practice') && !frame.raceOver);
+    if (autoHide) show((frame.mode === 'race' || frame.mode === 'practice') && !frame.raceOver && !frame.waiting);
   };
   source.onmessage = (event) => {
     lastAt = performance.now();

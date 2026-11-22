@@ -5,6 +5,13 @@ versions follow [Semantic Versioning](https://semver.org/). Each release on GitH
 
 ## [Unreleased]
 
+### Fixed
+
+- With **Hide automatically** on, the OBS overlay showed in a lobby event before the car drove: in the lobby, and after
+  the qualifying through its results, the loading of the race and the intro on the grid, until the race started. In a
+  race session it now waits for the car to drive, and hides again when the next part of the event
+  begins ([#14](https://github.com/nfMalde/gt-toolz/issues/14)).
+
 ## [1.0.0-beta.2] - 2026-11-03
 
 ### Fixed

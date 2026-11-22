@@ -10,7 +10,7 @@ export const en = {
   'overlays.server': 'On this PC',
   'overlays.enableHint': 'Throttle, brake, steering angle, tyre temperatures, speed and laps as a browser source in OBS. Reachable from this PC only, no internet.',
   'overlays.autoHide': 'Hide automatically',
-  'overlays.autoHideHint': 'The overlay shows only in races, time trials and qualifying. After the chequered flag, in menus, loading screens and replays it stays invisible.',
+  'overlays.autoHideHint': 'The overlay shows only in races, time trials and qualifying, in races once your car drives (not in the lobby, on the grid or during the intro). After the chequered flag, in menus, loading screens and replays it stays invisible.',
   'overlays.port': 'Port',
   'overlays.portHint': 'Change it if another program already uses it',
   'overlays.portInvalid': 'Please a number from 1024 to 65535',
